@@ -1,0 +1,19 @@
+import { BaseController } from '../../shared/controllers/BaseController.js';
+import prisma from '../../infrastructure/database/prisma.js';
+export class HealthController extends BaseController {
+    getHealth = async (_req, res, next) => {
+        try {
+            // Diagnostic check: verify database connection
+            await prisma.$queryRaw `SELECT 1`;
+            this.sendOk(res, {
+                status: 'healthy',
+                timestamp: new Date().toISOString(),
+                uptime: `${Math.floor(process.uptime())}s`,
+                database: 'connected',
+            });
+        }
+        catch (error) {
+            next(error);
+        }
+    };
+}
