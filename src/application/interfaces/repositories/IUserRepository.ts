@@ -1,5 +1,1 @@
-import type { User } from '../../../domain/entities/User.js';
-
-export interface IUserRepository {
-  findByEmail(email: string): Promise<User | null>;
-}
+export type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';

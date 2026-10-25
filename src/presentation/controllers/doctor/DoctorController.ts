@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import { BaseController } from '../../../shared/controllers/BaseController.js';
-import type { LoginUseCase } from '../../../application/use-cases/auth/LoginUseCase.js';
+import type { ILoginUseCase } from '../../../application/interfaces/use-cases/auth/ILoginUseCase.js';
 
 export class DoctorController extends BaseController {
-  constructor(private readonly loginUseCase: LoginUseCase) {
+  constructor(private readonly loginUseCase: ILoginUseCase) {
     super();
   }
 

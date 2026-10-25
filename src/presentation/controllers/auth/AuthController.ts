@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { BaseController } from '../../../shared/controllers/BaseController.js';
-import type { LoginUseCase } from '../../../application/use-cases/auth/LoginUseCase.js';
+import type { ILoginUseCase } from '../../../application/interfaces/use-cases/auth/ILoginUseCase.js';
 import type { ExpressCookieService } from '../../../infrastructure/services/ExpressCookieService.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export class AuthController extends BaseController {
-  constructor(private readonly loginUseCase: LoginUseCase, private readonly cookies: ExpressCookieService) { super(); }
+  constructor(private readonly loginUseCase: ILoginUseCase, private readonly cookies: ExpressCookieService) { super(); }
 
   public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
