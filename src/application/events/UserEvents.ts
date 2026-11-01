@@ -20,3 +20,4 @@ export class UserLoggedOutEvent implements IDomainEvent {
 
   constructor(public readonly userId?: number) {}
 }
+

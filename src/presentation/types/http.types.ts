@@ -8,3 +8,4 @@ export interface ApiResponse<T = unknown> {
     details?: unknown;
   };
 }
+

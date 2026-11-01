@@ -43,3 +43,4 @@ export class PrismaCustomerRepository extends BaseRepository<Customer> implement
     }));
   }
 }
+

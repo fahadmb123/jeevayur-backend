@@ -17,3 +17,4 @@ export class PrismaUserRepository extends BaseRepository<User> implements IUserR
     return PrismaUserMapper.toDomain(user);
   }
 }
+

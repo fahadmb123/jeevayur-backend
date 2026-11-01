@@ -85,3 +85,4 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
     errorMiddleware,
   };
 }
+

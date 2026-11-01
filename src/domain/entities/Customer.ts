@@ -5,3 +5,4 @@ export interface Customer {
   phone?: string;
   createdAt: Date;
 }
+
