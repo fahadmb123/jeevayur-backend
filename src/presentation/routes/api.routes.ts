@@ -13,3 +13,4 @@ export class ApiRoutes extends BaseRoute {
     }
   }
 }
+

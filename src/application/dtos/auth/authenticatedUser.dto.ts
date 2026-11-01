@@ -6,3 +6,4 @@ export interface AuthenticatedUserDTO {
   email: string;
   role: UserRole;
 }
+

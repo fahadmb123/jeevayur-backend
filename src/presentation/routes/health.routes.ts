@@ -11,3 +11,4 @@ export class HealthRoutes extends BaseRoute {
     this.router.get('/', this.controller.check);
   }
 }
+

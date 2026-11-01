@@ -5,3 +5,4 @@ export interface LoginResultDTO {
   accessToken: string;
   rememberMe: boolean;
 }
+

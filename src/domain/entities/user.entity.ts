@@ -8,3 +8,4 @@ export interface User {
   role: UserRole;
   createdAt: Date;
 }
+

@@ -21,3 +21,4 @@ export class AuthRoutes extends BaseRoute {
     this.router.get('/me', this.auth, this.controller.me);
   }
 }
+

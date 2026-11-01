@@ -42,3 +42,4 @@ export class AuthController extends BaseController {
     } catch (error) { next(error); }
   };
 }
+

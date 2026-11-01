@@ -10,3 +10,4 @@ export class CustomerCreatedEvent implements IDomainEvent {
     public readonly name: string
   ) {}
 }
+

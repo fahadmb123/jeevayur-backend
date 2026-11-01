@@ -8,3 +8,4 @@ export const PrismaUserMapper = {
     return { ...user, role: roles[user.role as PrismaUserRole] };
   },
 };
+

@@ -5,3 +5,4 @@ export interface ICustomerRepository {
   findByEmail(email: string): Promise<Customer | null>;
   findAll(): Promise<Customer[]>;
 }
+

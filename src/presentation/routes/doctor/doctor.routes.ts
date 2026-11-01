@@ -11,3 +11,4 @@ export class DoctorRoutes extends BaseRoute {
     this.router.get('/dashboard', this.controller.getDashboard);
   }
 }
+

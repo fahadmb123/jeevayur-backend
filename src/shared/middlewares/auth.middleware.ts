@@ -7,3 +7,4 @@ export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string
   if (!token) { next(new AppError('Authentication required', 401)); return; }
   try { req.auth = tokens.verify(token); next(); } catch { next(new AppError('Authentication required', 401)); }
 };
+

@@ -23,3 +23,4 @@ export class DoctorController extends BaseController {
     }
   };
 }
+

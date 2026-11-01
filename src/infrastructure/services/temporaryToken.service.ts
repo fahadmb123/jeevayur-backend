@@ -17,3 +17,4 @@ export class TemporaryTokenService implements ITokenService {
     return { userId: payload.sub, role: payload.role };
   }
 }
+

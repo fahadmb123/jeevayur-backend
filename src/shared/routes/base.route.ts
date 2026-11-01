@@ -8,3 +8,4 @@ export abstract class BaseRoute implements IRoute {
 
   protected abstract initializeRoutes(): void;
 }
+

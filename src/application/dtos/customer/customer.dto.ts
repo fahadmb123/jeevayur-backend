@@ -5,3 +5,4 @@ export interface CustomerDTO {
   phone?: string;
   createdAt: string;
 }
+

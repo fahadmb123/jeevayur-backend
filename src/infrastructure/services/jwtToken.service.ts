@@ -15,3 +15,4 @@ export class JwtTokenService implements ITokenService {
     return { userId: Number(decoded.sub), role: decoded.role };
   }
 }
+

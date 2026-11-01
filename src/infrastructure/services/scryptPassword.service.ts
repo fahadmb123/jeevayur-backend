@@ -20,3 +20,4 @@ export class ScryptPasswordService implements IPasswordService {
     return `${salt}:${derived.toString('hex')}`;
   }
 }
+
