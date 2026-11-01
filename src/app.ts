@@ -6,19 +6,8 @@ import { EnvironmentConfig, env } from './config/EnvironmentConfig.js';
 import { LoggerMiddleware } from './shared/middlewares/LoggerMiddleware.js';
 import { NotFoundMiddleware } from './shared/middlewares/NotFoundMiddleware.js';
 import { ErrorMiddleware } from './shared/middlewares/ErrorMiddleware.js';
-import { HealthController } from './presentation/controllers/HealthController.js';
-import { AuthController } from './presentation/controllers/auth/AuthController.js';
-import { DoctorController } from './presentation/controllers/doctor/DoctorController.js';
-import { HealthRoutes } from './presentation/routes/HealthRoutes.js';
-import { DoctorRoutes } from './presentation/routes/doctor/DoctorRoutes.js';
-import { AuthRoutes } from './presentation/routes/auth/AuthRoutes.js';
-import { ApiRoutes } from './presentation/routes/ApiRoutes.js';
 import type { IRoute } from './shared/routes/IRoute.js';
-import { LoginUseCase } from './application/use-cases/auth/LoginUseCase.js';
-import { PrismaUserRepository } from './infrastructure/database/repositories/PrismaUserRepository.js';
-import { ScryptPasswordService } from './infrastructure/services/ScryptPasswordService.js';
-import { JwtTokenService } from './infrastructure/services/JwtTokenService.js';
-import { ExpressCookieService } from './infrastructure/services/ExpressCookieService.js';
+import { buildComposition } from './infrastructure/composition/index.js';
 
 export class App {
   public readonly app: Application;
@@ -35,28 +24,8 @@ export class App {
   }
 
   public static create(config: EnvironmentConfig = env): App {
-    const healthController = new HealthController();
-    const userRepository = new PrismaUserRepository();
-    const loginUseCase = new LoginUseCase(
-      userRepository,
-      new ScryptPasswordService(),
-      new JwtTokenService(config.tokenSecret),
-    );
-    const tokenService = new JwtTokenService(config.tokenSecret);
-    const cookieService = new ExpressCookieService(config);
-
-    const authController = new AuthController(loginUseCase, cookieService, userRepository);
-    const doctorController = new DoctorController(loginUseCase);
-
-    const healthRoutes = new HealthRoutes(healthController);
-    const authRoutes = new AuthRoutes(authController, tokenService, config);
-    const doctorRoutes = new DoctorRoutes(doctorController);
-
-    const apiRoutes = new ApiRoutes([authRoutes, doctorRoutes, healthRoutes]);
-
-    const errorMiddleware = new ErrorMiddleware(config);
-
-    return new App(config, [healthRoutes, apiRoutes], errorMiddleware);
+    const composition = buildComposition(config);
+    return new App(config, composition.routes, composition.errorMiddleware);
   }
 
   private initializeMiddlewares(): void {
