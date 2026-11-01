@@ -36,15 +36,16 @@ export class App {
 
   public static create(config: EnvironmentConfig = env): App {
     const healthController = new HealthController();
+    const userRepository = new PrismaUserRepository();
     const loginUseCase = new LoginUseCase(
-      new PrismaUserRepository(),
+      userRepository,
       new ScryptPasswordService(),
       new JwtTokenService(config.tokenSecret),
     );
     const tokenService = new JwtTokenService(config.tokenSecret);
     const cookieService = new ExpressCookieService(config);
 
-    const authController = new AuthController(loginUseCase, cookieService);
+    const authController = new AuthController(loginUseCase, cookieService, userRepository);
     const doctorController = new DoctorController(loginUseCase);
 
     const healthRoutes = new HealthRoutes(healthController);
