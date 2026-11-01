@@ -1,4 +1,3 @@
-export * from './HealthController.js';
-export * from './auth/AuthController.js';
-export * from './doctor/DoctorController.js';
-
+export * from './health.controller.js';
+export * from './auth/auth.controller.js';
+export * from './doctor/doctor.controller.js';

@@ -1,13 +1,1 @@
-import type { IDomainEvent } from './UserEvents.js';
-
-export class CustomerCreatedEvent implements IDomainEvent {
-  public readonly occurredOn: Date = new Date();
-  public readonly eventName = 'CustomerCreated';
-
-  constructor(
-    public readonly customerId: number,
-    public readonly email: string,
-    public readonly name: string
-  ) {}
-}
-
+export * from './customer.events.js';

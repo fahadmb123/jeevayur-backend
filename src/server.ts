@@ -1,6 +1,6 @@
 import http from 'http';
 import { App } from './app.js';
-import { EnvironmentConfig, env } from './config/EnvironmentConfig.js';
+import { EnvironmentConfig, env } from './config/environment.config.js';
 import prisma from './infrastructure/database/prisma.js';
 import { Logger } from './shared/logging/Logger.js';
 

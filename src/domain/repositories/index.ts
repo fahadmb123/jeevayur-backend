@@ -1,2 +1,2 @@
-export * from './IUserRepository.js';
-export * from './ICustomerRepository.js';
+export * from './user.repository.js';
+export * from './customer.repository.js';

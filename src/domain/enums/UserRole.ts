@@ -1,1 +1,1 @@
-export type UserRole = 'patient' | 'doctor' | 'admin';
+export * from './userRole.enum.js';

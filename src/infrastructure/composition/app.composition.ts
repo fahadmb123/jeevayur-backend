@@ -1,18 +1,18 @@
-import { EnvironmentConfig, env } from '../../config/EnvironmentConfig.js';
+import { EnvironmentConfig, env } from '../../config/environment.config.js';
 import { PrismaUserRepository } from '../repositories/prismaUser.repository.js';
 import { PrismaCustomerRepository } from '../repositories/prismaCustomer.repository.js';
-import { ScryptPasswordService } from '../services/ScryptPasswordService.js';
-import { JwtTokenService } from '../services/JwtTokenService.js';
-import { ExpressCookieService } from '../services/ExpressCookieService.js';
-import { LoginUseCase } from '../../application/use-cases/auth/LoginUseCase.js';
-import { AuthController } from '../../presentation/controllers/auth/AuthController.js';
-import { DoctorController } from '../../presentation/controllers/doctor/DoctorController.js';
-import { HealthController } from '../../presentation/controllers/HealthController.js';
-import { AuthRoutes } from '../../presentation/routes/auth/AuthRoutes.js';
-import { DoctorRoutes } from '../../presentation/routes/doctor/DoctorRoutes.js';
-import { HealthRoutes } from '../../presentation/routes/HealthRoutes.js';
-import { ApiRoutes } from '../../presentation/routes/ApiRoutes.js';
-import { ErrorMiddleware } from '../../shared/middlewares/ErrorMiddleware.js';
+import { ScryptPasswordService } from '../services/scryptPassword.service.js';
+import { JwtTokenService } from '../services/jwtToken.service.js';
+import { ExpressCookieService } from '../services/expressCookie.service.js';
+import { LoginUseCase } from '../../application/use-cases/auth/login.use-case.js';
+import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
+import { DoctorController } from '../../presentation/controllers/doctor/doctor.controller.js';
+import { HealthController } from '../../presentation/controllers/health.controller.js';
+import { AuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
+import { DoctorRoutes } from '../../presentation/routes/doctor/doctor.routes.js';
+import { HealthRoutes } from '../../presentation/routes/health.routes.js';
+import { ApiRoutes } from '../../presentation/routes/api.routes.js';
+import { ErrorMiddleware } from '../../shared/middlewares/error.middleware.js';
 
 export interface AppCompositionRoot {
   repositories: {
@@ -85,4 +85,3 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
     errorMiddleware,
   };
 }
-

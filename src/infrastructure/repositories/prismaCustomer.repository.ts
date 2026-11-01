@@ -1,6 +1,6 @@
-import type { ICustomerRepository } from '../../domain/repositories/ICustomerRepository.js';
-import { BaseRepository } from '../../shared/repositories/BaseRepository.js';
-import type { Customer } from '../../domain/entities/Customer.js';
+import type { ICustomerRepository } from '../../domain/repositories/customer.repository.js';
+import { BaseRepository } from '../../shared/repositories/base.repository.js';
+import type { Customer } from '../../domain/entities/customer.entity.js';
 import prisma from '../database/prisma.js';
 
 export class PrismaCustomerRepository extends BaseRepository<Customer> implements ICustomerRepository {

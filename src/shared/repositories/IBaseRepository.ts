@@ -1,3 +1,1 @@
-export interface IBaseRepository<TEntity> {
-  findById(id: number): Promise<TEntity | null>;
-}
+export * from './base.repository.interface.js';

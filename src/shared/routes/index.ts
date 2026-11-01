@@ -1,2 +1,2 @@
-export * from './IRoute.js';
-export * from './BaseRoute.js';
+export * from './route.interface.js';
+export * from './base.route.js';

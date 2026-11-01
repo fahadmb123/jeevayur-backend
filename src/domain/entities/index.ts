@@ -1,2 +1,2 @@
-export * from './User.js';
-export * from './Customer.js';
+export * from './user.entity.js';
+export * from './customer.entity.js';

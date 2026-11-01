@@ -2,11 +2,11 @@ import express from 'express';
 import type { Application } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { EnvironmentConfig, env } from './config/EnvironmentConfig.js';
-import { LoggerMiddleware } from './shared/middlewares/LoggerMiddleware.js';
-import { NotFoundMiddleware } from './shared/middlewares/NotFoundMiddleware.js';
-import { ErrorMiddleware } from './shared/middlewares/ErrorMiddleware.js';
-import type { IRoute } from './shared/routes/IRoute.js';
+import { EnvironmentConfig, env } from './config/environment.config.js';
+import { LoggerMiddleware } from './shared/middlewares/logger.middleware.js';
+import { NotFoundMiddleware } from './shared/middlewares/notFound.middleware.js';
+import { ErrorMiddleware } from './shared/middlewares/error.middleware.js';
+import type { IRoute } from './shared/routes/route.interface.js';
 import { buildComposition } from './infrastructure/composition/index.js';
 
 export class App {

@@ -1,4 +1,1 @@
-export interface LoginRequestDTO {
-  email: string;
-  password: string;
-}
+export * from './loginRequest.dto.js';

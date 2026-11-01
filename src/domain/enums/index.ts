@@ -1,1 +1,1 @@
-export * from './UserRole.js';
+export * from './userRole.enum.js';

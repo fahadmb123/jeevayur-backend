@@ -1,5 +1,4 @@
-export * from './HealthRoutes.js';
-export * from './ApiRoutes.js';
-export * from './auth/AuthRoutes.js';
-export * from './doctor/DoctorRoutes.js';
-
+export * from './health.routes.js';
+export * from './api.routes.js';
+export * from './auth/auth.routes.js';
+export * from './doctor/doctor.routes.js';

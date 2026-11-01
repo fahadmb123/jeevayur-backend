@@ -1,6 +1,5 @@
-export * from './auth/AuthenticatedUserDTO.js';
-export * from './auth/AuthResponseDTO.js';
-export * from './auth/LoginRequestDTO.js';
-export * from './auth/LoginResultDTO.js';
-export * from './customer/CustomerDTO.js';
-
+export * from './auth/authenticatedUser.dto.js';
+export * from './auth/authResponse.dto.js';
+export * from './auth/loginRequest.dto.js';
+export * from './auth/loginResult.dto.js';
+export * from './customer/customer.dto.js';
