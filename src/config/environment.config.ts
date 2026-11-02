@@ -84,13 +84,6 @@ export const envSchema = z
 
 export type ValidatedEnv = z.infer<typeof envSchema>;
 
-/**
- * Validates the runtime environment against the application schema.
- * Throws a descriptive formatted error if any variables fail validation.
- *
- * @param source Optional raw environment record (defaults to process.env)
- * @returns Fully typed and validated environment object
- */
 export function validateEnv(source: Record<string, unknown> = process.env): ValidatedEnv {
   const result = envSchema.safeParse(source);
 

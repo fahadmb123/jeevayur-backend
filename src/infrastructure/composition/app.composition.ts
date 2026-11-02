@@ -39,24 +39,19 @@ export interface AppCompositionRoot {
 }
 
 export function buildComposition(config: EnvironmentConfig = env): AppCompositionRoot {
-  // Repositories
   const userRepository = new PrismaUserRepository();
   const customerRepository = new PrismaCustomerRepository();
 
-  // Services
   const passwordService = new ScryptPasswordService();
   const tokenService = new JwtTokenService(config.tokenSecret);
   const cookieService = new ExpressCookieService(config);
 
-  // Use Cases
   const loginUseCase = new LoginUseCase(userRepository, passwordService, tokenService);
 
-  // Controllers
   const authController = new AuthController(loginUseCase, cookieService, userRepository);
   const doctorController = new DoctorController(loginUseCase);
   const healthController = new HealthController();
 
-  // Routes
   const healthRoutes = new HealthRoutes(healthController);
   const authRoutes = new AuthRoutes(authController, tokenService, config);
   const doctorRoutes = new DoctorRoutes(doctorController);
@@ -68,7 +63,6 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
     healthRoutes: healthRoutes.router,
   };
 
-  // Error middleware
   const errorMiddleware = new ErrorMiddleware(config);
 
   return {

@@ -17,7 +17,6 @@ export function createApp(
 ): Application {
   const app = express();
 
-  // Middlewares
   app.use(
     cors({
       origin: config.corsOrigin === '*' ? '*' : config.corsOrigin.split(','),
@@ -32,16 +31,13 @@ export function createApp(
   app.use(cookieParser(config.cookieSecret));
   app.use(LoggerMiddleware.handle);
 
-  // Direct health check
   if (routeDependencies.healthRoutes) {
     app.use('/health', routeDependencies.healthRoutes);
   }
 
-  // Root Router mounting
   const rootRouter = createRootRouter(routeDependencies);
   app.use('/api', rootRouter);
 
-  // Not Found & Error Handling
   app.use(NotFoundMiddleware.handle);
   app.use(errorMiddleware.handle);
 
