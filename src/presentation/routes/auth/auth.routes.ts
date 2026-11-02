@@ -17,6 +17,7 @@ export class AuthRoutes extends BaseRoute {
 
   protected initializeRoutes(): void {
     this.router.post('/login', validateBody(loginSchema), this.controller.login);
+    this.router.post('/refresh', this.controller.refresh);
     this.router.post('/logout', this.controller.logout);
     this.router.get('/me', this.auth, this.controller.me);
   }

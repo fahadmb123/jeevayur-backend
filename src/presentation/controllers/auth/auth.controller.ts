@@ -1,7 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import { BaseController } from '../../../shared/controllers/base.controller.js';
 import type { ILoginUseCase } from '../../../application/interfaces/use-cases/auth/ILoginUseCase.js';
+import type { IRefreshTokenUseCase } from '../../../application/interfaces/use-cases/auth/IRefreshTokenUseCase.js';
 import type { ExpressCookieService } from '../../../infrastructure/services/expressCookie.service.js';
+import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import type { IUserRepository } from '../../../domain/repositories/user.repository.js';
 import { UserMapper } from '../../../infrastructure/mappers/user.mapper.js';
 import { AppError } from '../../../shared/errors/app.error.js';
@@ -9,7 +11,9 @@ import { AppError } from '../../../shared/errors/app.error.js';
 export class AuthController extends BaseController {
   constructor(
     private readonly loginUseCase: ILoginUseCase,
+    private readonly refreshTokenUseCase: IRefreshTokenUseCase,
     private readonly cookies: ExpressCookieService,
+    private readonly config: EnvironmentConfig,
     private readonly users?: IUserRepository
   ) {
     super();
@@ -18,17 +22,43 @@ export class AuthController extends BaseController {
   public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this.loginUseCase.execute(req.body);
+      this.cookies.setRefreshToken(res, result.refreshToken, result.rememberMe);
       this.cookies.setAccessToken(res, result.accessToken, result.rememberMe);
       this.sendOk(res, {
         user: result.user,
         accessToken: result.accessToken,
       });
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const refreshToken =
+        req.cookies?.[this.config.refreshCookieName] ||
+        req.signedCookies?.[this.config.refreshCookieName] ||
+        req.body?.refreshToken;
+
+      if (!refreshToken) {
+        throw new AppError('Refresh token required', 401);
+      }
+
+      const result = await this.refreshTokenUseCase.execute({ refreshToken });
+      this.cookies.setRefreshToken(res, result.refreshToken);
+      this.cookies.setAccessToken(res, result.accessToken);
+      this.sendOk(res, {
+        user: result.user,
+        accessToken: result.accessToken,
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   public logout = (_req: Request, res: Response): void => {
-    this.cookies.clearAccessToken(res);
-    res.status(204).send();
+    this.cookies.clearAuthCookies(res);
+    this.sendNoContent(res);
   };
 
   public me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -42,7 +72,8 @@ export class AuthController extends BaseController {
         }
       }
       this.sendOk(res, { user: req.auth });
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 }
-

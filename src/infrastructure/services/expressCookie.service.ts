@@ -36,4 +36,29 @@ export class ExpressCookieService implements ICookieService {
   public clearAccessToken(res: Response): void {
     res.clearCookie(this.config.authCookieName, this.getBaseCookieOptions());
   }
+
+  public setRefreshToken(res: Response, token: string, rememberMe = false): void {
+    const options = this.getBaseCookieOptions();
+    options.path = this.config.refreshCookiePath;
+    options.httpOnly = true;
+
+    if (rememberMe) {
+      options.maxAge = this.config.rememberMeMaxAge;
+    } else {
+      options.maxAge = this.config.refreshCookieMaxAge;
+    }
+
+    res.cookie(this.config.refreshCookieName, token, options);
+  }
+
+  public clearRefreshToken(res: Response): void {
+    const options = this.getBaseCookieOptions();
+    options.path = this.config.refreshCookiePath;
+    res.clearCookie(this.config.refreshCookieName, options);
+  }
+
+  public clearAuthCookies(res: Response): void {
+    this.clearAccessToken(res);
+    this.clearRefreshToken(res);
+  }
 }

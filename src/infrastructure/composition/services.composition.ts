@@ -11,7 +11,12 @@ export interface ServicesComposition {
 
 export function buildServices(config: EnvironmentConfig): ServicesComposition {
   const passwordService = new ScryptPasswordService();
-  const tokenService = new JwtTokenService(config.tokenSecret);
+  const tokenService = new JwtTokenService({
+    accessTokenSecret: config.accessTokenSecret,
+    refreshTokenSecret: config.refreshTokenSecret,
+    accessTokenExpiresIn: config.accessTokenExpiresIn,
+    refreshTokenExpiresIn: config.refreshTokenExpiresIn,
+  });
   const cookieService = new ExpressCookieService(config);
 
   return {

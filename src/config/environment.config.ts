@@ -72,10 +72,19 @@ export const envSchema = z
     AUTH_COOKIE_SIGNED: booleanString(false),
     AUTH_COOKIE_SESSION_MAX_AGE: optionalNumberString(),
     AUTH_COOKIE_REMEMBER_ME_MAX_AGE: numberString(30 * 24 * 60 * 60 * 1000, 0),
+    ACCESS_TOKEN_SECRET: optionalTrimmedString(),
+    REFRESH_TOKEN_SECRET: optionalTrimmedString(),
+    ACCESS_TOKEN_EXPIRES_IN: z.string().default('15m'),
+    REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
+    REFRESH_COOKIE_NAME: z.string().min(1).default('jeeva_refresh'),
+    REFRESH_COOKIE_PATH: z.string().default('/'),
+    REFRESH_COOKIE_MAX_AGE: numberString(7 * 24 * 60 * 60 * 1000, 0),
   })
   .transform((parsed) => ({
     ...parsed,
     COOKIE_SECRET: parsed.COOKIE_SECRET || parsed.AUTH_TOKEN_SECRET,
+    ACCESS_TOKEN_SECRET: parsed.ACCESS_TOKEN_SECRET || parsed.AUTH_TOKEN_SECRET,
+    REFRESH_TOKEN_SECRET: parsed.REFRESH_TOKEN_SECRET || `${parsed.AUTH_TOKEN_SECRET}-refresh`,
     AUTH_COOKIE_SECURE:
       parsed.AUTH_COOKIE_SECURE !== undefined
         ? parsed.AUTH_COOKIE_SECURE
@@ -119,6 +128,13 @@ export class EnvironmentConfig {
   public readonly cookieSigned: boolean;
   public readonly cookieSessionMaxAge: number | undefined;
   public readonly rememberMeMaxAge: number;
+  public readonly accessTokenSecret: string;
+  public readonly refreshTokenSecret: string;
+  public readonly accessTokenExpiresIn: string;
+  public readonly refreshTokenExpiresIn: string;
+  public readonly refreshCookieName: string;
+  public readonly refreshCookiePath: string;
+  public readonly refreshCookieMaxAge: number;
   public readonly raw: ValidatedEnv;
 
   constructor(customSource?: Record<string, unknown>) {
@@ -130,7 +146,7 @@ export class EnvironmentConfig {
     this.corsOrigin = validated.CORS_ORIGIN;
     this.databaseUrl = validated.DATABASE_URL;
     this.tursoAuthToken = validated.TURSO_AUTH_TOKEN;
-    this.tokenSecret = validated.AUTH_TOKEN_SECRET;
+    this.tokenSecret = validated.ACCESS_TOKEN_SECRET;
     this.cookieSecret = validated.COOKIE_SECRET;
     this.authCookieName = validated.AUTH_COOKIE_NAME;
     this.cookieHttpOnly = validated.AUTH_COOKIE_HTTP_ONLY;
@@ -141,6 +157,13 @@ export class EnvironmentConfig {
     this.cookieSigned = validated.AUTH_COOKIE_SIGNED;
     this.cookieSessionMaxAge = validated.AUTH_COOKIE_SESSION_MAX_AGE;
     this.rememberMeMaxAge = validated.AUTH_COOKIE_REMEMBER_ME_MAX_AGE;
+    this.accessTokenSecret = validated.ACCESS_TOKEN_SECRET;
+    this.refreshTokenSecret = validated.REFRESH_TOKEN_SECRET;
+    this.accessTokenExpiresIn = validated.ACCESS_TOKEN_EXPIRES_IN;
+    this.refreshTokenExpiresIn = validated.REFRESH_TOKEN_EXPIRES_IN;
+    this.refreshCookieName = validated.REFRESH_COOKIE_NAME;
+    this.refreshCookiePath = validated.REFRESH_COOKIE_PATH;
+    this.refreshCookieMaxAge = validated.REFRESH_COOKIE_MAX_AGE;
   }
 
   public static validate(source?: Record<string, unknown>): ValidatedEnv {

@@ -21,9 +21,14 @@ export class LoginUseCase implements ILoginUseCase {
       throw new AppError('Invalid email or password', 401);
     }
 
+    const tokenPayload = { userId: user.id, role: user.role };
+    const accessToken = await this.tokens.signAccessToken(tokenPayload);
+    const refreshToken = await this.tokens.signRefreshToken(tokenPayload);
+
     return {
       user: UserMapper.toAuthenticatedUser(user),
-      accessToken: await this.tokens.sign({ sub: user.id, role: user.role }),
+      accessToken,
+      refreshToken,
       rememberMe: input.rememberMe ?? false,
     };
   }

@@ -1,9 +1,11 @@
 import { LoginUseCase } from '../../application/use-cases/auth/login.use-case.js';
+import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-token.use-case.js';
 import type { RepositoriesComposition } from './repositories.composition.js';
 import type { ServicesComposition } from './services.composition.js';
 
 export interface UseCasesComposition {
   loginUseCase: LoginUseCase;
+  refreshTokenUseCase: RefreshTokenUseCase;
 }
 
 export function buildUseCases(
@@ -16,8 +18,13 @@ export function buildUseCases(
     services.tokenService
   );
 
+  const refreshTokenUseCase = new RefreshTokenUseCase(
+    services.tokenService,
+    repositories.userRepository
+  );
+
   return {
     loginUseCase,
+    refreshTokenUseCase,
   };
 }
-

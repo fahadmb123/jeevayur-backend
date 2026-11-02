@@ -21,7 +21,7 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
   const repositories = buildRepositories();
   const services = buildServices(config);
   const useCases = buildUseCases(repositories, services);
-  const controllers = buildControllers(useCases, repositories, services);
+  const controllers = buildControllers(useCases, repositories, services, config);
   const routes = buildRoutes(controllers, services, config);
   const errorMiddleware = new ErrorMiddleware(config);
 
