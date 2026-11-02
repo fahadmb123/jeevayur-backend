@@ -19,7 +19,10 @@ export class AuthController extends BaseController {
     try {
       const result = await this.loginUseCase.execute(req.body);
       this.cookies.setAccessToken(res, result.accessToken, result.rememberMe);
-      this.sendOk(res, { user: result.user });
+      this.sendOk(res, {
+        user: result.user,
+        accessToken: result.accessToken,
+      });
     } catch (error) { next(error); }
   };
 

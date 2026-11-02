@@ -1,4 +1,5 @@
 import type { EnvironmentConfig } from '../../config/environment.config.js';
+import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
 import { AuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { DoctorRoutes } from '../../presentation/routes/doctor/doctor.routes.js';
 import { HealthRoutes } from '../../presentation/routes/health.routes.js';
@@ -18,13 +19,20 @@ export function buildRoutes(
   services: ServicesComposition,
   config: EnvironmentConfig
 ): RoutesComposition {
+  const authMiddleware = createAuthMiddleware(
+    services.tokenService,
+    config.authCookieName
+  );
   const healthRoutes = new HealthRoutes(controllers.healthController);
   const authRoutes = new AuthRoutes(
     controllers.authController,
     services.tokenService,
     config
   );
-  const doctorRoutes = new DoctorRoutes(controllers.doctorController);
+  const doctorRoutes = new DoctorRoutes(
+    controllers.doctorController,
+    authMiddleware
+  );
 
   const routeDependencies: RootRouterDependencies = {
     authRoutes: authRoutes.router,
