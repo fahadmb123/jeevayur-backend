@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app.error.js';
 import { StatusMessage } from '../errors/status.mapper.js';
 import type { JwtTokenService } from '../../infrastructure/services/jwtToken.service.js';
-import type { UserRole } from '../../domain/enums/userRole.enum.js';
+
+export { requireRole, roleMiddleware } from './role.middleware.js';
 
 function extractToken(req: Request, cookieName: string): string | null {
   const authHeader = req.headers.authorization;
@@ -21,7 +22,11 @@ function extractToken(req: Request, cookieName: string): string | null {
   return null;
 }
 
-export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (req: Request, _res: Response, next: NextFunction): void => {
+export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
   const token = extractToken(req, cookieName);
   if (!token) {
     next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
@@ -33,16 +38,4 @@ export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string
   } catch {
     next(new AppError(StatusMessage.UNAUTHORIZED, 'Invalid or expired token'));
   }
-};
-
-export const requireRole = (...roles: UserRole[]) => (req: Request, _res: Response, next: NextFunction): void => {
-  if (!req.auth) {
-    next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
-    return;
-  }
-  if (!roles.includes(req.auth.role)) {
-    next(new AppError(StatusMessage.FORBIDDEN, 'Access forbidden'));
-    return;
-  }
-  next();
 };
