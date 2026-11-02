@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { validateEnv, type ValidatedEnv } from './env.validator.js';
 
 export type NodeEnvironment = 'development' | 'production' | 'test';
 
@@ -8,6 +6,8 @@ export class EnvironmentConfig {
   public readonly port: number;
   public readonly nodeEnv: NodeEnvironment;
   public readonly corsOrigin: string;
+  public readonly databaseUrl: string;
+  public readonly tursoAuthToken: string | undefined;
   public readonly tokenSecret: string;
   public readonly cookieSecret: string;
   public readonly authCookieName: string;
@@ -19,74 +19,38 @@ export class EnvironmentConfig {
   public readonly cookieSigned: boolean;
   public readonly cookieSessionMaxAge: number | undefined;
   public readonly rememberMeMaxAge: number;
+  public readonly raw: ValidatedEnv;
 
-  constructor() {
-    this.port = this.extractPort(process.env.PORT, 7000);
-    this.nodeEnv = this.extractNodeEnv(process.env.NODE_ENV);
-    this.corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5170';
-    this.tokenSecret = process.env.AUTH_TOKEN_SECRET || 'development-secret';
-    this.cookieSecret = process.env.COOKIE_SECRET || this.tokenSecret;
-    this.authCookieName = process.env.AUTH_COOKIE_NAME || 'jeeva_session';
-    this.cookieHttpOnly = this.extractBoolean(process.env.AUTH_COOKIE_HTTP_ONLY, true);
-    this.cookieSecure = this.extractBoolean(
-      process.env.AUTH_COOKIE_SECURE,
-      this.nodeEnv === 'production'
-    );
-    this.cookieSameSite = this.extractSameSite(process.env.AUTH_COOKIE_SAME_SITE, 'lax');
-    this.cookiePath = process.env.AUTH_COOKIE_PATH || '/';
-    this.cookieDomain = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
-    this.cookieSigned = this.extractBoolean(process.env.AUTH_COOKIE_SIGNED, false);
-    this.cookieSessionMaxAge = this.extractOptionalNumber(process.env.AUTH_COOKIE_SESSION_MAX_AGE);
-    this.rememberMeMaxAge = this.extractNumber(
-      process.env.AUTH_COOKIE_REMEMBER_ME_MAX_AGE,
-      30 * 24 * 60 * 60 * 1000
-    );
+  constructor(customSource?: Record<string, unknown>) {
+    const validated = validateEnv(customSource);
+    this.raw = validated;
+
+    this.port = validated.PORT;
+    this.nodeEnv = validated.NODE_ENV;
+    this.corsOrigin = validated.CORS_ORIGIN;
+    this.databaseUrl = validated.DATABASE_URL;
+    this.tursoAuthToken = validated.TURSO_AUTH_TOKEN;
+    this.tokenSecret = validated.AUTH_TOKEN_SECRET;
+    this.cookieSecret = validated.COOKIE_SECRET;
+    this.authCookieName = validated.AUTH_COOKIE_NAME;
+    this.cookieHttpOnly = validated.AUTH_COOKIE_HTTP_ONLY;
+    this.cookieSecure = validated.AUTH_COOKIE_SECURE;
+    this.cookieSameSite = validated.AUTH_COOKIE_SAME_SITE;
+    this.cookiePath = validated.AUTH_COOKIE_PATH;
+    this.cookieDomain = validated.AUTH_COOKIE_DOMAIN;
+    this.cookieSigned = validated.AUTH_COOKIE_SIGNED;
+    this.cookieSessionMaxAge = validated.AUTH_COOKIE_SESSION_MAX_AGE;
+    this.rememberMeMaxAge = validated.AUTH_COOKIE_REMEMBER_ME_MAX_AGE;
   }
 
-  private extractPort(value: string | undefined, defaultPort: number): number {
-    if (!value) return defaultPort;
-    const parsed = parseInt(value, 10);
-    if (isNaN(parsed) || parsed <= 0 || parsed > 65535) {
-      return defaultPort;
-    }
-    return parsed;
+  public static validate(source?: Record<string, unknown>): ValidatedEnv {
+    return validateEnv(source);
   }
 
-  private extractNodeEnv(value: string | undefined): NodeEnvironment {
-    if (value === 'production' || value === 'test') {
-      return value;
-    }
-    return 'development';
-  }
-
-  private extractBoolean(value: string | undefined, defaultValue: boolean): boolean {
-    if (value === undefined || value === null || value === '') {
-      return defaultValue;
-    }
-    return value.toLowerCase() === 'true' || value === '1';
-  }
-
-  private extractSameSite(
-    value: string | undefined,
-    defaultValue: 'lax' | 'strict' | 'none'
-  ): 'lax' | 'strict' | 'none' {
-    if (value === 'none' || value === 'strict' || value === 'lax') {
-      return value;
-    }
-    return defaultValue;
-  }
-
-  private extractNumber(value: string | undefined, defaultValue: number): number {
-    if (!value) return defaultValue;
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) || parsed < 0 ? defaultValue : parsed;
-  }
-
-  private extractOptionalNumber(value: string | undefined): number | undefined {
-    if (!value) return undefined;
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) || parsed < 0 ? undefined : parsed;
+  public static load(customSource?: Record<string, unknown>): EnvironmentConfig {
+    return new EnvironmentConfig(customSource);
   }
 }
 
 export const env = new EnvironmentConfig();
+export { validateEnv, type ValidatedEnv } from './env.validator.js';
