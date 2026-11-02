@@ -28,3 +28,4 @@ export function createRootRouter(route: RootRouterDependencies): Router {
 }
 
 export { type RootRouterDependencies };
+
