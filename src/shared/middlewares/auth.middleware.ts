@@ -3,8 +3,15 @@ import { AppError } from '../errors/app.error.js';
 import type { JwtTokenService } from '../../infrastructure/services/jwtToken.service.js';
 
 export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (req: Request, _res: Response, next: NextFunction): void => {
-  const token = req.cookies?.[cookieName];
-  if (!token) { next(new AppError('Authentication required', 401)); return; }
-  try { req.auth = tokens.verify(token); next(); } catch { next(new AppError('Authentication required', 401)); }
+  const token = req.cookies?.[cookieName] || req.signedCookies?.[cookieName];
+  if (!token) {
+    next(new AppError('Authentication required', 401));
+    return;
+  }
+  try {
+    req.auth = tokens.verify(token);
+    next();
+  } catch {
+    next(new AppError('Authentication required', 401));
+  }
 };
-
