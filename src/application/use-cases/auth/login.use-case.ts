@@ -1,4 +1,5 @@
 import { AppError } from '../../../shared/errors/app.error.js';
+import { StatusMessage } from '../../../shared/errors/status.mapper.js';
 import type { LoginResultDTO } from '../../dtos/auth/loginResult.dto.js';
 import type { IUserRepository } from '../../../domain/repositories/user.repository.js';
 import type { IPasswordService } from '../../interfaces/services/IPasswordService.js';
@@ -18,7 +19,7 @@ export class LoginUseCase implements ILoginUseCase {
     const user = await this.users.findByEmail(email);
 
     if (!user || !(await this.passwords.compare(input.password, user.passwordHash))) {
-      throw new AppError('Invalid email or password');
+      throw new AppError(StatusMessage.UNAUTHORIZED, 'Invalid email or password');
     }
 
     const tokenPayload = { userId: user.id, role: user.role };
@@ -33,4 +34,3 @@ export class LoginUseCase implements ILoginUseCase {
     };
   }
 }
-

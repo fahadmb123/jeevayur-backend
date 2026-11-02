@@ -5,6 +5,7 @@ import type { ITokenService } from '../../interfaces/services/ITokenService.js';
 import type { IUserRepository } from '../../../domain/repositories/user.repository.js';
 import { UserMapper } from '../../../infrastructure/mappers/user.mapper.js';
 import { AppError } from '../../../shared/errors/app.error.js';
+import { StatusMessage } from '../../../shared/errors/status.mapper.js';
 
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
@@ -14,7 +15,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
   public async execute(input: RefreshTokenRequestDTO): Promise<RefreshTokenResultDTO> {
     if (!input.refreshToken) {
-      throw new AppError('Refresh token required');
+      throw new AppError(StatusMessage.UNAUTHORIZED, 'Refresh token required');
     }
 
     const payload = this.tokenService.verifyRefreshToken(input.refreshToken);
@@ -29,7 +30,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     if (this.userRepository) {
       const existingUser = await this.userRepository.findById(payload.userId);
       if (!existingUser) {
-        throw new AppError('User no longer exists');
+        throw new AppError(StatusMessage.UNAUTHORIZED, 'User no longer exists');
       }
       user = UserMapper.toAuthenticatedUser(existingUser);
     }
@@ -49,4 +50,3 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     };
   }
 }
-

@@ -7,6 +7,7 @@ import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import type { IUserRepository } from '../../../domain/repositories/user.repository.js';
 import { UserMapper } from '../../../infrastructure/mappers/user.mapper.js';
 import { AppError } from '../../../shared/errors/app.error.js';
+import { StatusMessage } from '../../../shared/errors/status.mapper.js';
 
 export class AuthController extends BaseController {
   constructor(
@@ -41,7 +42,7 @@ export class AuthController extends BaseController {
         req.body?.refreshToken;
 
       if (!refreshToken) {
-        throw new AppError('Refresh token required');
+        throw new AppError(StatusMessage.UNAUTHORIZED, 'Refresh token required');
       }
 
       const result = await this.refreshTokenUseCase.execute({ refreshToken });
@@ -63,7 +64,7 @@ export class AuthController extends BaseController {
 
   public me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      if (!req.auth) throw new AppError('Authentication required');
+      if (!req.auth) throw new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required');
       if (this.users) {
         const user = await this.users.findById(req.auth.userId);
         if (user) {

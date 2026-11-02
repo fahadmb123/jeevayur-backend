@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import type { ITokenService, TokenPayload } from '../../application/interfaces/services/ITokenService.js';
 import type { UserRole } from '../../domain/enums/userRole.enum.js';
 import { AppError } from '../../shared/errors/app.error.js';
+import { StatusMessage } from '../../shared/errors/status.mapper.js';
 
 export interface JwtTokenServiceOptions {
   accessTokenSecret: string;
@@ -59,7 +60,7 @@ export class JwtTokenService implements ITokenService {
       if (decoded.type && decoded.type !== 'access') throw new Error('Invalid token type');
       return { userId: Number(decoded.sub), role: decoded.role };
     } catch {
-      throw new AppError('Invalid or expired access token');
+      throw new AppError(StatusMessage.UNAUTHORIZED, 'Invalid or expired access token');
     }
   }
 
@@ -70,7 +71,7 @@ export class JwtTokenService implements ITokenService {
       if (decoded.type !== 'refresh') throw new Error('Token is not a refresh token');
       return { userId: Number(decoded.sub), role: decoded.role };
     } catch {
-      throw new AppError('Invalid or expired refresh token');
+      throw new AppError(StatusMessage.UNAUTHORIZED, 'Invalid or expired refresh token');
     }
   }
 

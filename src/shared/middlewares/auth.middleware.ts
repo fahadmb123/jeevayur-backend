@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app.error.js';
+import { StatusMessage } from '../errors/status.mapper.js';
 import type { JwtTokenService } from '../../infrastructure/services/jwtToken.service.js';
 import type { UserRole } from '../../domain/enums/userRole.enum.js';
 
@@ -23,24 +24,24 @@ function extractToken(req: Request, cookieName: string): string | null {
 export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (req: Request, _res: Response, next: NextFunction): void => {
   const token = extractToken(req, cookieName);
   if (!token) {
-    next(new AppError('Authentication required'));
+    next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
     return;
   }
   try {
     req.auth = tokens.verify(token);
     next();
   } catch {
-    next(new AppError('Invalid or expired token'));
+    next(new AppError(StatusMessage.UNAUTHORIZED, 'Invalid or expired token'));
   }
 };
 
 export const requireRole = (...roles: UserRole[]) => (req: Request, _res: Response, next: NextFunction): void => {
   if (!req.auth) {
-    next(new AppError('Authentication required'));
+    next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
     return;
   }
   if (!roles.includes(req.auth.role)) {
-    next(new AppError('Access forbidden'));
+    next(new AppError(StatusMessage.FORBIDDEN, 'Access forbidden'));
     return;
   }
   next();
