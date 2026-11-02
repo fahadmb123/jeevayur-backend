@@ -78,3 +78,4 @@ export function getStatusCodeFromMessage(message?: string): number {
 
   return 500;
 }
+
