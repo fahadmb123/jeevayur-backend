@@ -5,3 +5,4 @@ export interface RefreshTokenResultDTO {
   accessToken: string;
   refreshToken: string;
 }
+

@@ -3,3 +3,4 @@ import type { RefreshTokenRequestDTO } from '../../../dtos/auth/refreshTokenRequ
 import type { RefreshTokenResultDTO } from '../../../dtos/auth/refreshTokenResult.dto.js';
 
 export type IRefreshTokenUseCase = IUseCase<RefreshTokenRequestDTO, RefreshTokenResultDTO>;
+

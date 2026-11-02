@@ -59,7 +59,7 @@ export class JwtTokenService implements ITokenService {
       if (decoded.type && decoded.type !== 'access') throw new Error('Invalid token type');
       return { userId: Number(decoded.sub), role: decoded.role };
     } catch {
-      throw new AppError('Invalid or expired access token', 401);
+      throw new AppError('Invalid or expired access token');
     }
   }
 
@@ -70,7 +70,7 @@ export class JwtTokenService implements ITokenService {
       if (decoded.type !== 'refresh') throw new Error('Token is not a refresh token');
       return { userId: Number(decoded.sub), role: decoded.role };
     } catch {
-      throw new AppError('Invalid or expired refresh token', 401);
+      throw new AppError('Invalid or expired refresh token');
     }
   }
 

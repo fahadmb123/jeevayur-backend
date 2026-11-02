@@ -41,7 +41,7 @@ export class AuthController extends BaseController {
         req.body?.refreshToken;
 
       if (!refreshToken) {
-        throw new AppError('Refresh token required', 401);
+        throw new AppError('Refresh token required');
       }
 
       const result = await this.refreshTokenUseCase.execute({ refreshToken });
@@ -63,7 +63,7 @@ export class AuthController extends BaseController {
 
   public me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      if (!req.auth) throw new AppError('Authentication required', 401);
+      if (!req.auth) throw new AppError('Authentication required');
       if (this.users) {
         const user = await this.users.findById(req.auth.userId);
         if (user) {

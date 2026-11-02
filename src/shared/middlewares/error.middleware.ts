@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors/app.error.js';
+import { ErrorStatusMapper } from '../errors/errorStatus.mapper.js';
 import type { EnvironmentConfig } from '../../config/environment.config.js';
 import { Logger } from '../logging/Logger.js';
 
@@ -12,8 +13,11 @@ export class ErrorMiddleware {
     res: Response,
     _next: NextFunction
   ): void => {
-    const statusCode = err instanceof AppError ? err.statusCode : 500;
     const message = err.message || 'Internal Server Error';
+    const statusCode =
+      err instanceof AppError
+        ? err.statusCode
+        : ErrorStatusMapper.toStatusCode(message);
 
     Logger.error(`[Error] ${statusCode} - ${message}`);
     if (statusCode === 500 && err.stack) {

@@ -23,24 +23,24 @@ function extractToken(req: Request, cookieName: string): string | null {
 export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (req: Request, _res: Response, next: NextFunction): void => {
   const token = extractToken(req, cookieName);
   if (!token) {
-    next(new AppError('Authentication required', 401));
+    next(new AppError('Authentication required'));
     return;
   }
   try {
     req.auth = tokens.verify(token);
     next();
   } catch {
-    next(new AppError('Invalid or expired token', 401));
+    next(new AppError('Invalid or expired token'));
   }
 };
 
 export const requireRole = (...roles: UserRole[]) => (req: Request, _res: Response, next: NextFunction): void => {
   if (!req.auth) {
-    next(new AppError('Authentication required', 401));
+    next(new AppError('Authentication required'));
     return;
   }
   if (!roles.includes(req.auth.role)) {
-    next(new AppError('Access forbidden', 403));
+    next(new AppError('Access forbidden'));
     return;
   }
   next();

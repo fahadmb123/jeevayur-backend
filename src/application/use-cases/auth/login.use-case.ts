@@ -18,7 +18,7 @@ export class LoginUseCase implements ILoginUseCase {
     const user = await this.users.findByEmail(email);
 
     if (!user || !(await this.passwords.compare(input.password, user.passwordHash))) {
-      throw new AppError('Invalid email or password', 401);
+      throw new AppError('Invalid email or password');
     }
 
     const tokenPayload = { userId: user.id, role: user.role };

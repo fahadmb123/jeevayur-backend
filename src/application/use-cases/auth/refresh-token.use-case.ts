@@ -14,7 +14,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
   public async execute(input: RefreshTokenRequestDTO): Promise<RefreshTokenResultDTO> {
     if (!input.refreshToken) {
-      throw new AppError('Refresh token required', 401);
+      throw new AppError('Refresh token required');
     }
 
     const payload = this.tokenService.verifyRefreshToken(input.refreshToken);
@@ -29,7 +29,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     if (this.userRepository) {
       const existingUser = await this.userRepository.findById(payload.userId);
       if (!existingUser) {
-        throw new AppError('User no longer exists', 401);
+        throw new AppError('User no longer exists');
       }
       user = UserMapper.toAuthenticatedUser(existingUser);
     }
@@ -49,3 +49,4 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     };
   }
 }
+

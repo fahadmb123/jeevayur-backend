@@ -5,7 +5,7 @@ import { AppError } from '../errors/app.error.js';
 export const validateBody = (schema: ZodType) => (req: Request, _res: Response, next: NextFunction): void => {
   const result = schema.safeParse(req.body);
   if (!result.success) {
-    next(new AppError('Request validation failed', 400, result.error.flatten().fieldErrors));
+    next(new AppError('Request validation failed', undefined, result.error.flatten().fieldErrors));
     return;
   }
   req.body = result.data;
