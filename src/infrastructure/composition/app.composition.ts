@@ -11,7 +11,6 @@ import { HealthController } from '../../presentation/controllers/health.controll
 import { AuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { DoctorRoutes } from '../../presentation/routes/doctor/doctor.routes.js';
 import { HealthRoutes } from '../../presentation/routes/health.routes.js';
-import { ApiRoutes } from '../../presentation/routes/api.routes.js';
 import { ErrorMiddleware } from '../../shared/middlewares/error.middleware.js';
 import type { RootRouterDependencies } from '../../types/root-router-dependencies.js';
 
@@ -34,7 +33,6 @@ export interface AppCompositionRoot {
     healthController: HealthController;
   };
   routeDependencies: RootRouterDependencies;
-  routes: [HealthRoutes, ApiRoutes];
   errorMiddleware: ErrorMiddleware;
 }
 
@@ -55,7 +53,6 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
   const healthRoutes = new HealthRoutes(healthController);
   const authRoutes = new AuthRoutes(authController, tokenService, config);
   const doctorRoutes = new DoctorRoutes(doctorController);
-  const apiRoutes = new ApiRoutes([authRoutes, doctorRoutes, healthRoutes]);
 
   const routeDependencies: RootRouterDependencies = {
     authRoutes: authRoutes.router,
@@ -84,7 +81,6 @@ export function buildComposition(config: EnvironmentConfig = env): AppCompositio
       healthController,
     },
     routeDependencies,
-    routes: [healthRoutes, apiRoutes],
     errorMiddleware,
   };
 }
