@@ -20,3 +20,4 @@ export function buildServices(config: EnvironmentConfig): ServicesComposition {
     cookieService,
   };
 }
+

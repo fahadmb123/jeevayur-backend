@@ -15,3 +15,4 @@ export function buildRepositories(): RepositoriesComposition {
     customerRepository,
   };
 }
+
