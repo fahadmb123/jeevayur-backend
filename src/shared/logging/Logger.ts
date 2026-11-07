@@ -3,6 +3,10 @@ export class Logger {
     console.log(message);
   }
 
+  public static warn(message: string): void {
+    console.warn(`\x1b[33m${message}\x1b[0m`);
+  }
+
   public static error(message: string, error?: unknown): void {
     console.error(message, error ?? '');
   }

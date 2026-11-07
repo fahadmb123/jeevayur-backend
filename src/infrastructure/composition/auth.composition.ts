@@ -37,7 +37,7 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     refreshTokenExpiresIn: config.refreshTokenExpiresIn,
   });
   const cookieService = new ExpressCookieService(config);
-  const emailService = new EmailService();
+  const emailService = new EmailService(config);
 
   const loginUseCase = new LoginUseCase(userRepository, passwordHasher, jwtService);
   const refreshTokenUseCase = new RefreshTokenUseCase(jwtService, userRepository);
