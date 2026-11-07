@@ -1,22 +1,36 @@
 import http from 'http';
-import { App } from './app.js';
-import { EnvironmentConfig, env } from './config/environment.config.js';
-import prisma from './infrastructure/database/prisma.js';
+import { env, type EnvironmentConfig } from './config/environment.config.js';
+import { db } from './shared/database/client.js';
 import { Logger } from './shared/logging/Logger.js';
+import { createApp } from './app/app.js';
+import { buildAuthModule } from './modules/auth/public/index.js';
+import { buildDoctorModule } from './modules/doctor/public/index.js';
+import { buildHealthModule } from './modules/health/public/index.js';
+import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
 
 export class Server {
   private readonly httpServer: http.Server;
 
-  constructor(
-    private readonly appInstance: App,
-    private readonly config: EnvironmentConfig
-  ) {
-    this.httpServer = http.createServer(this.appInstance.app);
+  constructor(private readonly config: EnvironmentConfig = env) {
+    const authModule = buildAuthModule(this.config);
+    const authMiddleware = createAuthMiddleware(
+      authModule.services.jwtService,
+      this.config.authCookieName
+    );
+    const doctorModule = buildDoctorModule(authMiddleware);
+    const healthModule = buildHealthModule();
+
+    const app = createApp(this.config, {
+      authRoutes: authModule.router,
+      doctorRoutes: doctorModule.router,
+      healthRoutes: healthModule.router,
+    });
+
+    this.httpServer = http.createServer(app);
     this.setupProcessSignals();
   }
 
   public async start(): Promise<void> {
-
     this.httpServer.listen(this.config.port, () => {
       Logger.info(`Jeevayurniketan backend running on http://localhost:${this.config.port}`);
       Logger.info(`Health endpoint: http://localhost:${this.config.port}/health`);
@@ -28,7 +42,7 @@ export class Server {
 
   public async stop(): Promise<void> {
     try {
-      await prisma.$disconnect();
+      await db.$disconnect();
     } catch {
     }
 
@@ -67,6 +81,5 @@ export class Server {
   }
 }
 
-const appInstance = App.create(env);
-const server = new Server(appInstance, env);
+const server = new Server(env);
 server.start();

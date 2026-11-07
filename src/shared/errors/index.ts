@@ -1,2 +1,2 @@
-export * from './app.error.js';
-export * from './status.mapper.js';
+export * from './applicationError.js';
+export * from './http-error.mapper.js';

@@ -1,9 +1,12 @@
-import type { UserRole } from '../../domain/enums/userRole.enum.js';
+export interface AuthContext {
+  userId: number;
+  role: string;
+}
 
 declare global {
   namespace Express {
     interface Request {
-      auth?: { userId: number; role: UserRole };
+      auth?: AuthContext;
     }
   }
 }
