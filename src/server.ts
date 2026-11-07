@@ -3,27 +3,27 @@ import { env, type EnvironmentConfig } from './config/environment.config.js';
 import { db } from './shared/database/client.js';
 import { Logger } from './shared/logging/Logger.js';
 import { createApp } from './app/app.js';
-import { buildAuthModule } from './modules/auth/public/index.js';
-import { buildDoctorModule } from './modules/doctor/public/index.js';
-import { buildHealthModule } from './modules/health/public/index.js';
+import { buildAuthComposition } from './infrastructure/composition/auth.composition.js';
+import { buildDoctorComposition } from './infrastructure/composition/doctor.composition.js';
+import { buildHealthComposition } from './infrastructure/composition/health.composition.js';
 import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
 
 export class Server {
   private readonly httpServer: http.Server;
 
   constructor(private readonly config: EnvironmentConfig = env) {
-    const authModule = buildAuthModule(this.config);
+    const authComposition = buildAuthComposition(this.config);
     const authMiddleware = createAuthMiddleware(
-      authModule.services.jwtService,
+      authComposition.jwtService,
       this.config.authCookieName
     );
-    const doctorModule = buildDoctorModule(authMiddleware);
-    const healthModule = buildHealthModule();
+    const doctorComposition = buildDoctorComposition(authMiddleware);
+    const healthComposition = buildHealthComposition();
 
     const app = createApp(this.config, {
-      authRoutes: authModule.router,
-      doctorRoutes: doctorModule.router,
-      healthRoutes: healthModule.router,
+      authRoutes: authComposition.router,
+      doctorRoutes: doctorComposition.router,
+      healthRoutes: healthComposition.router,
     });
 
     this.httpServer = http.createServer(app);
