@@ -1,13 +1,13 @@
 import type { Router } from 'express';
 import type { EnvironmentConfig } from '../../config/environment.config.js';
-import { PrismaUserRepository } from '../auth/repositories/prismaUser.repository.js';
-import { ScryptPasswordService } from '../auth/services/scryptPassword.service.js';
-import { JwtTokenService } from '../auth/services/jwtToken.service.js';
-import { ExpressCookieService } from '../auth/services/expressCookie.service.js';
-import { LoginUseCase } from '../../application/auth/use-cases/authentication/login.useCase.js';
-import { RefreshTokenUseCase } from '../../application/auth/use-cases/tokens/refreshToken.useCase.js';
-import { AuthController } from '../../presentation/auth/controllers/auth.controller.js';
-import { buildAuthRoutes } from '../../presentation/auth/routes/auth.routes.js';
+import { PrismaUserRepository } from '../repositories/auth/prismaUser.repository.js';
+import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
+import { JwtTokenService } from '../services/auth/jwtToken.service.js';
+import { ExpressCookieService } from '../services/auth/expressCookie.service.js';
+import { LoginUseCase } from '../../application/use-cases/auth/authentication/login.useCase.js';
+import { RefreshTokenUseCase } from '../../application/use-cases/auth/tokens/refreshToken.useCase.js';
+import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
+import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
 export interface AuthComposition {

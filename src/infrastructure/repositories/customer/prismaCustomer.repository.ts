@@ -1,6 +1,6 @@
-import type { ICustomerRepository } from '../../../domain/customer/repositories/customer.repository.js';
-import type { Customer } from '../../../domain/customer/entities/customer.entity.js';
-import { CustomerMapper } from '../mappers/customer.mapper.js';
+import type { ICustomerRepository } from '../../../domain/repositories/customer/customer.repository.js';
+import type { Customer } from '../../../domain/entities/customer/customer.entity.js';
+import { CustomerMapper } from '../../mappers/customer/customer.mapper.js';
 import { db } from '../../../shared/database/client.js';
 
 export class PrismaCustomerRepository implements ICustomerRepository {

@@ -1,6 +1,6 @@
-import type { IUserRepository } from '../../../domain/auth/repositories/user.repository.js';
-import type { User } from '../../../domain/auth/entities/user.entity.js';
-import { UserMapper } from '../mappers/user.mapper.js';
+import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
+import type { User } from '../../../domain/entities/auth/user.entity.js';
+import { UserMapper } from '../../mappers/auth/user.mapper.js';
 import { db } from '../../../shared/database/client.js';
 
 export class PrismaUserRepository implements IUserRepository {

@@ -1,5 +1,5 @@
 import type { User as PrismaUser } from '@prisma/client';
-import { Customer } from '../../../domain/customer/entities/customer.entity.js';
+import { Customer } from '../../../domain/entities/customer/customer.entity.js';
 
 export class CustomerMapper {
   static toDomain(record: PrismaUser): Customer {

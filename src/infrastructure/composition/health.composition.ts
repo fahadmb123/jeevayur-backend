@@ -1,7 +1,7 @@
 import type { Router } from 'express';
-import { CheckHealthUseCase } from '../../application/health/use-cases/system/checkHealth.useCase.js';
-import { HealthController } from '../../presentation/health/controllers/health.controller.js';
-import { buildHealthRoutes } from '../../presentation/health/routes/health.routes.js';
+import { CheckHealthUseCase } from '../../application/use-cases/health/system/checkHealth.useCase.js';
+import { HealthController } from '../../presentation/controllers/health/health.controller.js';
+import { buildHealthRoutes } from '../../presentation/routes/health/health.routes.js';
 
 export interface HealthComposition {
   checkHealthUseCase: CheckHealthUseCase;

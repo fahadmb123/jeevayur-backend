@@ -1,7 +1,7 @@
 import type { Router, RequestHandler } from 'express';
-import { GetDoctorDashboardUseCase } from '../../application/doctor/use-cases/dashboard/getDoctorDashboard.useCase.js';
-import { DoctorController } from '../../presentation/doctor/controllers/doctor.controller.js';
-import { buildDoctorRoutes } from '../../presentation/doctor/routes/doctor.routes.js';
+import { GetDoctorDashboardUseCase } from '../../application/use-cases/doctor/dashboard/getDoctorDashboard.useCase.js';
+import { DoctorController } from '../../presentation/controllers/doctor/doctor.controller.js';
+import { buildDoctorRoutes } from '../../presentation/routes/doctor/doctor.routes.js';
 
 export interface DoctorComposition {
   getDashboardUseCase: GetDoctorDashboardUseCase;

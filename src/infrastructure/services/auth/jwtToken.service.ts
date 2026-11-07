@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { IJwtService, AuthTokenPayload } from '../../../shared/interfaces/services/IJwtService.js';
-import type { UserRole } from '../../../domain/auth/entities/user.entity.js';
+import type { UserRole } from '../../../domain/entities/auth/user.entity.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 
 export interface JwtTokenServiceOptions {
