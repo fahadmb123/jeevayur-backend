@@ -1,5 +1,5 @@
 import type { BaseRepository } from '../../../shared/base/repository/baseRepository.js';
-import type { Customer } from '../entities/customer.entity.js';
+import type { Customer } from '../../entities/customer/customer.entity.js';
 
 export interface ICustomerRepository extends BaseRepository<Customer> {
   findById(id: number): Promise<Customer | null>;
