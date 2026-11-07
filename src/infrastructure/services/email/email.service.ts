@@ -1,27 +1,16 @@
-import nodemailer, { type Transporter } from 'nodemailer';
 import type { IEmailService } from '../../../shared/interfaces/services/IEmailService.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
 export class EmailService implements IEmailService {
-  private _transporter: Transporter | null = null;
-  private readonly _isConfigured: boolean;
+  private readonly _apiKey?: string;
+  private readonly _senderEmail?: string;
+  private readonly _senderName: string;
 
   constructor(private readonly _config?: EnvironmentConfig) {
-    if (this._config?.smtpHost && this._config?.smtpUser && this._config?.smtpPass) {
-      this._transporter = nodemailer.createTransport({
-        host: this._config.smtpHost,
-        port: this._config.smtpPort || 587,
-        secure: this._config.smtpSecure || false,
-        auth: {
-          user: this._config.smtpUser,
-          pass: this._config.smtpPass,
-        },
-      });
-      this._isConfigured = true;
-    } else {
-      this._isConfigured = false;
-    }
+    this._apiKey = this._config?.brevoApiKey;
+    this._senderEmail = this._config?.brevoSenderEmail;
+    this._senderName = this._config?.brevoSenderName || 'Jeevayurniketan Sanctuary';
   }
 
   async sendPasswordResetEmail(
@@ -30,8 +19,7 @@ export class EmailService implements IEmailService {
     recipientName?: string
   ): Promise<void> {
     const name = recipientName || 'Valued Patient';
-    const fromAddress =
-      this._config?.smtpFrom || 'Jeevayurniketan Sanctuary <no-reply@jeevayurniketan.com>';
+    const senderEmail = this._senderEmail || 'no-reply@jeevayurniketan.com';
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -133,30 +121,57 @@ export class EmailService implements IEmailService {
       'If you did not request this, please disregard this email.',
     ].join('\n');
 
-    if (this._isConfigured && this._transporter) {
+    if (this._apiKey) {
       try {
-        Logger.info(`[EmailService] Sending production SMTP email to: ${toEmail}`);
-        await this._transporter.sendMail({
-          from: fromAddress,
-          to: toEmail,
-          subject: 'Reset your Jeevayurniketan password (valid for 15 minutes)',
-          text: textContent,
-          html: htmlContent,
+        Logger.info(`[EmailService] Sending transactional email via Brevo API to: ${toEmail}`);
+
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': this._apiKey,
+          },
+          body: JSON.stringify({
+            sender: {
+              name: this._senderName,
+              email: senderEmail,
+            },
+            to: [
+              {
+                email: toEmail,
+                name,
+              },
+            ],
+            subject: 'Reset your Jeevayurniketan password (valid for 15 minutes)',
+            htmlContent,
+            textContent,
+          }),
         });
-        Logger.info(`[EmailService] Password reset email successfully delivered to: ${toEmail}`);
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          Logger.error(`[EmailService] Brevo API error (${response.status}): ${errorBody}`);
+          throw new Error(`Brevo email delivery failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        Logger.info(
+          `[EmailService] Password reset email successfully dispatched via Brevo (messageId: ${(data as { messageId?: string }).messageId || 'unknown'})`
+        );
         return;
       } catch (err: unknown) {
         Logger.error(
-          `[EmailService] Failed to dispatch SMTP email: ${err instanceof Error ? err.message : String(err)}`
+          `[EmailService] Failed to dispatch Brevo email: ${err instanceof Error ? err.message : String(err)}`
         );
         throw new Error(
-          'Email delivery failed. Please ensure SMTP credentials in .env are valid or try again later.'
+          'Email delivery failed. Please check your Brevo configuration or try again later.'
         );
       }
     }
 
     Logger.warn(
-      `[EmailService] SMTP credentials not configured in .env. Falling back to local console dispatch:\nTo: ${toEmail}\nReset URL: ${resetUrl}`
+      `[EmailService] BREVO_API_KEY not configured in .env. Falling back to local console dispatch:\nTo: ${toEmail}\nReset URL: ${resetUrl}`
     );
   }
 }

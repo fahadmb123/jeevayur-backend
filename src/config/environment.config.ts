@@ -86,12 +86,9 @@ export const envSchema = z
     REFRESH_COOKIE_NAME: z.string().min(1).default('jeeva_refresh'),
     REFRESH_COOKIE_PATH: z.string().default('/'),
     REFRESH_COOKIE_MAX_AGE: numberString(7 * 24 * 60 * 60 * 1000, 0),
-    SMTP_HOST: optionalTrimmedString(),
-    SMTP_PORT: optionalNumberString(),
-    SMTP_USER: optionalTrimmedString(),
-    SMTP_PASS: optionalTrimmedString(),
-    SMTP_SECURE: booleanString(false),
-    SMTP_FROM: z.string().default('Jeevayurniketan Sanctuary <no-reply@jeevayurniketan.com>'),
+    BREVO_API_KEY: optionalTrimmedString(),
+    BREVO_SENDER_EMAIL: optionalTrimmedString(),
+    BREVO_SENDER_NAME: z.string().default('Jeevayurniketan Sanctuary'),
   })
   .transform((parsed) => ({
     ...parsed,
@@ -149,12 +146,9 @@ export class EnvironmentConfig {
   public readonly refreshCookieName: string;
   public readonly refreshCookiePath: string;
   public readonly refreshCookieMaxAge: number;
-  public readonly smtpHost?: string;
-  public readonly smtpPort?: number;
-  public readonly smtpUser?: string;
-  public readonly smtpPass?: string;
-  public readonly smtpSecure: boolean;
-  public readonly smtpFrom: string;
+  public readonly brevoApiKey?: string;
+  public readonly brevoSenderEmail?: string;
+  public readonly brevoSenderName: string;
   public readonly raw: ValidatedEnv;
 
   constructor(customSource?: Record<string, unknown>) {
@@ -185,12 +179,9 @@ export class EnvironmentConfig {
     this.refreshCookieName = validated.REFRESH_COOKIE_NAME;
     this.refreshCookiePath = validated.REFRESH_COOKIE_PATH;
     this.refreshCookieMaxAge = validated.REFRESH_COOKIE_MAX_AGE;
-    this.smtpHost = validated.SMTP_HOST;
-    this.smtpPort = validated.SMTP_PORT || 587;
-    this.smtpUser = validated.SMTP_USER;
-    this.smtpPass = validated.SMTP_PASS;
-    this.smtpSecure = validated.SMTP_SECURE;
-    this.smtpFrom = validated.SMTP_FROM;
+    this.brevoApiKey = validated.BREVO_API_KEY;
+    this.brevoSenderEmail = validated.BREVO_SENDER_EMAIL;
+    this.brevoSenderName = validated.BREVO_SENDER_NAME;
   }
 
   public static validate(source?: Record<string, unknown>): ValidatedEnv {
