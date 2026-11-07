@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import type { AuthRouteDependencies } from '../types/auth.types.js';
+import type { AuthRouteDependencies } from '../../types/auth/auth.types.js';
 import validate from '../../../shared/middlewares/validate-request.js';
-import { loginSchema, refreshTokenSchema } from '../validators/auth.schema.js';
+import { loginSchema, refreshTokenSchema } from '../../validators/auth/auth.schema.js';
 
 export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
   const router = Router();

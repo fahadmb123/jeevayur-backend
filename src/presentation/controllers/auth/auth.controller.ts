@@ -1,13 +1,13 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
-import type { LoginInputDto } from '../../../application/auth/dtos/request/login.dto.js';
-import type { LoginOutputDto } from '../../../application/auth/dtos/response/login.dto.js';
-import type { RefreshTokenInputDto } from '../../../application/auth/dtos/request/refreshToken.dto.js';
-import type { RefreshTokenOutputDto } from '../../../application/auth/dtos/response/refreshToken.dto.js';
+import type { LoginInputDto } from '../../../application/dtos/auth/request/login.dto.js';
+import type { LoginOutputDto } from '../../../application/dtos/auth/response/login.dto.js';
+import type { RefreshTokenInputDto } from '../../../application/dtos/auth/request/refreshToken.dto.js';
+import type { RefreshTokenOutputDto } from '../../../application/dtos/auth/response/refreshToken.dto.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
-import type { IUserRepository } from '../../../domain/auth/repositories/user.repository.js';
-import { UserMapper } from '../../../infrastructure/auth/mappers/user.mapper.js';
+import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
+import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 

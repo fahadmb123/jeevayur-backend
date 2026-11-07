@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { DoctorRouteDependencies } from '../types/doctor.types.js';
+import type { DoctorRouteDependencies } from '../../types/doctor/doctor.types.js';
 import { roleMiddleware } from '../../../shared/middlewares/role.middleware.js';
 
 export function buildDoctorRoutes(deps: DoctorRouteDependencies): Router {

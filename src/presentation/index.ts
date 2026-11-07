@@ -1,3 +1,4 @@
-export * from './auth/index.js';
-export * from './doctor/index.js';
-export * from './health/index.js';
+export * from './controllers/index.js';
+export * from './routes/index.js';
+export * from './validators/index.js';
+export * from './types/index.js';
