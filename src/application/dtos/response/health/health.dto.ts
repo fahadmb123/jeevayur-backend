@@ -4,3 +4,4 @@ export interface HealthResponseDto {
   uptime: string;
   database: 'connected' | 'disconnected';
 }
+
