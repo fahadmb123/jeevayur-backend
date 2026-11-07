@@ -15,5 +15,37 @@ export class PrismaUserRepository implements IUserRepository {
     if (!record) return null;
     return UserMapper.toDomain(record);
   }
-}
 
+  async findByPasswordResetToken(tokenHash: string): Promise<User | null> {
+    const record = await db.user.findFirst({
+      where: { passwordResetToken: tokenHash },
+    });
+    if (!record) return null;
+    return UserMapper.toDomain(record);
+  }
+
+  async setPasswordResetToken(
+    userId: number,
+    tokenHash: string | null,
+    expiresAt: Date | null
+  ): Promise<void> {
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        passwordResetToken: tokenHash,
+        passwordResetExpiresAt: expiresAt,
+      },
+    });
+  }
+
+  async updatePassword(userId: number, newPasswordHash: string): Promise<void> {
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash: newPasswordHash,
+        passwordResetToken: null,
+        passwordResetExpiresAt: null,
+      },
+    });
+  }
+}

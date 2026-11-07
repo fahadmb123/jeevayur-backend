@@ -54,6 +54,7 @@ export const envSchema = z
     PORT: numberString(7000, 1, 65535),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     CORS_ORIGIN: z.string().default('http://localhost:5170'),
+    FRONTEND_URL: z.string().default('http://localhost:5170'),
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
     TURSO_AUTH_TOKEN: optionalTrimmedString(),
     AUTH_TOKEN_SECRET: z
@@ -121,6 +122,7 @@ export class EnvironmentConfig {
   public readonly port: number;
   public readonly nodeEnv: NodeEnvironment;
   public readonly corsOrigin: string;
+  public readonly frontendUrl: string;
   public readonly databaseUrl: string;
   public readonly tursoAuthToken: string | undefined;
   public readonly tokenSecret: string;
@@ -150,6 +152,7 @@ export class EnvironmentConfig {
     this.port = validated.PORT;
     this.nodeEnv = validated.NODE_ENV;
     this.corsOrigin = validated.CORS_ORIGIN;
+    this.frontendUrl = validated.FRONTEND_URL;
     this.databaseUrl = validated.DATABASE_URL;
     this.tursoAuthToken = validated.TURSO_AUTH_TOKEN;
     this.tokenSecret = validated.ACCESS_TOKEN_SECRET;

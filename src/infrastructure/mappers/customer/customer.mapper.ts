@@ -18,6 +18,8 @@ export class CustomerMapper {
       email: customer.email,
       passwordHash: '',
       role: 'PATIENT',
+      passwordResetToken: null,
+      passwordResetExpiresAt: null,
     };
   }
 }

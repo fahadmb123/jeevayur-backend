@@ -4,8 +4,11 @@ import { PrismaUserRepository } from '../repositories/auth/prismaUser.repository
 import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
 import { JwtTokenService } from '../services/auth/jwtToken.service.js';
 import { ExpressCookieService } from '../services/auth/expressCookie.service.js';
+import { EmailService } from '../services/email/email.service.js';
 import { LoginUseCase } from '../../application/use-cases/auth/authentication/login.useCase.js';
 import { RefreshTokenUseCase } from '../../application/use-cases/auth/tokens/refreshToken.useCase.js';
+import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/authentication/requestPasswordReset.useCase.js';
+import { ResetPasswordUseCase } from '../../application/use-cases/auth/authentication/resetPassword.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
@@ -15,8 +18,11 @@ export interface AuthComposition {
   passwordHasher: ScryptPasswordService;
   jwtService: JwtTokenService;
   cookieService: ExpressCookieService;
+  emailService: EmailService;
   loginUseCase: LoginUseCase;
   refreshTokenUseCase: RefreshTokenUseCase;
+  requestPasswordResetUseCase: RequestPasswordResetUseCase;
+  resetPasswordUseCase: ResetPasswordUseCase;
   authController: AuthController;
   router: Router;
 }
@@ -31,13 +37,22 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     refreshTokenExpiresIn: config.refreshTokenExpiresIn,
   });
   const cookieService = new ExpressCookieService(config);
+  const emailService = new EmailService();
 
   const loginUseCase = new LoginUseCase(userRepository, passwordHasher, jwtService);
   const refreshTokenUseCase = new RefreshTokenUseCase(jwtService, userRepository);
+  const requestPasswordResetUseCase = new RequestPasswordResetUseCase(
+    userRepository,
+    emailService,
+    config.frontendUrl
+  );
+  const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, passwordHasher);
 
   const authController = new AuthController(
     loginUseCase,
     refreshTokenUseCase,
+    requestPasswordResetUseCase,
+    resetPasswordUseCase,
     cookieService,
     config,
     userRepository
@@ -54,8 +69,11 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     passwordHasher,
     jwtService,
     cookieService,
+    emailService,
     loginUseCase,
     refreshTokenUseCase,
+    requestPasswordResetUseCase,
+    resetPasswordUseCase,
     authController,
     router,
   };

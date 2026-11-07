@@ -5,6 +5,10 @@ import type { LoginInputDto } from '../../../application/dtos/request/auth/login
 import type { LoginOutputDto } from '../../../application/dtos/response/auth/login.dto.js';
 import type { RefreshTokenInputDto } from '../../../application/dtos/request/auth/refreshToken.dto.js';
 import type { RefreshTokenOutputDto } from '../../../application/dtos/response/auth/refreshToken.dto.js';
+import type { ForgotPasswordRequestDto } from '../../../application/dtos/request/auth/forgotPassword.dto.js';
+import type { RequestPasswordResetOutputDto } from '../../../application/use-cases/auth/authentication/requestPasswordReset.useCase.js';
+import type { ResetPasswordRequestDto } from '../../../application/dtos/request/auth/resetPassword.dto.js';
+import type { ResetPasswordOutputDto } from '../../../application/use-cases/auth/authentication/resetPassword.useCase.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
 import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
 import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
@@ -15,6 +19,14 @@ export class AuthController extends BaseController {
   constructor(
     private readonly _loginUseCase: IUseCase<LoginInputDto, LoginOutputDto>,
     private readonly _refreshTokenUseCase: IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto>,
+    private readonly _forgotPasswordUseCase: IUseCase<
+      ForgotPasswordRequestDto,
+      RequestPasswordResetOutputDto
+    >,
+    private readonly _resetPasswordUseCase: IUseCase<
+      ResetPasswordRequestDto,
+      ResetPasswordOutputDto
+    >,
     private readonly _cookies: ICookieService,
     private readonly _config: EnvironmentConfig,
     private readonly _userRepository?: IUserRepository
@@ -67,6 +79,31 @@ export class AuthController extends BaseController {
     }
   };
 
+  forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await this._forgotPasswordUseCase.execute({
+        email: req.body.email,
+      });
+
+      this.sendSuccess(res, result.message);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await this._resetPasswordUseCase.execute({
+        token: req.body.token,
+        newPassword: req.body.newPassword,
+      });
+
+      this.sendSuccess(res, result.message);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   logout = (_req: Request, res: Response): void => {
     this._cookies.clearAuthCookies(res);
     this.sendNoContent(res);
@@ -96,4 +133,3 @@ export class AuthController extends BaseController {
     }
   };
 }
-

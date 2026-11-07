@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import type { AuthRouteDependencies } from '../../types/auth/auth.types.js';
 import validate from '../../../shared/middlewares/validate-request.js';
-import { loginSchema, refreshTokenSchema } from '../../validators/auth/auth.schema.js';
+import {
+  loginSchema,
+  refreshTokenSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../../validators/auth/auth.schema.js';
 
 export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
   const router = Router();
@@ -9,6 +14,8 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
   router.post('/login', validate(loginSchema), deps.authController.login);
   router.post('/refresh', validate(refreshTokenSchema), deps.authController.refresh);
   router.post('/logout', deps.authController.logout);
+  router.post('/forgot-password', validate(forgotPasswordSchema), deps.authController.forgotPassword);
+  router.post('/reset-password', validate(resetPasswordSchema), deps.authController.resetPassword);
 
   if (deps.authMiddleware) {
     router.get('/me', deps.authMiddleware, deps.authController.me);
@@ -18,4 +25,3 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
 
   return router;
 }
-
