@@ -13,3 +13,4 @@ export function buildDoctorRoutes(deps: DoctorRouteDependencies): Router {
   router.get('/dashboard', deps.doctorController.getDashboard);
   return router;
 }
+

@@ -3,3 +3,4 @@ import type { HealthController } from '../../controllers/health/health.controlle
 export interface HealthRouteDependencies {
   healthController: HealthController;
 }
+

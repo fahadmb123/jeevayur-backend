@@ -21,3 +21,4 @@ export class CheckHealthUseCase implements IUseCase<void, HealthResponseDto> {
     };
   }
 }
+

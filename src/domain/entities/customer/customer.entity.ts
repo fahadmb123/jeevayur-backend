@@ -7,3 +7,4 @@ export class Customer {
     public readonly phone?: string
   ) {}
 }
+

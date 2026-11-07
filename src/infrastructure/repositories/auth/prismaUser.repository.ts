@@ -16,3 +16,4 @@ export class PrismaUserRepository implements IUserRepository {
     return UserMapper.toDomain(record);
   }
 }
+

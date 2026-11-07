@@ -5,3 +5,4 @@ export interface AuthRouteDependencies {
   authController: AuthController;
   authMiddleware?: RequestHandler;
 }
+

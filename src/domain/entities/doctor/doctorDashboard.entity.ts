@@ -11,3 +11,4 @@ export class DoctorDashboard {
     public readonly retrievedAt: Date = new Date()
   ) {}
 }
+
