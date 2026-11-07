@@ -3,8 +3,8 @@ import type { IUserRepository } from '../../../../domain/repositories/auth/user.
 import type { IPasswordHasher } from '../../../../shared/interfaces/services/IPasswordHasher.service.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
-import type { LoginInputDto } from '../../../dtos/auth/request/login.dto.js';
-import type { LoginOutputDto } from '../../../dtos/auth/response/login.dto.js';
+import type { LoginInputDto } from '../../../dtos/request/auth/login.dto.js';
+import type { LoginOutputDto } from '../../../dtos/response/auth/login.dto.js';
 
 export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
   constructor(

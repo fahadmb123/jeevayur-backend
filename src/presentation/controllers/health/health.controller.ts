@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
-import type { HealthResponseDto } from '../../../application/dtos/health/response/health.dto.js';
+import type { HealthResponseDto } from '../../../application/dtos/response/health/health.dto.js';
 
 export class HealthController extends BaseController {
   constructor(private readonly _checkHealthUseCase: IUseCase<void, HealthResponseDto>) {

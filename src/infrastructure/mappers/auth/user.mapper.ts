@@ -1,6 +1,6 @@
 import type { User as PrismaUser, UserRole as PrismaUserRole } from '@prisma/client';
 import { User, type UserRole } from '../../../domain/entities/auth/user.entity.js';
-import type { UserResponseDto } from '../../../application/dtos/auth/response/user.dto.js';
+import type { UserResponseDto } from '../../../application/dtos/response/auth/user.dto.js';
 
 const roleMap: Record<PrismaUserRole, UserRole> = {
   PATIENT: 'patient',

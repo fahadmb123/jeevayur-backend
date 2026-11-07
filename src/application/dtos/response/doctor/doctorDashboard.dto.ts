@@ -3,4 +3,3 @@ import type { DoctorDashboardStats } from '../../../../domain/entities/doctor/do
 export interface DoctorDashboardResponseDto {
   stats: DoctorDashboardStats;
 }
-

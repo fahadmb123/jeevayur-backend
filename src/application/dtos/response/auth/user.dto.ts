@@ -7,4 +7,3 @@ export interface UserResponseDto {
   role: UserRole;
   createdAt?: Date;
 }
-

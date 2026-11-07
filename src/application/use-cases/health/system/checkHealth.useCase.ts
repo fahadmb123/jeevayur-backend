@@ -1,5 +1,5 @@
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
-import type { HealthResponseDto } from '../../../dtos/health/response/health.dto.js';
+import type { HealthResponseDto } from '../../../dtos/response/health/health.dto.js';
 import { db } from '../../../../shared/database/client.js';
 
 export class CheckHealthUseCase implements IUseCase<void, HealthResponseDto> {
