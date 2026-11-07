@@ -12,3 +12,4 @@ export const HttpErrorMapper: Record<ApplicationErrorKind, number> = {
 export function mapKindToHttpStatus(kind: ApplicationErrorKind): number {
   return HttpErrorMapper[kind] ?? 500;
 }
+

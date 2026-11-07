@@ -9,3 +9,4 @@ export function buildHealthUseCases(): HealthUseCasesComposition {
     checkHealthUseCase: new CheckHealthUseCase(),
   };
 }
+

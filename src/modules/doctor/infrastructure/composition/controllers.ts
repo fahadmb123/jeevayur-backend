@@ -10,3 +10,4 @@ export function buildDoctorControllers(useCases: DoctorUseCasesComposition): Doc
     doctorController: new DoctorController(useCases.getDashboardUseCase),
   };
 }
+

@@ -5,3 +5,4 @@ export interface ICookieService {
   setRefreshToken(res: Response, token: string, rememberMe?: boolean): void;
   clearAuthCookies(res: Response): void;
 }
+

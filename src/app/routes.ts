@@ -16,3 +16,4 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
 }
 
 export { type RootRouterDependencies };
+

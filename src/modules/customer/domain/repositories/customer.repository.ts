@@ -5,3 +5,4 @@ export interface ICustomerRepository extends BaseRepository<Customer> {
   findById(id: number): Promise<Customer | null>;
   findByEmail(email: string): Promise<Customer | null>;
 }
+

@@ -10,3 +10,4 @@ export function buildAuthRepositories(): AuthRepositoriesComposition {
     userRepository: new PrismaUserRepository(),
   };
 }
+

@@ -16,3 +16,4 @@ export class PrismaCustomerRepository implements ICustomerRepository {
     return CustomerMapper.toDomain(record);
   }
 }
+

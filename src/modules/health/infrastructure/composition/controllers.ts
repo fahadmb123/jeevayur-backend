@@ -10,3 +10,4 @@ export function buildHealthControllers(useCases: HealthUseCasesComposition): Hea
     healthController: new HealthController(useCases.checkHealthUseCase),
   };
 }
+

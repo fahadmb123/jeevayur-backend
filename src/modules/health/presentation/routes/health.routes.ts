@@ -10,3 +10,4 @@ export function buildHealthRoutes(deps: HealthRouteDependencies): Router {
   router.get('/', deps.healthController.check);
   return router;
 }
+

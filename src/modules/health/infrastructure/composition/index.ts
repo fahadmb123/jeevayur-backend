@@ -25,3 +25,4 @@ export function buildHealthModule(): HealthModuleComposition {
 
 export * from './useCases.js';
 export * from './controllers.js';
+

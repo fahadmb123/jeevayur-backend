@@ -30,3 +30,4 @@ export function validate(schema: ZodSchema): RequestHandler {
 }
 
 export default validate;
+

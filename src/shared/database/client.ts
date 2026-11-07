@@ -9,3 +9,4 @@ const adapter = new PrismaLibSQL({
 
 export const db = new PrismaClient({ adapter });
 export default db;
+

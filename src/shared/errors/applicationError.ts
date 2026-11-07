@@ -18,3 +18,4 @@ export class ApplicationError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+

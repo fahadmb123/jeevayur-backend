@@ -9,3 +9,4 @@ export function buildDoctorUseCases(): DoctorUseCasesComposition {
     getDashboardUseCase: new GetDoctorDashboardUseCase(),
   };
 }
+

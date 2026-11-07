@@ -16,3 +16,4 @@ export class GetDoctorDashboardUseCase implements IUseCase<void, DoctorDashboard
     };
   }
 }
+

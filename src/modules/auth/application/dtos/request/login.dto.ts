@@ -3,3 +3,4 @@ export interface LoginInputDto {
   password: string;
   rememberMe?: boolean;
 }
+

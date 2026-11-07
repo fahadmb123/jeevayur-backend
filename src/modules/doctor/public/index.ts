@@ -4,3 +4,4 @@ export * from '../presentation/controllers/doctor.controller.js';
 export * from '../presentation/routes/doctor.routes.js';
 export * from '../presentation/types/doctor.types.js';
 export * from '../infrastructure/composition/index.js';
+

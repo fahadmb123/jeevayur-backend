@@ -26,3 +26,4 @@ export function buildDoctorModule(authMiddleware?: RequestHandler): DoctorModule
 
 export * from './useCases.js';
 export * from './controllers.js';
+

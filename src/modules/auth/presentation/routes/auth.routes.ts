@@ -18,3 +18,4 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
 
   return router;
 }
+

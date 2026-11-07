@@ -5,3 +5,4 @@ export interface DoctorRouteDependencies {
   doctorController: DoctorController;
   authMiddleware?: RequestHandler;
 }
+

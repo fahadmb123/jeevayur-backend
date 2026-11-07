@@ -6,3 +6,4 @@ export interface LoginOutputDto {
   refreshToken: string;
   rememberMe: boolean;
 }
+
