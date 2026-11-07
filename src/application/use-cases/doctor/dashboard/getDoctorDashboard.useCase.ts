@@ -1,6 +1,6 @@
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
-import type { DoctorDashboardResponseDto } from '../../dtos/response/doctorDashboard.dto.js';
-import { DoctorDashboard } from '../../../../domain/doctor/entities/doctorDashboard.entity.js';
+import type { DoctorDashboardResponseDto } from '../../../dtos/doctor/response/doctorDashboard.dto.js';
+import { DoctorDashboard } from '../../../../domain/entities/doctor/doctorDashboard.entity.js';
 
 export class GetDoctorDashboardUseCase implements IUseCase<void, DoctorDashboardResponseDto> {
   async execute(): Promise<DoctorDashboardResponseDto> {
