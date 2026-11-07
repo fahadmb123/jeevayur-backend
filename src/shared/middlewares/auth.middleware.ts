@@ -1,9 +1,14 @@
-import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../errors/app.error.js';
-import { StatusMessage } from '../errors/status.mapper.js';
-import type { JwtTokenService } from '../../infrastructure/services/jwtToken.service.js';
+import type { NextFunction, Request, Response, RequestHandler } from 'express';
+import { ApplicationError } from '../errors/applicationError.js';
+import type { IJwtService, AuthTokenPayload } from '../interfaces/services/IJwtService.js';
 
-export { requireRole, roleMiddleware } from './role.middleware.js';
+declare global {
+  namespace Express {
+    interface Request {
+      auth?: AuthTokenPayload;
+    }
+  }
+}
 
 function extractToken(req: Request, cookieName: string): string | null {
   const authHeader = req.headers.authorization;
@@ -22,20 +27,18 @@ function extractToken(req: Request, cookieName: string): string | null {
   return null;
 }
 
-export const createAuthMiddleware = (tokens: JwtTokenService, cookieName: string) => (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): void => {
-  const token = extractToken(req, cookieName);
-  if (!token) {
-    next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
-    return;
-  }
-  try {
-    req.auth = tokens.verify(token);
-    next();
-  } catch {
-    next(new AppError(StatusMessage.UNAUTHORIZED, 'Invalid or expired token'));
-  }
-};
+export function createAuthMiddleware(tokens: IJwtService, cookieName: string): RequestHandler {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    const token = extractToken(req, cookieName);
+    if (!token) {
+      next(new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION'));
+      return;
+    }
+    try {
+      req.auth = tokens.verify(token);
+      next();
+    } catch {
+      next(new ApplicationError('INVALID_TOKEN', 'Invalid or expired token', 'AUTHENTICATION'));
+    }
+  };
+}

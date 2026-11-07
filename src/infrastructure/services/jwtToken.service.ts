@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { ITokenService, TokenPayload } from '../../application/interfaces/services/ITokenService.js';
+import type { IJwtService } from '../../shared/interfaces/services/IJwtService.js';
 import type { UserRole } from '../../domain/enums/userRole.enum.js';
 import { AppError } from '../../shared/errors/app.error.js';
 import { StatusMessage } from '../../shared/errors/status.mapper.js';
@@ -11,7 +12,7 @@ export interface JwtTokenServiceOptions {
   refreshTokenExpiresIn?: string;
 }
 
-export class JwtTokenService implements ITokenService {
+export class JwtTokenService implements ITokenService, IJwtService {
   private readonly accessTokenSecret: string;
   private readonly refreshTokenSecret: string;
   private readonly accessTokenExpiresIn: string;
@@ -29,6 +30,32 @@ export class JwtTokenService implements ITokenService {
       this.accessTokenExpiresIn = options.accessTokenExpiresIn || '15m';
       this.refreshTokenExpiresIn = options.refreshTokenExpiresIn || '7d';
     }
+  }
+
+  public generate(payload: TokenPayload): string {
+    return jwt.sign(
+      { role: payload.role, type: 'access' },
+      this.accessTokenSecret,
+      {
+        subject: String(payload.userId),
+        expiresIn: this.accessTokenExpiresIn as jwt.SignOptions['expiresIn'],
+      }
+    );
+  }
+
+  public generateRefreshToken(payload: TokenPayload): string {
+    return jwt.sign(
+      { role: payload.role, type: 'refresh' },
+      this.refreshTokenSecret,
+      {
+        subject: String(payload.userId),
+        expiresIn: this.refreshTokenExpiresIn as jwt.SignOptions['expiresIn'],
+      }
+    );
+  }
+
+  public verify(token: string): TokenPayload {
+    return this.verifyAccessToken(token);
   }
 
   public async signAccessToken(payload: TokenPayload): Promise<string> {
@@ -77,9 +104,5 @@ export class JwtTokenService implements ITokenService {
 
   public async sign(payload: { sub: number; role: UserRole }): Promise<string> {
     return this.signAccessToken({ userId: payload.sub, role: payload.role });
-  }
-
-  public verify(token: string): { userId: number; role: UserRole } {
-    return this.verifyAccessToken(token);
   }
 }

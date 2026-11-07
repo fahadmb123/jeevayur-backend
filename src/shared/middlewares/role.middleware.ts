@@ -1,27 +1,20 @@
-import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../errors/app.error.js';
-import { StatusMessage } from '../errors/status.mapper.js';
-import type { UserRole } from '../../domain/enums/userRole.enum.js';
+import type { NextFunction, Request, Response, RequestHandler } from 'express';
+import { ApplicationError } from '../errors/applicationError.js';
 
-export const roleMiddleware = (...roles: UserRole[]) => (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): void => {
-  if (!req.auth) {
-    next(new AppError(StatusMessage.UNAUTHORIZED, 'Authentication required'));
-    return;
-  }
+export function roleMiddleware(...allowedRoles: string[]): RequestHandler {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.auth) {
+      next(new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION'));
+      return;
+    }
 
-  if (!roles.includes(req.auth.role)) {
-    next(new AppError(StatusMessage.FORBIDDEN, 'Access forbidden'));
-    return;
-  }
+    if (!allowedRoles.includes(req.auth.role)) {
+      next(new ApplicationError('FORBIDDEN', 'Access forbidden', 'AUTHORIZATION'));
+      return;
+    }
 
-  next();
-};
+    next();
+  };
+}
 
 export const requireRole = roleMiddleware;
-export const requireDoctor = roleMiddleware('doctor', 'admin');
-export const requireAdmin = roleMiddleware('admin');
-export const requirePatient = roleMiddleware('patient', 'admin');
