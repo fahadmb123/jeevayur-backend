@@ -7,6 +7,7 @@ const INITIAL_DEFAULT_LINKS = [
   { platform: 'linkedin', url: 'https://linkedin.com/company/jeevayurniketan', isVisible: true },
   { platform: 'facebook', url: 'https://facebook.com/jeevayurniketan', isVisible: true },
   { platform: 'youtube', url: 'https://youtube.com/@jeevayurniketan', isVisible: true },
+  { platform: 'twitter', url: 'https://x.com/jeevayurniketan', isVisible: true },
 ];
 
 export class PrismaSocialLinkRepository implements ISocialLinkRepository {
@@ -80,7 +81,7 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
 
   async bulkSave(links: Array<{ id?: string; platform: string; url: string; isVisible?: boolean }>): Promise<SocialLink[]> {
     await db.$transaction(async (tx) => {
-      const validLinks = links.filter((l) => l.platform && l.url);
+      const validLinks = links.filter((l) => l && l.platform && typeof l.platform === 'string');
 
       await tx.socialLink.deleteMany({});
 
@@ -89,7 +90,7 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
           data: validLinks.map((l) => ({
             id: l.id && l.id.length > 10 ? l.id : undefined,
             platform: l.platform.toLowerCase().trim(),
-            url: l.url.trim(),
+            url: (l.url || '').trim(),
             isVisible: l.isVisible !== false,
           })),
         });
