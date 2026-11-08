@@ -2,8 +2,10 @@ import type { IEmailService, NewLoginAlertParams } from '../../../shared/interfa
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
-const BRAND_LOGO_URL =
+const BRAND_EMBLEM_URL =
   'https://raw.githubusercontent.com/fahadmb123/jeevayur-web/dev/public/fevicon_rendered.png';
+const BRAND_TEXT_URL =
+  'https://raw.githubusercontent.com/fahadmb123/jeevayur-web/dev/public/logo_text_rendered.png';
 
 function formatDateTime(date: Date): string {
   try {
@@ -35,14 +37,25 @@ export class EmailService implements IEmailService {
 
   private _buildHeaderHtml(): string {
     return `
-      <!-- Sanctuary Header Banner with Premium Large Brand Logo -->
+      <!-- Luxury Top Accent Border -->
       <tr>
-        <td align="center" style="background: linear-gradient(180deg, #07261E 0%, #0D3A2C 100%); background-color: #0B3326; padding: 42px 32px 34px; text-align: center; border-bottom: 3px solid #C98D3B;">
-          <img src="${BRAND_LOGO_URL}" alt="Jeevayurniketan Emblem" width="88" height="88" style="display: block; margin: 0 auto 16px; border-radius: 50%; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border: 2px solid rgba(201, 141, 59, 0.4);" />
-          <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">
-            Jeevayurniketan
-          </h1>
-          <p style="margin: 8px 0 0; color: #52D8A7; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;">
+        <td style="height: 4px; background: linear-gradient(90deg, #124C38 0%, #C98D3B 50%, #124C38 100%); background-color: #124C38; line-height: 4px; font-size: 0px;">&nbsp;</td>
+      </tr>
+
+      <!-- Sanctuary Header with Side-by-Side Brand Logo & Typography -->
+      <tr>
+        <td align="center" style="background-color: #FFFFFF; padding: 36px 32px 24px; text-align: center; border-bottom: 1px solid #EEF3EE;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+            <tr>
+              <td valign="middle" style="padding-right: 12px;">
+                <img src="${BRAND_EMBLEM_URL}" alt="Jeevayurniketan Emblem" width="46" height="46" style="display: block; width: 46px; height: 46px; border: 0; outline: none;" />
+              </td>
+              <td valign="middle">
+                <img src="${BRAND_TEXT_URL}" alt="Jeevayurniketan" height="38" style="display: block; height: 38px; width: auto; max-width: 190px; border: 0; outline: none;" />
+              </td>
+            </tr>
+          </table>
+          <p style="margin: 10px 0 0; color: #768E81; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             Ayurveda &amp; Psychotherapy Sanctuary
           </p>
         </td>
@@ -54,16 +67,23 @@ export class EmailService implements IEmailService {
     return `
       <!-- Clinical Sanctuary Footer -->
       <tr>
-        <td style="background-color: #F3F6F1; padding: 28px 36px; border-top: 1px solid #E2E8DE; text-align: center;">
-          <p style="margin: 0 0 6px; font-size: 13px; font-weight: 600; color: #1B4D3A;">
-            Jeevayurniketan Healthcare Sanctuary • Clinical Practice of Dr. Ahalya T.S.
-          </p>
-          <p style="margin: 0 0 8px; font-size: 12px; color: #6E8578;">
+        <td style="background-color: #FAFBF9; padding: 28px 36px; border-top: 1px solid #EBF0EA; text-align: center;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 10px;">
+            <tr>
+              <td valign="middle" style="padding-right: 8px;">
+                <img src="${BRAND_EMBLEM_URL}" alt="Emblem" width="20" height="20" style="display: block; opacity: 0.85;" />
+              </td>
+              <td valign="middle" style="font-size: 12px; font-weight: 700; color: #1B4D3A; letter-spacing: 0.05em; text-transform: uppercase;">
+                Jeevayurniketan Healthcare Sanctuary
+              </td>
+            </tr>
+          </table>
+          <p style="margin: 0 0 6px; font-size: 12px; color: #6E8578; line-height: 1.5;">
             Classical Caraka Samhita • Smriti Psychotherapy • Yoga Cikitsa
           </p>
-          <p style="margin: 0; font-size: 11px; color: #9AB2A5; line-height: 1.5;">
-            Protected by 256-bit clinical encryption &amp; confidentiality standards.<br>
-            This is an automated system notification. Please do not reply directly to this email.
+          <p style="margin: 0; font-size: 11px; color: #9AB2A5; line-height: 1.55;">
+            Protected by 256-bit clinical encryption &amp; patient confidentiality standards.<br>
+            Automated system notification • Please do not reply directly to this email.
           </p>
         </td>
       </tr>
