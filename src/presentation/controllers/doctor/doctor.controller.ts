@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
-import type { DoctorDashboardResponseDto } from '../../../application/dtos/response/doctor/doctorDashboard.dto.js';
+import type { DoctorDashboardResponseDto } from '../../../application/dtos/response/doctor/dashboard/doctorDashboard.dto.js';
 
 export class DoctorController extends BaseController {
   constructor(

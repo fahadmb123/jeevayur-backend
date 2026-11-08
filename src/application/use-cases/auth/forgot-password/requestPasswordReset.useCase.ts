@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
-import type { ForgotPasswordRequestDto } from '../../../dtos/request/auth/forgotPassword.dto.js';
+import type { ForgotPasswordRequestDto } from '../../../dtos/request/auth/forgot-password/forgotPassword.dto.js';
 
 export interface RequestPasswordResetOutputDto {
   message: string;

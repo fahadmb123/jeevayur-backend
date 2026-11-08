@@ -7,8 +7,8 @@ import type { IJwtService } from '../../../../shared/interfaces/services/IJwtSer
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
 import { Logger } from '../../../../shared/logging/Logger.js';
-import type { LoginInputDto } from '../../../dtos/request/auth/login.dto.js';
-import type { LoginOutputDto } from '../../../dtos/response/auth/login.dto.js';
+import type { LoginInputDto } from '../../../dtos/request/auth/login/login.dto.js';
+import type { LoginOutputDto } from '../../../dtos/response/auth/login/login.dto.js';
 
 export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
   constructor(

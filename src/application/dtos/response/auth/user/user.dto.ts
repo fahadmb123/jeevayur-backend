@@ -1,4 +1,4 @@
-import type { UserRole } from '../../../../domain/entities/auth/user.entity.js';
+import type { UserRole } from '../../../../../domain/entities/auth/user.entity.js';
 
 export interface UserResponseDto {
   id: number;

@@ -4,8 +4,8 @@ import type { IUserRepository } from '../../../../domain/repositories/auth/user.
 import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
-import type { RefreshTokenInputDto } from '../../../dtos/request/auth/refreshToken.dto.js';
-import type { RefreshTokenOutputDto } from '../../../dtos/response/auth/refreshToken.dto.js';
+import type { RefreshTokenInputDto } from '../../../dtos/request/auth/refresh-token/refreshToken.dto.js';
+import type { RefreshTokenOutputDto } from '../../../dtos/response/auth/refresh-token/refreshToken.dto.js';
 import type { UserRole } from '../../../../domain/entities/auth/user.entity.js';
 
 export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto> {

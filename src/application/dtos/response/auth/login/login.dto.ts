@@ -1,4 +1,4 @@
-import type { UserResponseDto } from './user.dto.js';
+import type { UserResponseDto } from '../user/user.dto.js';
 
 export interface LoginOutputDto {
   user: UserResponseDto;

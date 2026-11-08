@@ -6,10 +6,10 @@ import { ScryptPasswordService } from '../services/auth/scryptPassword.service.j
 import { JwtTokenService } from '../services/auth/jwtToken.service.js';
 import { ExpressCookieService } from '../services/auth/expressCookie.service.js';
 import { EmailService } from '../services/email/email.service.js';
-import { LoginUseCase } from '../../application/use-cases/auth/authentication/login.useCase.js';
-import { RefreshTokenUseCase } from '../../application/use-cases/auth/tokens/refreshToken.useCase.js';
-import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/authentication/requestPasswordReset.useCase.js';
-import { ResetPasswordUseCase } from '../../application/use-cases/auth/authentication/resetPassword.useCase.js';
+import { LoginUseCase } from '../../application/use-cases/auth/login/login.useCase.js';
+import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-token/refreshToken.useCase.js';
+import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
+import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';

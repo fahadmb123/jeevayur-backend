@@ -1,5 +1,5 @@
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
-import type { DoctorDashboardResponseDto } from '../../../dtos/response/doctor/doctorDashboard.dto.js';
+import type { DoctorDashboardResponseDto } from '../../../dtos/response/doctor/dashboard/doctorDashboard.dto.js';
 import { DoctorDashboard } from '../../../../domain/entities/doctor/doctorDashboard.entity.js';
 
 export class GetDoctorDashboardUseCase implements IUseCase<void, DoctorDashboardResponseDto> {
