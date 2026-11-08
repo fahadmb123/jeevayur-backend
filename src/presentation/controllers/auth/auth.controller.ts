@@ -15,8 +15,8 @@ import type { VerifyResetTokenResponseDto } from '../../../application/dtos/resp
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
 import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/auth/session.repository.js';
-import type { UpdateProfileInputDto } from '../../../application/dtos/request/auth/profile/updateProfile.dto.js';
-import type { UpdateProfileOutputDto } from '../../../application/dtos/response/auth/profile/updateProfile.dto.js';
+import type { UpdateProfileRequestDto } from '../../../application/dtos/request/auth/profile/updateProfile.dto.js';
+import type { UpdateProfileResponseDto } from '../../../application/dtos/response/auth/profile/updateProfile.dto.js';
 import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
@@ -42,7 +42,7 @@ export class AuthController extends BaseController {
     private readonly _config: EnvironmentConfig,
     private readonly _userRepository?: IUserRepository,
     private readonly _sessionRepository?: ISessionRepository,
-    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileInputDto, UpdateProfileOutputDto>
+    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileRequestDto, UpdateProfileResponseDto>
   ) {
     super();
   }

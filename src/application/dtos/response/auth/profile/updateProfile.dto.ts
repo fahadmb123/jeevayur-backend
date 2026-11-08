@@ -1,5 +1,5 @@
 import type { UserResponseDto } from '../user/user.dto.js';
 
-export interface UpdateProfileOutputDto {
+export interface UpdateProfileResponseDto {
   user: UserResponseDto;
 }
