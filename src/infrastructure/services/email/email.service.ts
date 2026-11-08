@@ -3,7 +3,7 @@ import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
 const BRAND_LOGO_URL =
-  'https://raw.githubusercontent.com/fahadmb123/jeevayur-web/dev/public/android-chrome-192x192.png';
+  'https://raw.githubusercontent.com/fahadmb123/jeevayur-web/dev/public/fevicon_rendered.png';
 
 function formatDateTime(date: Date): string {
   try {
@@ -38,7 +38,7 @@ export class EmailService implements IEmailService {
       <!-- Sanctuary Header Banner with Premium Large Brand Logo -->
       <tr>
         <td align="center" style="background: linear-gradient(180deg, #07261E 0%, #0D3A2C 100%); background-color: #0B3326; padding: 42px 32px 34px; text-align: center; border-bottom: 3px solid #C98D3B;">
-          <img src="${BRAND_LOGO_URL}" alt="Jeevayurniketan Emblem" width="88" height="88" style="display: block; margin: 0 auto 16px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border: 2px solid rgba(201, 141, 59, 0.4);" />
+          <img src="${BRAND_LOGO_URL}" alt="Jeevayurniketan Emblem" width="88" height="88" style="display: block; margin: 0 auto 16px; border-radius: 50%; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border: 2px solid rgba(201, 141, 59, 0.4);" />
           <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">
             Jeevayurniketan
           </h1>
@@ -189,7 +189,7 @@ export class EmailService implements IEmailService {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Alert: New Sign-in to Jeevayurniketan</title>
+  <title>New Sign-in to Jeevayurniketan</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #F7FAF8; font-family: 'Trebuchet MS', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #14241C;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #F7FAF8; padding: 40px 16px;">
@@ -203,18 +203,18 @@ export class EmailService implements IEmailService {
           <tr>
             <td style="padding: 40px 36px 32px;">
               
-              <!-- Security Badge & Title -->
+              <!-- Sign-in Badge & Title -->
               <div style="text-align: center; margin-bottom: 28px;">
-                <div style="display: inline-block; background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 999px; padding: 6px 18px; margin-bottom: 14px;">
-                  <span style="font-size: 12px; font-weight: 700; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">
-                    🛡️ Security Alert: New Sign-in
+                <div style="display: inline-block; background-color: #EDF6F1; border: 1px solid #C4DEC9; border-radius: 999px; padding: 6px 18px; margin-bottom: 14px;">
+                  <span style="font-size: 12px; font-weight: 700; color: #124C38; letter-spacing: 0.05em; text-transform: uppercase;">
+                    🌿 Account Sign-In Notification
                   </span>
                 </div>
                 <h2 style="margin: 0 0 10px; color: #0B3326; font-size: 22px; font-weight: 700; letter-spacing: -0.01em;">
                   New Sign-In to Your Account
                 </h2>
                 <p style="margin: 0; font-size: 15px; color: #485E53; line-height: 1.6;">
-                  Hello <strong>${recipientName}</strong>, we noticed a new sign-in to your Jeevayurniketan account. Please review the details below:
+                  Hello <strong>${recipientName}</strong>, we recorded a new sign-in to your Jeevayurniketan account. Please review the details below:
                 </p>
               </div>
 
@@ -274,13 +274,13 @@ export class EmailService implements IEmailService {
                 </tr>
               </table>
 
-              <!-- Unrecognized Warning Block -->
-              <div style="background-color: #FFFDF5; border: 1px solid #FDE68A; border-left: 4px solid #D97706; border-radius: 10px; padding: 18px 20px; margin-bottom: 30px;">
-                <p style="margin: 0 0 6px; font-size: 14px; font-weight: 700; color: #92400E;">
-                  Don't recognize this sign-in?
+              <!-- Device Management Info Block -->
+              <div style="background-color: #EDF6F1; border: 1px solid #C4DEC9; border-radius: 10px; padding: 18px 20px; margin-bottom: 30px;">
+                <p style="margin: 0 0 6px; font-size: 14px; font-weight: 700; color: #124C38;">
+                  Need to review your active devices?
                 </p>
-                <p style="margin: 0; font-size: 13px; color: #78350F; line-height: 1.55;">
-                  If this was not you, someone else may have obtained your password. Please review your active sessions immediately and log out any unrecognized device to protect your account.
+                <p style="margin: 0; font-size: 13px; color: #2A5A46; line-height: 1.55;">
+                  If this was you, no action is needed. If you did not sign in or wish to disconnect unrecognized devices, you can manage your active sessions directly in your account settings.
                 </p>
               </div>
 
@@ -289,7 +289,7 @@ export class EmailService implements IEmailService {
                 <tr>
                   <td align="center" style="background-color: #124C38; border-radius: 10px; box-shadow: 0 4px 14px rgba(18, 76, 56, 0.25);">
                     <a href="${manageSessionsUrl}" target="_blank" style="display: inline-block; padding: 15px 38px; font-size: 15px; font-weight: 700; color: #FFFFFF; text-decoration: none; border-radius: 10px; letter-spacing: 0.02em;">
-                      Review &amp; Log Out Devices
+                      Manage Active Sessions
                     </a>
                   </td>
                 </tr>
@@ -297,7 +297,7 @@ export class EmailService implements IEmailService {
 
               <!-- Reassurance Note -->
               <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #748A7D; text-align: center;">
-                If this was you, you can safely disregard this message. Your session is active and protected.
+                Your sanctuary account is encrypted and protected.
               </p>
 
             </td>
@@ -314,8 +314,8 @@ export class EmailService implements IEmailService {
     `.trim();
 
     const textContent = [
-      'Jeevayurniketan Security Alert - New Sign-in Detected',
-      '====================================================',
+      'Jeevayurniketan - New Sign-in Detected',
+      '=====================================',
       `Hello ${recipientName},`,
       '',
       'A new sign-in to your Jeevayurniketan account was detected:',
@@ -325,14 +325,14 @@ export class EmailService implements IEmailService {
       `- Time: ${formattedTime}`,
       '',
       'If this was you, no action is needed.',
-      'If you do not recognize this activity, review your active sessions and log out the device immediately:',
+      'To review your active devices and manage sessions, visit:',
       manageSessionsUrl,
     ].join('\n');
 
     await this._sendBrevoEmail({
       toEmail,
       recipientName,
-      subject: `Security alert: New sign-in to Jeevayurniketan from ${device}`,
+      subject: `[Jeevayurniketan] New sign-in from ${device}`,
       htmlContent,
       textContent,
     });
