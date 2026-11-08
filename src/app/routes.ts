@@ -16,8 +16,11 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
     router.use('/customer', dependencies.customerRoutes);
   }
 
+  if (dependencies.appointmentRoutes) {
+    router.use('/appointments', dependencies.appointmentRoutes);
+  }
+
   return router;
 }
 
 export { type RootRouterDependencies };
-

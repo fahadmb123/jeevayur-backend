@@ -47,4 +47,18 @@ model SocialLink {
   url       String   // e.g., "https://github.com/username"
   isVisible Boolean  @default(true)
 }
+
+model Appointment {
+  id        String   @id @default(uuid())
+  type      String   // "ayurveda treatment" | "yoga class"
+  name      String
+  email     String
+  reason    String
+  format    String   // "online" | "offline"
+  language  String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
  

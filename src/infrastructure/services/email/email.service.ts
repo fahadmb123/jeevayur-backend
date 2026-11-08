@@ -1,4 +1,8 @@
-import type { IEmailService, NewLoginAlertParams } from '../../../shared/interfaces/services/IEmailService.js';
+import type {
+  IEmailService,
+  NewLoginAlertParams,
+  AppointmentNotificationParams,
+} from '../../../shared/interfaces/services/IEmailService.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
@@ -353,6 +357,130 @@ export class EmailService implements IEmailService {
       toEmail,
       recipientName,
       subject: `[Jeevayurniketan] New sign-in from ${device}`,
+      htmlContent,
+      textContent,
+    });
+  }
+
+  async sendAppointmentNotificationEmail(params: AppointmentNotificationParams): Promise<void> {
+    const {
+      toEmail,
+      type,
+      name,
+      email,
+      reason,
+      format,
+      language,
+      createdAt,
+    } = params;
+
+    const formattedTime = formatDateTime(createdAt);
+    const serviceLabel =
+      type === 'ayurveda treatment' ? 'Ayurveda Treatment' : 'Yoga Class';
+    const formatLabel =
+      format === 'online'
+        ? 'Online (Virtual Video Consultation)'
+        : 'Offline (In-Person Clinic at Kottakkal)';
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Appointment Request - Jeevayurniketan</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F4F6F3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F4F6F3; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 620px; background-color: #FFFFFF; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(18, 76, 56, 0.08); border: 1px solid #E2E8DE;">
+          ${this._buildHeaderHtml()}
+
+          <!-- Main Content Body -->
+          <tr>
+            <td style="padding: 36px 36px 28px;">
+              <!-- Badge -->
+              <div style="display: inline-block; padding: 5px 14px; border-radius: 999px; background-color: rgba(27, 107, 80, 0.08); color: #1B6B50; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; border: 1px solid rgba(27, 107, 80, 0.2);">
+                New Booking Inquiry • ${serviceLabel}
+              </div>
+
+              <h1 style="margin: 0 0 12px; color: #124C38; font-size: 22px; font-weight: 700; line-height: 1.3;">
+                New Patient Appointment Confirmed
+              </h1>
+
+              <p style="margin: 0 0 24px; color: #4B6356; font-size: 14px; line-height: 1.6;">
+                A new appointment booking request has been submitted through the Jeevayurniketan Sanctuary portal with the following full details:
+              </p>
+
+              <!-- Detailed Summary Table -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F9FBF8; border: 1px solid #E2E8DE; border-radius: 10px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600; width: 35%;">Service Type</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #124C38; font-size: 13px; font-weight: 700;">${serviceLabel}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Consultation Format</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #124C38; font-size: 13px; font-weight: 600;">${formatLabel}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Patient Name</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px; font-weight: 600;">${name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Patient Email</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #1B6B50; font-size: 13px; font-weight: 600;"><a href="mailto:${email}" style="color: #1B6B50; text-decoration: none;">${email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Preferred Language</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px;">${language}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Submission Time</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px;">${formattedTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 16px; color: #768E81; font-size: 13px; font-weight: 600; vertical-align: top;">Reason / Symptoms</td>
+                  <td style="padding: 14px 16px; color: #14241C; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${reason}</td>
+                </tr>
+              </table>
+
+              <!-- Notice -->
+              <p style="margin: 0; padding: 14px 18px; background-color: #EDF6F1; border-left: 3px solid #1B6B50; border-radius: 4px; color: #1B6B50; font-size: 12px; line-height: 1.5;">
+                Please contact the patient via email to schedule and confirm their clinical consultation slot.
+              </p>
+            </td>
+          </tr>
+
+          ${this._buildFooterHtml()}
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `.trim();
+
+    const textContent = [
+      'Jeevayurniketan Sanctuary - New Appointment Request',
+      '====================================================',
+      `Service Type: ${serviceLabel}`,
+      `Format: ${formatLabel}`,
+      `Patient Name: ${name}`,
+      `Patient Email: ${email}`,
+      `Preferred Language: ${language}`,
+      `Submitted At: ${formattedTime}`,
+      '',
+      'Reason / Symptoms for Appointment:',
+      reason,
+      '',
+      'Please reply to the patient or coordinate their consultation schedule.',
+    ].join('\n');
+
+    await this._sendBrevoEmail({
+      toEmail,
+      recipientName: 'Jeevayurniketan Clinical Team',
+      subject: `[Jeevayurniketan] New Appointment Request: ${serviceLabel} - ${name}`,
       htmlContent,
       textContent,
     });
