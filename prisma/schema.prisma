@@ -11,6 +11,7 @@ model User {
   id                     Int       @id @default(autoincrement())
   name                   String
   email                  String    @unique
+  phone                  String?
   passwordHash           String
   role                   UserRole  @default(PATIENT)
   passwordResetToken     String?
@@ -38,5 +39,12 @@ enum UserRole {
   PATIENT
   DOCTOR
   ADMIN
+}
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  platform  String   // e.g., "github", "linkedin", "instagram"
+  url       String   // e.g., "https://github.com/username"
+  isVisible Boolean  @default(true)
 }
  

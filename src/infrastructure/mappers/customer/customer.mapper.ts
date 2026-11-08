@@ -20,6 +20,7 @@ export class CustomerMapper {
       role: 'PATIENT',
       passwordResetToken: null,
       passwordResetExpiresAt: null,
+      phone: null,
     };
   }
 }

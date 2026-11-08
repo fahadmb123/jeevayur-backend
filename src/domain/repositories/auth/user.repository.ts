@@ -7,4 +7,8 @@ export interface IUserRepository extends BaseRepository<User> {
   findByPasswordResetToken(tokenHash: string): Promise<User | null>;
   setPasswordResetToken(userId: number, tokenHash: string | null, expiresAt: Date | null): Promise<void>;
   updatePassword(userId: number, newPasswordHash: string): Promise<void>;
+  updateProfile(
+    userId: number,
+    data: { name?: string; email?: string; phone?: string | null }
+  ): Promise<User>;
 }

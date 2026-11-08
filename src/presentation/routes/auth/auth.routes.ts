@@ -6,6 +6,7 @@ import {
   refreshTokenSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  updateProfileSchema,
 } from '../../validators/auth/auth.schema.js';
 
 export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
@@ -20,10 +21,14 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
 
   if (deps.authMiddleware) {
     router.get('/me', deps.authMiddleware, deps.authController.me);
+    router.put('/profile', deps.authMiddleware, validate(updateProfileSchema), deps.authController.updateProfile);
+    router.put('/me', deps.authMiddleware, validate(updateProfileSchema), deps.authController.updateProfile);
     router.get('/sessions', deps.authMiddleware, deps.authController.getSessions);
     router.delete('/sessions/:sessionId', deps.authMiddleware, deps.authController.revokeSession);
   } else {
     router.get('/me', deps.authController.me);
+    router.put('/profile', validate(updateProfileSchema), deps.authController.updateProfile);
+    router.put('/me', validate(updateProfileSchema), deps.authController.updateProfile);
   }
 
   return router;

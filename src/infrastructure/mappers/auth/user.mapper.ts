@@ -24,7 +24,8 @@ export class UserMapper {
       roleMap[record.role] ?? 'patient',
       record.createdAt,
       record.passwordResetToken,
-      record.passwordResetExpiresAt
+      record.passwordResetExpiresAt,
+      record.phone
     );
   }
 
@@ -35,6 +36,7 @@ export class UserMapper {
       email: user.email,
       role: user.role,
       createdAt: user.createdAt,
+      phone: user.phone ?? null,
     };
   }
 
@@ -47,6 +49,7 @@ export class UserMapper {
       role: reverseRoleMap[user.role] ?? 'PATIENT',
       passwordResetToken: user.passwordResetToken ?? null,
       passwordResetExpiresAt: user.passwordResetExpiresAt ?? null,
+      phone: user.phone ?? null,
     };
   }
 }

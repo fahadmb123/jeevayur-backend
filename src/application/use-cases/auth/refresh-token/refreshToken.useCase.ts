@@ -4,18 +4,18 @@ import type { IUserRepository } from '../../../../domain/repositories/auth/user.
 import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
-import type { RefreshTokenInputDto } from '../../../dtos/request/auth/refresh-token/refreshToken.dto.js';
-import type { RefreshTokenOutputDto } from '../../../dtos/response/auth/refresh-token/refreshToken.dto.js';
+import type { RefreshTokenRequestDto } from '../../../dtos/request/auth/refresh-token/refreshToken.dto.js';
+import type { RefreshTokenResponseDto } from '../../../dtos/response/auth/refresh-token/refreshToken.dto.js';
 import type { UserRole } from '../../../../domain/entities/auth/user.entity.js';
 
-export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto> {
+export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, RefreshTokenResponseDto> {
   constructor(
     private readonly _jwtService: IJwtService,
     private readonly _userRepository?: IUserRepository,
     private readonly _sessionRepository?: ISessionRepository
   ) {}
 
-  async execute(input: RefreshTokenInputDto): Promise<RefreshTokenOutputDto> {
+  async execute(input: RefreshTokenRequestDto): Promise<RefreshTokenResponseDto> {
     if (!input.refreshToken) {
       throw new ApplicationError('TOKEN_REQUIRED', 'Refresh token required', 'AUTHENTICATION');
     }

@@ -8,6 +8,10 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
   router.use('/doctor', dependencies.doctorRoutes);
   router.use('/health', dependencies.healthRoutes);
 
+  if (dependencies.socialLinkRoutes) {
+    router.use('/social-links', dependencies.socialLinkRoutes);
+  }
+
   if (dependencies.customerRoutes) {
     router.use('/customer', dependencies.customerRoutes);
   }

@@ -2,19 +2,21 @@ import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
-import type { LoginInputDto } from '../../../application/dtos/request/auth/login/login.dto.js';
-import type { LoginOutputDto } from '../../../application/dtos/response/auth/login/login.dto.js';
-import type { RefreshTokenInputDto } from '../../../application/dtos/request/auth/refresh-token/refreshToken.dto.js';
-import type { RefreshTokenOutputDto } from '../../../application/dtos/response/auth/refresh-token/refreshToken.dto.js';
+import type { LoginRequestDto } from '../../../application/dtos/request/auth/login/login.dto.js';
+import type { LoginResponseDto } from '../../../application/dtos/response/auth/login/login.dto.js';
+import type { RefreshTokenRequestDto } from '../../../application/dtos/request/auth/refresh-token/refreshToken.dto.js';
+import type { RefreshTokenResponseDto } from '../../../application/dtos/response/auth/refresh-token/refreshToken.dto.js';
 import type { ForgotPasswordRequestDto } from '../../../application/dtos/request/auth/forgot-password/forgotPassword.dto.js';
-import type { RequestPasswordResetOutputDto } from '../../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
+import type { RequestPasswordResetResponseDto } from '../../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
 import type { ResetPasswordRequestDto } from '../../../application/dtos/request/auth/reset-password/resetPassword.dto.js';
-import type { ResetPasswordOutputDto } from '../../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
+import type { ResetPasswordResponseDto } from '../../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import type { VerifyResetTokenRequestDto } from '../../../application/dtos/request/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { VerifyResetTokenResponseDto } from '../../../application/dtos/response/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
 import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/auth/session.repository.js';
+import type { UpdateProfileRequestDto } from '../../../application/dtos/request/auth/profile/updateProfile.dto.js';
+import type { UpdateProfileResponseDto } from '../../../application/dtos/response/auth/profile/updateProfile.dto.js';
 import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
@@ -22,15 +24,15 @@ import { extractClientInfo } from '../../../shared/utils/clientInfo.js';
 
 export class AuthController extends BaseController {
   constructor(
-    private readonly _loginUseCase: IUseCase<LoginInputDto, LoginOutputDto>,
-    private readonly _refreshTokenUseCase: IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto>,
+    private readonly _loginUseCase: IUseCase<LoginRequestDto, LoginResponseDto>,
+    private readonly _refreshTokenUseCase: IUseCase<RefreshTokenRequestDto, RefreshTokenResponseDto>,
     private readonly _forgotPasswordUseCase: IUseCase<
       ForgotPasswordRequestDto,
-      RequestPasswordResetOutputDto
+      RequestPasswordResetResponseDto
     >,
     private readonly _resetPasswordUseCase: IUseCase<
       ResetPasswordRequestDto,
-      ResetPasswordOutputDto
+      ResetPasswordResponseDto
     >,
     private readonly _verifyResetTokenUseCase: IUseCase<
       VerifyResetTokenRequestDto,
@@ -39,7 +41,8 @@ export class AuthController extends BaseController {
     private readonly _cookies: ICookieService,
     private readonly _config: EnvironmentConfig,
     private readonly _userRepository?: IUserRepository,
-    private readonly _sessionRepository?: ISessionRepository
+    private readonly _sessionRepository?: ISessionRepository,
+    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileRequestDto, UpdateProfileResponseDto>
   ) {
     super();
   }
@@ -184,9 +187,23 @@ export class AuthController extends BaseController {
         return;
       }
 
+      const refreshToken =
+        req.cookies?.[this._config.refreshCookieName] ||
+        req.signedCookies?.[this._config.refreshCookieName];
+
+      const currentTokenHash = refreshToken
+        ? crypto.createHash('sha256').update(refreshToken).digest('hex')
+        : null;
+
+      const clientInfo = extractClientInfo(req);
       const sessions = await this._sessionRepository.findByUserId(req.auth.userId);
-      this.sendSuccess(res, 'Sessions retrieved successfully', {
-        sessions: sessions.map((s) => ({
+
+      const mappedSessions = sessions.map((s) => {
+        const isCurrent = currentTokenHash
+          ? s.tokenHash === currentTokenHash
+          : s.device === clientInfo.device;
+
+        return {
           id: s.id,
           ipAddress: s.ipAddress,
           device: s.device,
@@ -194,7 +211,19 @@ export class AuthController extends BaseController {
           country: s.country,
           lastActiveAt: s.lastActiveAt,
           createdAt: s.createdAt,
-        })),
+          isCurrent: Boolean(isCurrent),
+        };
+      });
+
+      // Ensure the current active device is placed first
+      mappedSessions.sort((a, b) => {
+        if (a.isCurrent) return -1;
+        if (b.isCurrent) return 1;
+        return new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime();
+      });
+
+      this.sendSuccess(res, 'Sessions retrieved successfully', {
+        sessions: mappedSessions,
       });
     } catch (err) {
       next(err);
@@ -221,6 +250,33 @@ export class AuthController extends BaseController {
       }
 
       this.sendSuccess(res, 'Session revoked successfully');
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.auth?.userId) {
+        throw new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION');
+      }
+
+      if (!this._updateProfileUseCase) {
+        throw new ApplicationError(
+          'INTERNAL_ERROR',
+          'Update profile use case not configured',
+          'INTERNAL'
+        );
+      }
+
+      const result = await this._updateProfileUseCase.execute({
+        userId: req.auth.userId,
+        name: req.body?.name,
+        email: req.body?.email,
+        phone: req.body?.phone,
+      });
+
+      this.sendSuccess(res, 'Profile updated successfully', result);
     } catch (err) {
       next(err);
     }
