@@ -21,6 +21,7 @@ export class PrismaAppointmentRepository implements IAppointmentRepository {
         type: data.type,
         name: data.name,
         email: data.email,
+        phone: data.phone,
         reason: data.reason,
         format: data.format,
         language: data.language,

@@ -8,6 +8,7 @@ export class Appointment {
     public readonly type: AppointmentType,
     public readonly name: string,
     public readonly email: string,
+    public readonly phone: string,
     public readonly reason: string,
     public readonly format: AppointmentFormat,
     public readonly language: string,

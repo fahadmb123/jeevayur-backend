@@ -17,6 +17,7 @@ export class CreateAppointmentUseCase {
       type: dto.type,
       name: dto.name,
       email: dto.email,
+      phone: dto.phone,
       reason: dto.reason,
       format: dto.format,
       language: dto.language,
@@ -24,8 +25,8 @@ export class CreateAppointmentUseCase {
 
     const destinationEmail =
       this.notificationEmail ||
+      process.env.CLINIC_EMAIL ||
       process.env.APPOINTMENT_NOTIFICATION_EMAIL ||
-      process.env.CLINIC_NOTIFICATION_EMAIL ||
       process.env.BREVO_SENDER_EMAIL ||
       'fahadmbasheer@gmail.com';
 
@@ -35,6 +36,7 @@ export class CreateAppointmentUseCase {
         type: savedAppointment.type,
         name: savedAppointment.name,
         email: savedAppointment.email,
+        phone: savedAppointment.phone,
         reason: savedAppointment.reason,
         format: savedAppointment.format,
         language: savedAppointment.language,

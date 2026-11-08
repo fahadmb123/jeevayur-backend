@@ -368,6 +368,7 @@ export class EmailService implements IEmailService {
       type,
       name,
       email,
+      phone,
       reason,
       format,
       language,
@@ -397,10 +398,8 @@ export class EmailService implements IEmailService {
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 620px; background-color: #FFFFFF; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(18, 76, 56, 0.08); border: 1px solid #E2E8DE;">
           ${this._buildHeaderHtml()}
 
-          <!-- Main Content Body -->
           <tr>
             <td style="padding: 36px 36px 28px;">
-              <!-- Badge -->
               <div style="display: inline-block; padding: 5px 14px; border-radius: 999px; background-color: rgba(27, 107, 80, 0.08); color: #1B6B50; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; border: 1px solid rgba(27, 107, 80, 0.2);">
                 New Booking Inquiry • ${serviceLabel}
               </div>
@@ -413,7 +412,6 @@ export class EmailService implements IEmailService {
                 A new appointment booking request has been submitted through the Jeevayurniketan Sanctuary portal with the following full details:
               </p>
 
-              <!-- Detailed Summary Table -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F9FBF8; border: 1px solid #E2E8DE; border-radius: 10px; margin-bottom: 24px;">
                 <tr>
                   <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600; width: 35%;">Service Type</td>
@@ -426,6 +424,10 @@ export class EmailService implements IEmailService {
                 <tr>
                   <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Patient Name</td>
                   <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px; font-weight: 600;">${name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Patient Phone</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px; font-weight: 600;"><a href="tel:${phone.replace(/\s+/g, '')}" style="color: #124C38; text-decoration: none;">${phone}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Patient Email</td>
@@ -445,9 +447,8 @@ export class EmailService implements IEmailService {
                 </tr>
               </table>
 
-              <!-- Notice -->
               <p style="margin: 0; padding: 14px 18px; background-color: #EDF6F1; border-left: 3px solid #1B6B50; border-radius: 4px; color: #1B6B50; font-size: 12px; line-height: 1.5;">
-                Please contact the patient via email to schedule and confirm their clinical consultation slot.
+                Please contact the patient via telephone or email to schedule and confirm their clinical consultation slot.
               </p>
             </td>
           </tr>
@@ -467,6 +468,7 @@ export class EmailService implements IEmailService {
       `Service Type: ${serviceLabel}`,
       `Format: ${formatLabel}`,
       `Patient Name: ${name}`,
+      `Patient Phone: ${phone}`,
       `Patient Email: ${email}`,
       `Preferred Language: ${language}`,
       `Submitted At: ${formattedTime}`,

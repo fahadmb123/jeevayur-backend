@@ -18,7 +18,7 @@ export function buildAppointmentComposition(config?: EnvironmentConfig): Appoint
   const createAppointmentUseCase = new CreateAppointmentUseCase(
     repository,
     emailService,
-    config?.appointmentNotificationEmail
+    config?.clinicEmail
   );
 
   const controller = new AppointmentController(createAppointmentUseCase);

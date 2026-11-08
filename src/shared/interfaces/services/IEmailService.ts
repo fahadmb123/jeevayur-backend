@@ -14,6 +14,7 @@ export interface AppointmentNotificationParams {
   type: string;
   name: string;
   email: string;
+  phone: string;
   reason: string;
   format: string;
   language: string;

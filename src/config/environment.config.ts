@@ -89,6 +89,8 @@ export const envSchema = z
     BREVO_API_KEY: optionalTrimmedString(),
     BREVO_SENDER_EMAIL: optionalTrimmedString(),
     BREVO_SENDER_NAME: z.string().default('Jeevayurniketan Sanctuary'),
+    CLINIC_EMAIL: optionalTrimmedString(),
+    CLINIC_PHONE: optionalTrimmedString(),
     APPOINTMENT_NOTIFICATION_EMAIL: optionalTrimmedString(),
   })
   .transform((parsed) => ({
@@ -150,6 +152,8 @@ export class EnvironmentConfig {
   public readonly brevoApiKey?: string;
   public readonly brevoSenderEmail?: string;
   public readonly brevoSenderName: string;
+  public readonly clinicEmail?: string;
+  public readonly clinicPhone?: string;
   public readonly appointmentNotificationEmail?: string;
   public readonly raw: ValidatedEnv;
 
@@ -184,8 +188,12 @@ export class EnvironmentConfig {
     this.brevoApiKey = validated.BREVO_API_KEY;
     this.brevoSenderEmail = validated.BREVO_SENDER_EMAIL;
     this.brevoSenderName = validated.BREVO_SENDER_NAME;
-    this.appointmentNotificationEmail =
-      validated.APPOINTMENT_NOTIFICATION_EMAIL || validated.BREVO_SENDER_EMAIL;
+    this.clinicEmail =
+      validated.CLINIC_EMAIL ||
+      validated.APPOINTMENT_NOTIFICATION_EMAIL ||
+      validated.BREVO_SENDER_EMAIL;
+    this.clinicPhone = validated.CLINIC_PHONE || '+91 73567 02775';
+    this.appointmentNotificationEmail = this.clinicEmail;
   }
 
   public static validate(source?: Record<string, unknown>): ValidatedEnv {

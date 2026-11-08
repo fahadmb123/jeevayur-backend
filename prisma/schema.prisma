@@ -43,18 +43,19 @@ enum UserRole {
 
 model SocialLink {
   id        String   @id @default(uuid())
-  platform  String   // e.g., "github", "linkedin", "instagram"
-  url       String   // e.g., "https://github.com/username"
+  platform  String
+  url       String
   isVisible Boolean  @default(true)
 }
 
 model Appointment {
   id        String   @id @default(uuid())
-  type      String   // "ayurveda treatment" | "yoga class"
+  type      String
   name      String
   email     String
+  phone     String   @default("")
   reason    String
-  format    String   // "online" | "offline"
+  format    String
   language  String
   status    String   @default("PENDING")
   createdAt DateTime @default(now())

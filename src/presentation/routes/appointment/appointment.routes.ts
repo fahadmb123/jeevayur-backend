@@ -11,7 +11,6 @@ export function buildAppointmentRoutes(deps: AppointmentRouteDependencies): Rout
   const router = Router();
   const { appointmentController } = deps;
 
-  // Public: Patients & visitors can book appointments / consultations
   router.post('/', validate(createAppointmentSchema), appointmentController.createAppointment);
 
   return router;
