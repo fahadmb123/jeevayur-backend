@@ -60,6 +60,8 @@ export class ExpressCookieService implements ICookieService {
   public clearAuthCookies(res: Response): void {
     this.clearAccessToken(res);
     this.clearRefreshToken(res);
+    res.clearCookie('refresh_token', { ...this.getBaseCookieOptions(), path: '/api/auth' });
+    res.clearCookie('refresh_token', this.getBaseCookieOptions());
   }
 }
 
