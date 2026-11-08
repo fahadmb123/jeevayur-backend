@@ -9,7 +9,38 @@ export interface NewLoginAlertParams {
   manageSessionsUrl: string;
 }
 
+export interface AppointmentNotificationParams {
+  toEmail: string;
+  type: string;
+  name: string;
+  email: string;
+  phone: string;
+  reason: string;
+  format: string;
+  language: string;
+  createdAt: Date;
+}
+
+export interface AppointmentAcceptedParams {
+  toEmail: string;
+  recipientName: string;
+  type: string;
+  format: string;
+  language: string;
+  reason: string;
+}
+
+export interface AppointmentRejectedParams {
+  toEmail: string;
+  recipientName: string;
+  type: string;
+  reason?: string;
+}
+
 export interface IEmailService {
   sendPasswordResetEmail(toEmail: string, resetUrl: string, recipientName?: string): Promise<void>;
   sendNewLoginAlertEmail(params: NewLoginAlertParams): Promise<void>;
+  sendAppointmentNotificationEmail(params: AppointmentNotificationParams): Promise<void>;
+  sendAppointmentAcceptedEmail(params: AppointmentAcceptedParams): Promise<void>;
+  sendAppointmentRejectedEmail(params: AppointmentRejectedParams): Promise<void>;
 }

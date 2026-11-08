@@ -6,5 +6,6 @@ export interface RootRouterDependencies {
   healthRoutes: Router;
   socialLinkRoutes?: Router;
   customerRoutes?: Router;
+  appointmentRoutes?: Router;
+  patientRoutes?: Router;
 }
-
