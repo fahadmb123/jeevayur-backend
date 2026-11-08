@@ -1,5 +1,7 @@
+import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
+import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
 import type { RefreshTokenInputDto } from '../../../dtos/request/auth/refreshToken.dto.js';
@@ -9,7 +11,8 @@ import type { UserRole } from '../../../../domain/entities/auth/user.entity.js';
 export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto> {
   constructor(
     private readonly _jwtService: IJwtService,
-    private readonly _userRepository?: IUserRepository
+    private readonly _userRepository?: IUserRepository,
+    private readonly _sessionRepository?: ISessionRepository
   ) {}
 
   async execute(input: RefreshTokenInputDto): Promise<RefreshTokenOutputDto> {
@@ -18,6 +21,15 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, Refre
     }
 
     const payload = this._jwtService.verifyRefreshToken(input.refreshToken);
+    const tokenHash = crypto.createHash('sha256').update(input.refreshToken).digest('hex');
+
+    let activeSession = null;
+    if (this._sessionRepository) {
+      activeSession = await this._sessionRepository.findByTokenHash(tokenHash);
+      if (!activeSession) {
+        throw new ApplicationError('SESSION_EXPIRED', 'Session has expired or was revoked', 'AUTHENTICATION');
+      }
+    }
 
     let userResponse = {
       id: payload.userId,
@@ -43,6 +55,11 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, Refre
     const accessToken = await Promise.resolve(this._jwtService.generate(tokenPayload));
     const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
 
+    if (this._sessionRepository && activeSession) {
+      const newRefreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      await this._sessionRepository.updateTokenHash(activeSession.id, newRefreshTokenHash);
+    }
+
     return {
       user: userResponse,
       accessToken,
@@ -50,4 +67,3 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenInputDto, Refre
     };
   }
 }
-

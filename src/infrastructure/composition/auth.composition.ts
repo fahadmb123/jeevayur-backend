@@ -1,6 +1,7 @@
 import type { Router } from 'express';
 import type { EnvironmentConfig } from '../../config/environment.config.js';
 import { PrismaUserRepository } from '../repositories/auth/prismaUser.repository.js';
+import { PrismaSessionRepository } from '../repositories/auth/prismaSession.repository.js';
 import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
 import { JwtTokenService } from '../services/auth/jwtToken.service.js';
 import { ExpressCookieService } from '../services/auth/expressCookie.service.js';
@@ -15,6 +16,7 @@ import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.j
 
 export interface AuthComposition {
   userRepository: PrismaUserRepository;
+  sessionRepository: PrismaSessionRepository;
   passwordHasher: ScryptPasswordService;
   jwtService: JwtTokenService;
   cookieService: ExpressCookieService;
@@ -29,6 +31,7 @@ export interface AuthComposition {
 
 export function buildAuthComposition(config: EnvironmentConfig): AuthComposition {
   const userRepository = new PrismaUserRepository();
+  const sessionRepository = new PrismaSessionRepository();
   const passwordHasher = new ScryptPasswordService();
   const jwtService = new JwtTokenService({
     accessTokenSecret: config.accessTokenSecret,
@@ -39,8 +42,8 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
   const cookieService = new ExpressCookieService(config);
   const emailService = new EmailService(config);
 
-  const loginUseCase = new LoginUseCase(userRepository, passwordHasher, jwtService);
-  const refreshTokenUseCase = new RefreshTokenUseCase(jwtService, userRepository);
+  const loginUseCase = new LoginUseCase(userRepository, passwordHasher, jwtService, sessionRepository);
+  const refreshTokenUseCase = new RefreshTokenUseCase(jwtService, userRepository, sessionRepository);
   const requestPasswordResetUseCase = new RequestPasswordResetUseCase(
     userRepository,
     emailService,
@@ -55,7 +58,8 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     resetPasswordUseCase,
     cookieService,
     config,
-    userRepository
+    userRepository,
+    sessionRepository
   );
 
   const authMiddleware = createAuthMiddleware(jwtService, config.authCookieName);
@@ -66,6 +70,7 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
 
   return {
     userRepository,
+    sessionRepository,
     passwordHasher,
     jwtService,
     cookieService,

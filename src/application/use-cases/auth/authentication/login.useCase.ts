@@ -1,5 +1,7 @@
+import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
+import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IPasswordHasher } from '../../../../shared/interfaces/services/IPasswordHasher.service.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
@@ -10,7 +12,8 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _passwordHasher: IPasswordHasher,
-    private readonly _jwtService: IJwtService
+    private readonly _jwtService: IJwtService,
+    private readonly _sessionRepository?: ISessionRepository
   ) {}
 
   async execute(input: LoginInputDto): Promise<LoginOutputDto> {
@@ -30,6 +33,18 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
     const accessToken = await Promise.resolve(this._jwtService.generate(tokenPayload));
     const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
 
+    if (this._sessionRepository) {
+      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      await this._sessionRepository.create({
+        userId: user.id,
+        tokenHash,
+        ipAddress: input.ipAddress || '127.0.0.1',
+        device: input.device || 'Unknown Device',
+        city: input.city ?? null,
+        country: input.country ?? null,
+      });
+    }
+
     return {
       user: {
         id: user.id,
@@ -44,4 +59,3 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
     };
   }
 }
-

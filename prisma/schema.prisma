@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -17,6 +16,22 @@ model User {
   passwordResetToken     String?
   passwordResetExpiresAt DateTime?
   createdAt              DateTime  @default(now())
+  sessions               Session[]
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       Int
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String    @unique
+  ipAddress    String
+  city         String?
+  country      String?
+  device       String?
+  lastActiveAt DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
 }
 
 enum UserRole {
