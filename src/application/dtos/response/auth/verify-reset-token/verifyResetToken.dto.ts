@@ -3,3 +3,4 @@ export interface VerifyResetTokenResponseDto {
   email?: string;
   message: string;
 }
+
