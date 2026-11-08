@@ -28,3 +28,4 @@ export function buildSocialLinkRoutes(deps: SocialLinkRouteDependencies): Router
 
   return router;
 }
+

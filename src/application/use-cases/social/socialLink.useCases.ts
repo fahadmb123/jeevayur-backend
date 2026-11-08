@@ -4,15 +4,15 @@ import type { SocialLink } from '../../../domain/entities/social/socialLink.enti
 export class GetSocialLinksUseCase {
   constructor(private readonly repository: ISocialLinkRepository) {}
 
-  async execute(): Promise<SocialLink[]> {
-    return this.repository.findAll();
+  async execute(onlyVisible?: boolean): Promise<SocialLink[]> {
+    return this.repository.findAll(onlyVisible);
   }
 }
 
 export class BulkSaveSocialLinksUseCase {
   constructor(private readonly repository: ISocialLinkRepository) {}
 
-  async execute(links: Array<{ id?: string; platform: string; url: string }>): Promise<SocialLink[]> {
+  async execute(links: Array<{ id?: string; platform: string; url: string; isVisible?: boolean }>): Promise<SocialLink[]> {
     return this.repository.bulkSave(links);
   }
 }
@@ -20,16 +20,16 @@ export class BulkSaveSocialLinksUseCase {
 export class CreateSocialLinkUseCase {
   constructor(private readonly repository: ISocialLinkRepository) {}
 
-  async execute(platform: string, url: string): Promise<SocialLink> {
-    return this.repository.create(platform, url);
+  async execute(platform: string, url: string, isVisible?: boolean): Promise<SocialLink> {
+    return this.repository.create(platform, url, isVisible);
   }
 }
 
 export class UpdateSocialLinkUseCase {
   constructor(private readonly repository: ISocialLinkRepository) {}
 
-  async execute(id: string, platform: string, url: string): Promise<SocialLink> {
-    return this.repository.update(id, platform, url);
+  async execute(id: string, platform: string, url: string, isVisible?: boolean): Promise<SocialLink> {
+    return this.repository.update(id, platform, url, isVisible);
   }
 }
 

@@ -43,3 +43,4 @@ export function buildSocialLinkComposition(authMiddleware?: RequestHandler): Soc
     router,
   };
 }
+

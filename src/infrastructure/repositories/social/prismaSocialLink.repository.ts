@@ -3,18 +3,19 @@ import type { SocialLink } from '../../../domain/entities/social/socialLink.enti
 import { db } from '../../../shared/database/client.js';
 
 const INITIAL_DEFAULT_LINKS = [
-  { platform: 'instagram', url: 'https://instagram.com/jeevayurniketan' },
-  { platform: 'linkedin', url: 'https://linkedin.com/company/jeevayurniketan' },
-  { platform: 'facebook', url: 'https://facebook.com/jeevayurniketan' },
-  { platform: 'youtube', url: 'https://youtube.com/@jeevayurniketan' },
+  { platform: 'instagram', url: 'https://instagram.com/jeevayurniketan', isVisible: true },
+  { platform: 'linkedin', url: 'https://linkedin.com/company/jeevayurniketan', isVisible: true },
+  { platform: 'facebook', url: 'https://facebook.com/jeevayurniketan', isVisible: true },
+  { platform: 'youtube', url: 'https://youtube.com/@jeevayurniketan', isVisible: true },
 ];
 
 export class PrismaSocialLinkRepository implements ISocialLinkRepository {
-  async findAll(): Promise<SocialLink[]> {
-    let records = await db.socialLink.findMany();
+  async findAll(onlyVisible?: boolean): Promise<SocialLink[]> {
+    const whereClause = onlyVisible ? { isVisible: true } : {};
+    let records = await db.socialLink.findMany({ where: whereClause });
 
     // Auto-seed default sanctuary links on very first load if table is empty
-    if (records.length === 0) {
+    if (records.length === 0 && !onlyVisible) {
       await db.socialLink.createMany({
         data: INITIAL_DEFAULT_LINKS,
       });
@@ -25,6 +26,7 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
       id: r.id,
       platform: r.platform,
       url: r.url,
+      isVisible: r.isVisible,
     }));
   }
 
@@ -35,35 +37,40 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
       id: record.id,
       platform: record.platform,
       url: record.url,
+      isVisible: record.isVisible,
     };
   }
 
-  async create(platform: string, url: string): Promise<SocialLink> {
+  async create(platform: string, url: string, isVisible = true): Promise<SocialLink> {
     const record = await db.socialLink.create({
       data: {
         platform: platform.toLowerCase().trim(),
         url: url.trim(),
+        isVisible,
       },
     });
     return {
       id: record.id,
       platform: record.platform,
       url: record.url,
+      isVisible: record.isVisible,
     };
   }
 
-  async update(id: string, platform: string, url: string): Promise<SocialLink> {
+  async update(id: string, platform: string, url: string, isVisible?: boolean): Promise<SocialLink> {
     const record = await db.socialLink.update({
       where: { id },
       data: {
         platform: platform.toLowerCase().trim(),
         url: url.trim(),
+        ...(isVisible !== undefined ? { isVisible } : {}),
       },
     });
     return {
       id: record.id,
       platform: record.platform,
       url: record.url,
+      isVisible: record.isVisible,
     };
   }
 
@@ -71,21 +78,19 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
     await db.socialLink.delete({ where: { id } });
   }
 
-  async bulkSave(links: Array<{ id?: string; platform: string; url: string }>): Promise<SocialLink[]> {
-    // Delete existing links not in the payload or perform atomic transaction
+  async bulkSave(links: Array<{ id?: string; platform: string; url: string; isVisible?: boolean }>): Promise<SocialLink[]> {
     await db.$transaction(async (tx) => {
-      // If links are provided, synchronize them
       const validLinks = links.filter((l) => l.platform && l.url);
-      
-      // Delete all existing and re-insert or upsert
+
       await tx.socialLink.deleteMany({});
-      
+
       if (validLinks.length > 0) {
         await tx.socialLink.createMany({
           data: validLinks.map((l) => ({
             id: l.id && l.id.length > 10 ? l.id : undefined,
             platform: l.platform.toLowerCase().trim(),
             url: l.url.trim(),
+            isVisible: l.isVisible !== false,
           })),
         });
       }

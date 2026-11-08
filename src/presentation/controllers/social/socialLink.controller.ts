@@ -18,12 +18,13 @@ export class SocialLinkController {
   ) {}
 
   public getSocialLinks = async (
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const links = await this.getLinksUseCase.execute();
+      const showAll = req.query.all === 'true';
+      const links = await this.getLinksUseCase.execute(!showAll);
       res.status(200).json({
         success: true,
         data: links,
@@ -67,7 +68,7 @@ export class SocialLinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { platform, url } = req.body;
+      const { platform, url, isVisible } = req.body;
       if (!platform || !url) {
         res.status(400).json({
           success: false,
@@ -76,7 +77,7 @@ export class SocialLinkController {
         return;
       }
 
-      const created = await this.createUseCase.execute(platform, url);
+      const created = await this.createUseCase.execute(platform, url, isVisible !== false);
       res.status(201).json({
         success: true,
         message: 'Social link created successfully.',
@@ -95,7 +96,7 @@ export class SocialLinkController {
   ): Promise<void> => {
     try {
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const { platform, url } = req.body;
+      const { platform, url, isVisible } = req.body;
       if (!id || !platform || !url) {
         res.status(400).json({
           success: false,
@@ -104,7 +105,7 @@ export class SocialLinkController {
         return;
       }
 
-      const updated = await this.updateUseCase.execute(id, platform, url);
+      const updated = await this.updateUseCase.execute(id, platform, url, isVisible);
       res.status(200).json({
         success: true,
         message: 'Social link updated successfully.',
