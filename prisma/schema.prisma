@@ -39,4 +39,10 @@ enum UserRole {
   DOCTOR
   ADMIN
 }
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  platform  String   // e.g., "github", "linkedin", "instagram"
+  url       String   // e.g., "https://github.com/username"
+}
  

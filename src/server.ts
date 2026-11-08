@@ -6,6 +6,7 @@ import { createApp } from './app/app.js';
 import { buildAuthComposition } from './infrastructure/composition/auth.composition.js';
 import { buildDoctorComposition } from './infrastructure/composition/doctor.composition.js';
 import { buildHealthComposition } from './infrastructure/composition/health.composition.js';
+import { buildSocialLinkComposition } from './infrastructure/composition/socialLink.composition.js';
 import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
 
 export class Server {
@@ -21,11 +22,13 @@ export class Server {
     );
     const doctorComposition = buildDoctorComposition(authMiddleware);
     const healthComposition = buildHealthComposition();
+    const socialLinkComposition = buildSocialLinkComposition(authMiddleware);
 
     const app = createApp(this.config, {
       authRoutes: authComposition.router,
       doctorRoutes: doctorComposition.router,
       healthRoutes: healthComposition.router,
+      socialLinkRoutes: socialLinkComposition.router,
     });
 
     this.httpServer = http.createServer(app);
