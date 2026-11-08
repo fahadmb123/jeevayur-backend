@@ -4,12 +4,12 @@ import type { IUserRepository } from '../../../../domain/repositories/auth/user.
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import type { ForgotPasswordRequestDto } from '../../../dtos/request/auth/forgot-password/forgotPassword.dto.js';
 
-export interface RequestPasswordResetOutputDto {
+export interface RequestPasswordResetResponseDto {
   message: string;
 }
 
 export class RequestPasswordResetUseCase
-  implements IUseCase<ForgotPasswordRequestDto, RequestPasswordResetOutputDto>
+  implements IUseCase<ForgotPasswordRequestDto, RequestPasswordResetResponseDto>
 {
   constructor(
     private readonly _userRepository: IUserRepository,
@@ -17,7 +17,7 @@ export class RequestPasswordResetUseCase
     private readonly _frontendUrl: string
   ) {}
 
-  async execute(input: ForgotPasswordRequestDto): Promise<RequestPasswordResetOutputDto> {
+  async execute(input: ForgotPasswordRequestDto): Promise<RequestPasswordResetResponseDto> {
     const email = input.email.trim().toLowerCase();
     const user = await this._userRepository.findByEmail(email);
 

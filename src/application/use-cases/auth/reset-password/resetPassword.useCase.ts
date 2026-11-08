@@ -5,20 +5,20 @@ import type { IPasswordHasher } from '../../../../shared/interfaces/services/IPa
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
 import type { ResetPasswordRequestDto } from '../../../dtos/request/auth/reset-password/resetPassword.dto.js';
 
-export interface ResetPasswordOutputDto {
+export interface ResetPasswordResponseDto {
   success: boolean;
   message: string;
 }
 
 export class ResetPasswordUseCase
-  implements IUseCase<ResetPasswordRequestDto, ResetPasswordOutputDto>
+  implements IUseCase<ResetPasswordRequestDto, ResetPasswordResponseDto>
 {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _passwordHasher: IPasswordHasher
   ) {}
 
-  async execute(input: ResetPasswordRequestDto): Promise<ResetPasswordOutputDto> {
+  async execute(input: ResetPasswordRequestDto): Promise<ResetPasswordResponseDto> {
     const rawToken = input.token.trim();
     if (!rawToken) {
       throw new ApplicationError(

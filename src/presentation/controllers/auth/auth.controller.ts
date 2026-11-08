@@ -2,14 +2,14 @@ import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
-import type { LoginInputDto } from '../../../application/dtos/request/auth/login/login.dto.js';
-import type { LoginOutputDto } from '../../../application/dtos/response/auth/login/login.dto.js';
-import type { RefreshTokenInputDto } from '../../../application/dtos/request/auth/refresh-token/refreshToken.dto.js';
-import type { RefreshTokenOutputDto } from '../../../application/dtos/response/auth/refresh-token/refreshToken.dto.js';
+import type { LoginRequestDto } from '../../../application/dtos/request/auth/login/login.dto.js';
+import type { LoginResponseDto } from '../../../application/dtos/response/auth/login/login.dto.js';
+import type { RefreshTokenRequestDto } from '../../../application/dtos/request/auth/refresh-token/refreshToken.dto.js';
+import type { RefreshTokenResponseDto } from '../../../application/dtos/response/auth/refresh-token/refreshToken.dto.js';
 import type { ForgotPasswordRequestDto } from '../../../application/dtos/request/auth/forgot-password/forgotPassword.dto.js';
-import type { RequestPasswordResetOutputDto } from '../../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
+import type { RequestPasswordResetResponseDto } from '../../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
 import type { ResetPasswordRequestDto } from '../../../application/dtos/request/auth/reset-password/resetPassword.dto.js';
-import type { ResetPasswordOutputDto } from '../../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
+import type { ResetPasswordResponseDto } from '../../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import type { VerifyResetTokenRequestDto } from '../../../application/dtos/request/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { VerifyResetTokenResponseDto } from '../../../application/dtos/response/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
@@ -24,15 +24,15 @@ import { extractClientInfo } from '../../../shared/utils/clientInfo.js';
 
 export class AuthController extends BaseController {
   constructor(
-    private readonly _loginUseCase: IUseCase<LoginInputDto, LoginOutputDto>,
-    private readonly _refreshTokenUseCase: IUseCase<RefreshTokenInputDto, RefreshTokenOutputDto>,
+    private readonly _loginUseCase: IUseCase<LoginRequestDto, LoginResponseDto>,
+    private readonly _refreshTokenUseCase: IUseCase<RefreshTokenRequestDto, RefreshTokenResponseDto>,
     private readonly _forgotPasswordUseCase: IUseCase<
       ForgotPasswordRequestDto,
-      RequestPasswordResetOutputDto
+      RequestPasswordResetResponseDto
     >,
     private readonly _resetPasswordUseCase: IUseCase<
       ResetPasswordRequestDto,
-      ResetPasswordOutputDto
+      ResetPasswordResponseDto
     >,
     private readonly _verifyResetTokenUseCase: IUseCase<
       VerifyResetTokenRequestDto,

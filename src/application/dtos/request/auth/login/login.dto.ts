@@ -1,4 +1,4 @@
-export interface LoginInputDto {
+export interface LoginRequestDto {
   email: string;
   password: string;
   rememberMe?: boolean;
@@ -7,4 +7,3 @@ export interface LoginInputDto {
   city?: string | null;
   country?: string | null;
 }
-

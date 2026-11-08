@@ -7,10 +7,10 @@ import type { IJwtService } from '../../../../shared/interfaces/services/IJwtSer
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
 import { Logger } from '../../../../shared/logging/Logger.js';
-import type { LoginInputDto } from '../../../dtos/request/auth/login/login.dto.js';
-import type { LoginOutputDto } from '../../../dtos/response/auth/login/login.dto.js';
+import type { LoginRequestDto } from '../../../dtos/request/auth/login/login.dto.js';
+import type { LoginResponseDto } from '../../../dtos/response/auth/login/login.dto.js';
 
-export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
+export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto> {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _passwordHasher: IPasswordHasher,
@@ -20,7 +20,7 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
     private readonly _frontendUrl?: string
   ) {}
 
-  async execute(input: LoginInputDto): Promise<LoginOutputDto> {
+  async execute(input: LoginRequestDto): Promise<LoginResponseDto> {
     const email = input.email.trim().toLowerCase();
     const user = await this._userRepository.findByEmail(email);
 
