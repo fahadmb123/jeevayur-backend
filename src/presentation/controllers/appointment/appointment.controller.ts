@@ -60,8 +60,8 @@ export class AppointmentController {
         throw new Error('UpdateAppointmentStatusUseCase not configured');
       }
       const id = String(req.params.id);
-      const { status } = req.body;
-      const response = await this.updateAppointmentStatusUseCase.execute(id, status);
+      const { status, reason } = req.body;
+      const response = await this.updateAppointmentStatusUseCase.execute(id, status, reason);
       res.status(200).json({
         success: true,
         message: 'Appointment status updated successfully.',

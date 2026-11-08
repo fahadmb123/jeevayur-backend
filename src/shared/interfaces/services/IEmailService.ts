@@ -21,8 +21,26 @@ export interface AppointmentNotificationParams {
   createdAt: Date;
 }
 
+export interface AppointmentAcceptedParams {
+  toEmail: string;
+  recipientName: string;
+  type: string;
+  format: string;
+  language: string;
+  reason: string;
+}
+
+export interface AppointmentRejectedParams {
+  toEmail: string;
+  recipientName: string;
+  type: string;
+  reason?: string;
+}
+
 export interface IEmailService {
   sendPasswordResetEmail(toEmail: string, resetUrl: string, recipientName?: string): Promise<void>;
   sendNewLoginAlertEmail(params: NewLoginAlertParams): Promise<void>;
   sendAppointmentNotificationEmail(params: AppointmentNotificationParams): Promise<void>;
+  sendAppointmentAcceptedEmail(params: AppointmentAcceptedParams): Promise<void>;
+  sendAppointmentRejectedEmail(params: AppointmentRejectedParams): Promise<void>;
 }

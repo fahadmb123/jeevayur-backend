@@ -27,5 +27,6 @@ export const updateAppointmentStatusSchema = z.object({
       'accepted',
       'rejected',
     ]),
+    reason: z.string().trim().optional(),
   }),
 });

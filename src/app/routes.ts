@@ -20,6 +20,10 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
     router.use('/appointments', dependencies.appointmentRoutes);
   }
 
+  if (dependencies.patientRoutes) {
+    router.use('/patients', dependencies.patientRoutes);
+  }
+
   return router;
 }
 
