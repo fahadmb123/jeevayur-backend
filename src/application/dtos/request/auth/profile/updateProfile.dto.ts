@@ -4,5 +4,3 @@ export interface UpdateProfileRequestDto {
   email?: string;
   phone?: string | null;
 }
-
-export type UpdateProfileInputDto = UpdateProfileRequestDto;
