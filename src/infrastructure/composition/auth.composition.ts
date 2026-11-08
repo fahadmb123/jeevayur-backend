@@ -73,7 +73,12 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     sessionRepository
   );
 
-  const authMiddleware = createAuthMiddleware(jwtService, config.authCookieName);
+  const authMiddleware = createAuthMiddleware(
+    jwtService,
+    config.authCookieName,
+    sessionRepository,
+    config.refreshCookieName
+  );
   const router = buildAuthRoutes({
     authController,
     authMiddleware,

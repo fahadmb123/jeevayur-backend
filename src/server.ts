@@ -15,7 +15,9 @@ export class Server {
     const authComposition = buildAuthComposition(this.config);
     const authMiddleware = createAuthMiddleware(
       authComposition.jwtService,
-      this.config.authCookieName
+      this.config.authCookieName,
+      authComposition.sessionRepository,
+      this.config.refreshCookieName
     );
     const doctorComposition = buildDoctorComposition(authMiddleware);
     const healthComposition = buildHealthComposition();
