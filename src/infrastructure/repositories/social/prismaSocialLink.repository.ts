@@ -96,6 +96,12 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
       }
     });
 
-    return this.findAll();
+    const records = await db.socialLink.findMany();
+    return records.map((r) => ({
+      id: r.id,
+      platform: r.platform,
+      url: r.url,
+      isVisible: r.isVisible,
+    }));
   }
 }
