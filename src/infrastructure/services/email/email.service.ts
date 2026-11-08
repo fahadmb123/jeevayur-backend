@@ -1,33 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import type { IEmailService, NewLoginAlertParams } from '../../../shared/interfaces/services/IEmailService.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
-let cachedLogoBase64: string | null = null;
-
-function getLogoBase64(): string | null {
-  if (cachedLogoBase64) return cachedLogoBase64;
-  try {
-    const candidates = [
-      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'android-chrome-192x192.png'),
-      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'android-chrome-192x192.png'),
-      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'apple-touch-icon.png'),
-      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'apple-touch-icon.png'),
-      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'android-chrome-512x512.png'),
-      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'android-chrome-512x512.png'),
-    ];
-    for (const candidate of candidates) {
-      if (fs.existsSync(candidate)) {
-        cachedLogoBase64 = fs.readFileSync(candidate).toString('base64');
-        return cachedLogoBase64;
-      }
-    }
-  } catch (err) {
-    Logger.warn(`[EmailService] Could not read logo asset from jeevayur-web: ${err}`);
-  }
-  return null;
-}
+const BRAND_LOGO_URL =
+  'https://raw.githubusercontent.com/fahadmb123/jeevayur-web/dev/public/android-chrome-192x192.png';
 
 function formatDateTime(date: Date): string {
   try {
@@ -62,7 +38,7 @@ export class EmailService implements IEmailService {
       <!-- Sanctuary Header Banner with Premium Large Brand Logo -->
       <tr>
         <td align="center" style="background: linear-gradient(180deg, #07261E 0%, #0D3A2C 100%); background-color: #0B3326; padding: 42px 32px 34px; text-align: center; border-bottom: 3px solid #C98D3B;">
-          <img src="cid:jeevayurniketan-logo.png" alt="Jeevayurniketan Emblem" width="88" height="88" style="display: block; margin: 0 auto 16px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border: 2px solid rgba(201, 141, 59, 0.3);" />
+          <img src="${BRAND_LOGO_URL}" alt="Jeevayurniketan Emblem" width="88" height="88" style="display: block; margin: 0 auto 16px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border: 2px solid rgba(201, 141, 59, 0.4);" />
           <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">
             Jeevayurniketan
           </h1>
@@ -100,7 +76,6 @@ export class EmailService implements IEmailService {
     recipientName?: string
   ): Promise<void> {
     const name = recipientName || 'Valued Patient';
-    const senderEmail = this._senderEmail || 'no-reply@jeevayurniketan.com';
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -377,16 +352,6 @@ export class EmailService implements IEmailService {
       try {
         Logger.info(`[EmailService] Sending email via Brevo API to: ${toEmail} (${subject})`);
 
-        const logoBase64 = getLogoBase64();
-        const attachment = logoBase64
-          ? [
-              {
-                name: 'jeevayurniketan-logo.png',
-                content: logoBase64,
-              },
-            ]
-          : undefined;
-
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
           method: 'POST',
           headers: {
@@ -408,7 +373,6 @@ export class EmailService implements IEmailService {
             subject,
             htmlContent,
             textContent,
-            ...(attachment ? { attachment } : {}),
           }),
         });
 
