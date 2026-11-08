@@ -184,9 +184,23 @@ export class AuthController extends BaseController {
         return;
       }
 
+      const refreshToken =
+        req.cookies?.[this._config.refreshCookieName] ||
+        req.signedCookies?.[this._config.refreshCookieName];
+
+      const currentTokenHash = refreshToken
+        ? crypto.createHash('sha256').update(refreshToken).digest('hex')
+        : null;
+
+      const clientInfo = extractClientInfo(req);
       const sessions = await this._sessionRepository.findByUserId(req.auth.userId);
-      this.sendSuccess(res, 'Sessions retrieved successfully', {
-        sessions: sessions.map((s) => ({
+
+      const mappedSessions = sessions.map((s) => {
+        const isCurrent = currentTokenHash
+          ? s.tokenHash === currentTokenHash
+          : s.device === clientInfo.device;
+
+        return {
           id: s.id,
           ipAddress: s.ipAddress,
           device: s.device,
@@ -194,7 +208,19 @@ export class AuthController extends BaseController {
           country: s.country,
           lastActiveAt: s.lastActiveAt,
           createdAt: s.createdAt,
-        })),
+          isCurrent: Boolean(isCurrent),
+        };
+      });
+
+      // Ensure the current active device is placed first
+      mappedSessions.sort((a, b) => {
+        if (a.isCurrent) return -1;
+        if (b.isCurrent) return 1;
+        return new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime();
+      });
+
+      this.sendSuccess(res, 'Sessions retrieved successfully', {
+        sessions: mappedSessions,
       });
     } catch (err) {
       next(err);
