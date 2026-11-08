@@ -10,6 +10,8 @@ import type { ForgotPasswordRequestDto } from '../../../application/dtos/request
 import type { RequestPasswordResetOutputDto } from '../../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
 import type { ResetPasswordRequestDto } from '../../../application/dtos/request/auth/reset-password/resetPassword.dto.js';
 import type { ResetPasswordOutputDto } from '../../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
+import type { VerifyResetTokenRequestDto } from '../../../application/dtos/request/auth/verify-reset-token/verifyResetToken.dto.js';
+import type { VerifyResetTokenResponseDto } from '../../../application/dtos/response/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
 import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/auth/session.repository.js';
@@ -29,6 +31,10 @@ export class AuthController extends BaseController {
     private readonly _resetPasswordUseCase: IUseCase<
       ResetPasswordRequestDto,
       ResetPasswordOutputDto
+    >,
+    private readonly _verifyResetTokenUseCase: IUseCase<
+      VerifyResetTokenRequestDto,
+      VerifyResetTokenResponseDto
     >,
     private readonly _cookies: ICookieService,
     private readonly _config: EnvironmentConfig,
@@ -108,6 +114,18 @@ export class AuthController extends BaseController {
       });
 
       this.sendSuccess(res, result.message);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  verifyResetToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const rawToken = req.query.token;
+      const token = Array.isArray(rawToken) ? String(rawToken[0]) : String(rawToken || '');
+      const result = await this._verifyResetTokenUseCase.execute({ token });
+
+      this.sendSuccess(res, result.message, result);
     } catch (err) {
       next(err);
     }

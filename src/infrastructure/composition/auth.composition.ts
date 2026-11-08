@@ -10,6 +10,7 @@ import { LoginUseCase } from '../../application/use-cases/auth/login/login.useCa
 import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-token/refreshToken.useCase.js';
 import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
 import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
+import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify-reset-token/verifyResetToken.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
@@ -25,6 +26,7 @@ export interface AuthComposition {
   refreshTokenUseCase: RefreshTokenUseCase;
   requestPasswordResetUseCase: RequestPasswordResetUseCase;
   resetPasswordUseCase: ResetPasswordUseCase;
+  verifyResetTokenUseCase: VerifyResetTokenUseCase;
   authController: AuthController;
   router: Router;
 }
@@ -57,12 +59,14 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     config.frontendUrl
   );
   const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, passwordHasher);
+  const verifyResetTokenUseCase = new VerifyResetTokenUseCase(userRepository);
 
   const authController = new AuthController(
     loginUseCase,
     refreshTokenUseCase,
     requestPasswordResetUseCase,
     resetPasswordUseCase,
+    verifyResetTokenUseCase,
     cookieService,
     config,
     userRepository,
@@ -86,6 +90,7 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     refreshTokenUseCase,
     requestPasswordResetUseCase,
     resetPasswordUseCase,
+    verifyResetTokenUseCase,
     authController,
     router,
   };

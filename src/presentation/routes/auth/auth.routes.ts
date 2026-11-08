@@ -15,6 +15,7 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
   router.post('/refresh', validate(refreshTokenSchema), deps.authController.refresh);
   router.post('/logout', deps.authController.logout);
   router.post('/forgot-password', validate(forgotPasswordSchema), deps.authController.forgotPassword);
+  router.get('/verify-reset-token', deps.authController.verifyResetToken);
   router.post('/reset-password', validate(resetPasswordSchema), deps.authController.resetPassword);
 
   if (deps.authMiddleware) {
