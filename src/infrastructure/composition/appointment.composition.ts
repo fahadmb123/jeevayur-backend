@@ -1,8 +1,10 @@
-import type { Router } from 'express';
+import type { Router, RequestHandler } from 'express';
 import type { EnvironmentConfig } from '../../config/environment.config.js';
 import { PrismaAppointmentRepository } from '../repositories/appointment/prismaAppointment.repository.js';
 import { EmailService } from '../services/email/email.service.js';
 import { CreateAppointmentUseCase } from '../../application/use-cases/appointment/createAppointment.useCase.js';
+import { GetAppointmentsUseCase } from '../../application/use-cases/appointment/getAppointments.useCase.js';
+import { UpdateAppointmentStatusUseCase } from '../../application/use-cases/appointment/updateAppointmentStatus.useCase.js';
 import { AppointmentController } from '../../presentation/controllers/appointment/appointment.controller.js';
 import { buildAppointmentRoutes } from '../../presentation/routes/appointment/appointment.routes.js';
 
@@ -12,7 +14,10 @@ export interface AppointmentComposition {
   router: Router;
 }
 
-export function buildAppointmentComposition(config?: EnvironmentConfig): AppointmentComposition {
+export function buildAppointmentComposition(
+  config?: EnvironmentConfig,
+  authMiddleware?: RequestHandler
+): AppointmentComposition {
   const repository = new PrismaAppointmentRepository();
   const emailService = new EmailService(config);
   const createAppointmentUseCase = new CreateAppointmentUseCase(
@@ -20,10 +25,17 @@ export function buildAppointmentComposition(config?: EnvironmentConfig): Appoint
     emailService,
     config?.clinicEmail
   );
+  const getAppointmentsUseCase = new GetAppointmentsUseCase(repository);
+  const updateAppointmentStatusUseCase = new UpdateAppointmentStatusUseCase(repository);
 
-  const controller = new AppointmentController(createAppointmentUseCase);
+  const controller = new AppointmentController(
+    createAppointmentUseCase,
+    getAppointmentsUseCase,
+    updateAppointmentStatusUseCase
+  );
   const router = buildAppointmentRoutes({
     appointmentController: controller,
+    authMiddleware,
   });
 
   return {

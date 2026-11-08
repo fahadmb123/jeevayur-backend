@@ -24,7 +24,7 @@ export class Server {
     const doctorComposition = buildDoctorComposition(authMiddleware);
     const healthComposition = buildHealthComposition();
     const socialLinkComposition = buildSocialLinkComposition(authMiddleware);
-    const appointmentComposition = buildAppointmentComposition(this.config);
+    const appointmentComposition = buildAppointmentComposition(this.config, authMiddleware);
 
     const app = createApp(this.config, {
       authRoutes: authComposition.router,

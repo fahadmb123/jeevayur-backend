@@ -1,4 +1,4 @@
-export interface CreateAppointmentResponseDto {
+export interface AppointmentResponseDto {
   id: string;
   type: string;
   name: string;

@@ -37,4 +37,12 @@ export class PrismaAppointmentRepository implements IAppointmentRepository {
     });
     return records.map((r) => AppointmentMapper.toDomain(r));
   }
+
+  async updateStatus(id: string, status: string): Promise<Appointment> {
+    const record = await db.appointment.update({
+      where: { id },
+      data: { status },
+    });
+    return AppointmentMapper.toDomain(record);
+  }
 }

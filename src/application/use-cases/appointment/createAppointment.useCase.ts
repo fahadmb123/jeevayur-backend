@@ -1,7 +1,7 @@
 import type { IAppointmentRepository } from '../../../domain/repositories/appointment/appointment.repository.js';
 import type { IEmailService } from '../../../shared/interfaces/services/IEmailService.js';
 import type { CreateAppointmentRequestDto } from '../../dtos/request/appointment/createAppointment.dto.js';
-import type { CreateAppointmentResponseDto } from '../../dtos/response/appointment/createAppointment.dto.js';
+import type { AppointmentResponseDto } from '../../dtos/response/appointment/createAppointment.dto.js';
 import { AppointmentMapper } from '../../../infrastructure/mappers/appointment/appointment.mapper.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
@@ -12,7 +12,7 @@ export class CreateAppointmentUseCase {
     private readonly notificationEmail?: string
   ) {}
 
-  async execute(dto: CreateAppointmentRequestDto): Promise<CreateAppointmentResponseDto> {
+  async execute(dto: CreateAppointmentRequestDto): Promise<AppointmentResponseDto> {
     const savedAppointment = await this.appointmentRepository.create({
       type: dto.type,
       name: dto.name,

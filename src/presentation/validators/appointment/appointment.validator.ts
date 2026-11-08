@@ -11,3 +11,21 @@ export const createAppointmentSchema = z.object({
     language: z.string().trim().min(1, 'Language is required'),
   }),
 });
+
+export const updateAppointmentStatusSchema = z.object({
+  params: z.object({
+    id: z.string().trim().min(1, 'Appointment ID is required'),
+  }),
+  body: z.object({
+    status: z.enum([
+      'PENDING',
+      'CONFIRMED',
+      'CANCELLED',
+      'pending',
+      'confirmed',
+      'cancelled',
+      'accepted',
+      'rejected',
+    ]),
+  }),
+});

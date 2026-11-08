@@ -5,7 +5,7 @@ import {
   type AppointmentFormat,
   type AppointmentStatus,
 } from '../../../domain/entities/appointment/appointment.entity.js';
-import type { CreateAppointmentResponseDto } from '../../../application/dtos/response/appointment/createAppointment.dto.js';
+import type { AppointmentResponseDto } from '../../../application/dtos/response/appointment/createAppointment.dto.js';
 
 export class AppointmentMapper {
   static toDomain(record: PrismaAppointment): Appointment {
@@ -24,7 +24,7 @@ export class AppointmentMapper {
     );
   }
 
-  static toDto(appointment: Appointment): CreateAppointmentResponseDto {
+  static toDto(appointment: Appointment): AppointmentResponseDto {
     return {
       id: appointment.id,
       type: appointment.type,

@@ -15,4 +15,5 @@ export interface IAppointmentRepository extends IBaseRepository<Appointment, str
   findById(id: string): Promise<Appointment | null>;
   create(data: CreateAppointmentData): Promise<Appointment>;
   findAll(): Promise<Appointment[]>;
+  updateStatus(id: string, status: string): Promise<Appointment>;
 }
