@@ -1,6 +1,7 @@
 import type { Router, RequestHandler } from 'express';
 import { PrismaPatientRepository } from '../repositories/patient/prismaPatient.repository.js';
 import { GetPatientsUseCase } from '../../application/use-cases/patient/getPatients.useCase.js';
+import { CreatePatientUseCase } from '../../application/use-cases/patient/createPatient.useCase.js';
 import { PatientController } from '../../presentation/controllers/patient/patient.controller.js';
 import { buildPatientRoutes } from '../../presentation/routes/patient/patient.routes.js';
 
@@ -16,7 +17,8 @@ export function buildPatientComposition(
 ): PatientComposition {
   const repository = existingRepository ?? new PrismaPatientRepository();
   const getPatientsUseCase = new GetPatientsUseCase(repository);
-  const controller = new PatientController(getPatientsUseCase);
+  const createPatientUseCase = new CreatePatientUseCase(repository);
+  const controller = new PatientController(getPatientsUseCase, createPatientUseCase);
   const router = buildPatientRoutes({
     patientController: controller,
     authMiddleware,
@@ -28,4 +30,3 @@ export function buildPatientComposition(
     router,
   };
 }
-

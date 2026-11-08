@@ -12,10 +12,11 @@ export function buildPatientRoutes(deps: PatientRouteDependencies): Router {
 
   if (authMiddleware) {
     router.get('/', authMiddleware, patientController.getPatients);
+    router.post('/', authMiddleware, patientController.createPatient);
   } else {
     router.get('/', patientController.getPatients);
+    router.post('/', patientController.createPatient);
   }
 
   return router;
 }
-
