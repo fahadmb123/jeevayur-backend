@@ -20,10 +20,14 @@ export function buildAuthRoutes(deps: AuthRouteDependencies): Router {
 
   if (deps.authMiddleware) {
     router.get('/me', deps.authMiddleware, deps.authController.me);
+    router.put('/profile', deps.authMiddleware, deps.authController.updateProfile);
+    router.put('/me', deps.authMiddleware, deps.authController.updateProfile);
     router.get('/sessions', deps.authMiddleware, deps.authController.getSessions);
     router.delete('/sessions/:sessionId', deps.authMiddleware, deps.authController.revokeSession);
   } else {
     router.get('/me', deps.authController.me);
+    router.put('/profile', deps.authController.updateProfile);
+    router.put('/me', deps.authController.updateProfile);
   }
 
   return router;

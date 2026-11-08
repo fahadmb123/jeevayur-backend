@@ -48,4 +48,19 @@ export class PrismaUserRepository implements IUserRepository {
       },
     });
   }
+
+  async updateProfile(
+    userId: number,
+    data: { name?: string; email?: string; phone?: string | null }
+  ): Promise<User> {
+    const updated = await db.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.email !== undefined ? { email: data.email } : {}),
+        ...(data.phone !== undefined ? { phone: data.phone } : {}),
+      },
+    });
+    return UserMapper.toDomain(updated);
+  }
 }

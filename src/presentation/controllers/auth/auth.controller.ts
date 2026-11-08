@@ -15,6 +15,8 @@ import type { VerifyResetTokenResponseDto } from '../../../application/dtos/resp
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
 import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/auth/session.repository.js';
+import type { UpdateProfileInputDto } from '../../../application/dtos/request/auth/profile/updateProfile.dto.js';
+import type { UpdateProfileOutputDto } from '../../../application/dtos/response/auth/profile/updateProfile.dto.js';
 import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
@@ -39,7 +41,8 @@ export class AuthController extends BaseController {
     private readonly _cookies: ICookieService,
     private readonly _config: EnvironmentConfig,
     private readonly _userRepository?: IUserRepository,
-    private readonly _sessionRepository?: ISessionRepository
+    private readonly _sessionRepository?: ISessionRepository,
+    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileInputDto, UpdateProfileOutputDto>
   ) {
     super();
   }
@@ -247,6 +250,33 @@ export class AuthController extends BaseController {
       }
 
       this.sendSuccess(res, 'Session revoked successfully');
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.auth?.userId) {
+        throw new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION');
+      }
+
+      if (!this._updateProfileUseCase) {
+        throw new ApplicationError(
+          'INTERNAL_ERROR',
+          'Update profile use case not configured',
+          'INTERNAL'
+        );
+      }
+
+      const result = await this._updateProfileUseCase.execute({
+        userId: req.auth.userId,
+        name: req.body?.name,
+        email: req.body?.email,
+        phone: req.body?.phone,
+      });
+
+      this.sendSuccess(res, 'Profile updated successfully', result);
     } catch (err) {
       next(err);
     }

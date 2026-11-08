@@ -11,6 +11,7 @@ import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-to
 import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/forgot-password/requestPasswordReset.useCase.js';
 import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify-reset-token/verifyResetToken.useCase.js';
+import { UpdateProfileUseCase } from '../../application/use-cases/auth/profile/updateProfile.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
@@ -27,6 +28,7 @@ export interface AuthComposition {
   requestPasswordResetUseCase: RequestPasswordResetUseCase;
   resetPasswordUseCase: ResetPasswordUseCase;
   verifyResetTokenUseCase: VerifyResetTokenUseCase;
+  updateProfileUseCase: UpdateProfileUseCase;
   authController: AuthController;
   router: Router;
 }
@@ -60,6 +62,7 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
   );
   const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, passwordHasher);
   const verifyResetTokenUseCase = new VerifyResetTokenUseCase(userRepository);
+  const updateProfileUseCase = new UpdateProfileUseCase(userRepository);
 
   const authController = new AuthController(
     loginUseCase,
@@ -70,7 +73,8 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     cookieService,
     config,
     userRepository,
-    sessionRepository
+    sessionRepository,
+    updateProfileUseCase
   );
 
   const authMiddleware = createAuthMiddleware(
@@ -96,6 +100,7 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     requestPasswordResetUseCase,
     resetPasswordUseCase,
     verifyResetTokenUseCase,
+    updateProfileUseCase,
     authController,
     router,
   };
