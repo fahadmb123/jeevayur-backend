@@ -10,9 +10,12 @@ function getLogoBase64(): string | null {
   if (cachedLogoBase64) return cachedLogoBase64;
   try {
     const candidates = [
-      path.resolve(process.cwd(), 'assets', 'logo.png'),
-      path.resolve(process.cwd(), 'jeevayur-backend', 'assets', 'logo.png'),
-      path.resolve(process.cwd(), '..', 'assets', 'logo.png'),
+      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'android-chrome-192x192.png'),
+      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'android-chrome-192x192.png'),
+      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'apple-touch-icon.png'),
+      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'apple-touch-icon.png'),
+      path.resolve(process.cwd(), '..', 'jeevayur-web', 'public', 'android-chrome-512x512.png'),
+      path.resolve(process.cwd(), 'jeevayur-web', 'public', 'android-chrome-512x512.png'),
     ];
     for (const candidate of candidates) {
       if (fs.existsSync(candidate)) {
@@ -21,7 +24,7 @@ function getLogoBase64(): string | null {
       }
     }
   } catch (err) {
-    Logger.warn(`[EmailService] Could not read logo asset: ${err}`);
+    Logger.warn(`[EmailService] Could not read logo asset from jeevayur-web: ${err}`);
   }
   return null;
 }
