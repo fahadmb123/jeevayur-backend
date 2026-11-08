@@ -42,7 +42,14 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
   const cookieService = new ExpressCookieService(config);
   const emailService = new EmailService(config);
 
-  const loginUseCase = new LoginUseCase(userRepository, passwordHasher, jwtService, sessionRepository);
+  const loginUseCase = new LoginUseCase(
+    userRepository,
+    passwordHasher,
+    jwtService,
+    sessionRepository,
+    emailService,
+    config.frontendUrl
+  );
   const refreshTokenUseCase = new RefreshTokenUseCase(jwtService, userRepository, sessionRepository);
   const requestPasswordResetUseCase = new RequestPasswordResetUseCase(
     userRepository,

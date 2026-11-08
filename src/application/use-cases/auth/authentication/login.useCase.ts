@@ -4,7 +4,9 @@ import type { IUserRepository } from '../../../../domain/repositories/auth/user.
 import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IPasswordHasher } from '../../../../shared/interfaces/services/IPasswordHasher.service.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
+import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
+import { Logger } from '../../../../shared/logging/Logger.js';
 import type { LoginInputDto } from '../../../dtos/request/auth/login.dto.js';
 import type { LoginOutputDto } from '../../../dtos/response/auth/login.dto.js';
 
@@ -13,7 +15,9 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
     private readonly _userRepository: IUserRepository,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _jwtService: IJwtService,
-    private readonly _sessionRepository?: ISessionRepository
+    private readonly _sessionRepository?: ISessionRepository,
+    private readonly _emailService?: IEmailService,
+    private readonly _frontendUrl?: string
   ) {}
 
   async execute(input: LoginInputDto): Promise<LoginOutputDto> {
@@ -43,6 +47,24 @@ export class LoginUseCase implements IUseCase<LoginInputDto, LoginOutputDto> {
         city: input.city ?? null,
         country: input.country ?? null,
       });
+    }
+
+    if (this._emailService && this._frontendUrl) {
+      const manageSessionsUrl = `${this._frontendUrl}/doctor/settings`;
+      this._emailService
+        .sendNewLoginAlertEmail({
+          toEmail: user.email,
+          recipientName: user.name,
+          device: input.device || 'Unknown Device',
+          ipAddress: input.ipAddress || '127.0.0.1',
+          city: input.city ?? null,
+          country: input.country ?? null,
+          loginTime: new Date(),
+          manageSessionsUrl,
+        })
+        .catch((err) => {
+          Logger.error(`[LoginUseCase] Failed to send new login notification email: ${err}`);
+        });
     }
 
     return {

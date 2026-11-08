@@ -79,3 +79,4 @@ export function extractClientInfo(req: Request): ClientInfo {
     country,
   };
 }
+

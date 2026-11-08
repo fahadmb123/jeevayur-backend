@@ -11,3 +11,4 @@ export class Session {
     public readonly createdAt: Date
   ) {}
 }
+

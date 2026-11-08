@@ -21,3 +21,4 @@ export interface ISessionRepository {
   deleteById(id: string): Promise<void>;
   deleteByUserId(userId: number): Promise<void>;
 }
+
