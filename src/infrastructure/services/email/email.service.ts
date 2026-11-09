@@ -4,6 +4,7 @@ import type {
   AppointmentNotificationParams,
   AppointmentAcceptedParams,
   AppointmentRejectedParams,
+  AppointmentReceivedParams,
 } from '../../../shared/interfaces/services/IEmailService.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
@@ -485,6 +486,121 @@ export class EmailService implements IEmailService {
       toEmail,
       recipientName: 'Jeevayurniketan Clinical Team',
       subject: `[Jeevayurniketan] New Appointment Request: ${serviceLabel} - ${name}`,
+      htmlContent,
+      textContent,
+    });
+  }
+
+  async sendAppointmentReceivedEmail(params: AppointmentReceivedParams): Promise<void> {
+    const { toEmail, recipientName, type, phone, format, language, reason } = params;
+    const serviceLabel = type === 'yoga class' ? 'Yoga Class' : 'Ayurveda Treatment';
+    const formatLabel =
+      format.toLowerCase() === 'online'
+        ? 'Online (Virtual Video Consultation)'
+        : 'Offline (In-Person Clinic at Kottakkal)';
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>We Have Received Your Appointment Request - Jeevayurniketan</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F4F6F4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F4F6F4; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(18, 76, 56, 0.08); border: 1px solid #E2E8DE;">
+          ${this._buildHeaderHtml()}
+
+          <tr>
+            <td style="padding: 36px 32px 28px;">
+              <div style="margin-bottom: 20px;">
+                <span style="display: inline-block; padding: 6px 14px; background-color: #EDF6F1; color: #124C38; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; border: 1px solid #A7F3D0;">
+                  Request Received
+                </span>
+              </div>
+
+              <h1 style="margin: 0 0 16px; color: #14241C; font-size: 22px; font-weight: 700; line-height: 1.3;">
+                Namaste ${recipientName},
+              </h1>
+
+              <p style="margin: 0 0 20px; color: #485E53; font-size: 14px; line-height: 1.65;">
+                Thank you for reaching out to <strong>Jeevayurniketan</strong> classical Ayurveda sanctuary. We have received your consultation appointment request.
+              </p>
+
+              <p style="margin: 0 0 24px; color: #485E53; font-size: 14px; line-height: 1.65;">
+                Our clinical coordination team is reviewing your inquiry and will contact you directly to confirm your consultation schedule and answer any questions.
+              </p>
+
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #FBFBF9; border: 1px solid #E2E8DE; border-radius: 8px; margin-bottom: 24px; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600; width: 38%;">Patient Name</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #124C38; font-size: 13px; font-weight: 700;">${recipientName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Contact Phone</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px; font-weight: 600;">${phone}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Requested Service</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #124C38; font-size: 13px; font-weight: 700;">${serviceLabel}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Consultation Mode</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px; font-weight: 600;">${formatLabel}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #768E81; font-size: 13px; font-weight: 600;">Preferred Language</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #EEF3EE; color: #14241C; font-size: 13px;">${language}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 16px; color: #768E81; font-size: 13px; font-weight: 600; vertical-align: top;">Primary Concern / Reason</td>
+                  <td style="padding: 14px 16px; color: #14241C; font-size: 13px; line-height: 1.6; word-break: break-word;">${reason}</td>
+                </tr>
+              </table>
+
+              <div style="padding: 16px 20px; background-color: #EDF6F1; border-left: 4px solid #1B6B50; border-radius: 6px; margin-bottom: 24px;">
+                <p style="margin: 0; color: #124C38; font-size: 13px; line-height: 1.6; font-weight: 600;">
+                  Next Steps: Our medical coordinator will reach out to you via phone or email to coordinate your appointment and assist you with your consultation visit.
+                </p>
+              </div>
+
+              <p style="margin: 0; color: #485E53; font-size: 13px; line-height: 1.6;">
+                If you have any questions or need to update your details, please reach out to our team at <a href="mailto:${this._senderEmail || 'info@jeevayurniketan.com'}" style="color: #1B6B50; font-weight: 600; text-decoration: none;">${this._senderEmail || 'info@jeevayurniketan.com'}</a>.
+              </p>
+            </td>
+          </tr>
+
+          ${this._buildFooterHtml()}
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `.trim();
+
+    const textContent = [
+      `Namaste ${recipientName},`,
+      '',
+      'Thank you for reaching out to Jeevayurniketan Sanctuary.',
+      'We have received your appointment request. Our clinical coordination team will contact you directly to confirm your consultation schedule.',
+      '',
+      `Service: ${serviceLabel}`,
+      `Format: ${formatLabel}`,
+      `Language: ${language}`,
+      `Phone: ${phone}`,
+      `Primary Concern: ${reason}`,
+      '',
+      'Warm regards,',
+      'Jeevayurniketan Healthcare Sanctuary',
+    ].join('\n');
+
+    await this._sendBrevoEmail({
+      toEmail,
+      recipientName,
+      subject: `[Jeevayurniketan] We Have Received Your Appointment Request: ${serviceLabel}`,
       htmlContent,
       textContent,
     });
