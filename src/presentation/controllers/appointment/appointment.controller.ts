@@ -1,15 +1,20 @@
 import type { Request, Response, NextFunction } from 'express';
+import { injectable } from 'tsyringe';
+import { BaseController } from '../../../shared/base/controller/baseController.js';
 import { CreateAppointmentUseCase } from '../../../application/use-cases/appointment/createAppointment.useCase.js';
 import { GetAppointmentsUseCase } from '../../../application/use-cases/appointment/getAppointments.useCase.js';
 import { UpdateAppointmentStatusUseCase } from '../../../application/use-cases/appointment/updateAppointmentStatus.useCase.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
-export class AppointmentController {
+@injectable()
+export class AppointmentController extends BaseController {
   constructor(
     private readonly createAppointmentUseCase: CreateAppointmentUseCase,
     private readonly getAppointmentsUseCase?: GetAppointmentsUseCase,
     private readonly updateAppointmentStatusUseCase?: UpdateAppointmentStatusUseCase
-  ) {}
+  ) {
+    super();
+  }
 
   public createAppointment = async (
     req: Request,
@@ -18,11 +23,7 @@ export class AppointmentController {
   ): Promise<void> => {
     try {
       const response = await this.createAppointmentUseCase.execute(req.body);
-      res.status(201).json({
-        success: true,
-        message: 'Appointment booking confirmed successfully.',
-        data: response,
-      });
+      this.sendCreated(res, 'Appointment booking confirmed successfully.', response);
     } catch (error) {
       Logger.error('[AppointmentController] Failed to create appointment:', error);
       next(error);
@@ -39,11 +40,7 @@ export class AppointmentController {
         throw new Error('GetAppointmentsUseCase not configured');
       }
       const response = await this.getAppointmentsUseCase.execute();
-      res.status(200).json({
-        success: true,
-        message: 'Appointments retrieved successfully.',
-        data: response,
-      });
+      this.sendSuccess(res, 'Appointments retrieved successfully.', response);
     } catch (error) {
       Logger.error('[AppointmentController] Failed to get appointments:', error);
       next(error);
@@ -62,11 +59,7 @@ export class AppointmentController {
       const id = String(req.params.id);
       const { status, reason } = req.body;
       const response = await this.updateAppointmentStatusUseCase.execute(id, status, reason);
-      res.status(200).json({
-        success: true,
-        message: 'Appointment status updated successfully.',
-        data: response,
-      });
+      this.sendSuccess(res, 'Appointment status updated successfully.', response);
     } catch (error) {
       Logger.error('[AppointmentController] Failed to update appointment status:', error);
       next(error);
