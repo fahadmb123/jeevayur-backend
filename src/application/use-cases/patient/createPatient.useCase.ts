@@ -22,7 +22,7 @@ export class CreatePatientUseCase {
       gender: data.gender?.trim() || null,
       age: data.age ?? 30,
       condition: data.condition?.trim() || null,
-      status: data.status || 'Consultation',
+      status: data.status || 'Uncompleted',
       lastVisit: data.lastVisit || 'Added by Doctor',
     });
   }
