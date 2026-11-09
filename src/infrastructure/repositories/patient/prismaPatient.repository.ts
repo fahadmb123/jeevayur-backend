@@ -45,5 +45,13 @@ export class PrismaPatientRepository implements IPatientRepository {
     });
     return records.map((r) => PatientMapper.toDomain(r));
   }
+
+  async updateStatus(id: string, status: string): Promise<Patient> {
+    const record = await db.patient.update({
+      where: { id },
+      data: { status },
+    });
+    return PatientMapper.toDomain(record);
+  }
 }
 

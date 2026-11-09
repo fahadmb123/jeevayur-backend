@@ -17,5 +17,6 @@ export interface IPatientRepository extends IBaseRepository<Patient, string> {
   findAll(): Promise<Patient[]>;
   findById(id: string): Promise<Patient | null>;
   findByEmail(email: string): Promise<Patient | null>;
+  updateStatus(id: string, status: string): Promise<Patient>;
 }
 

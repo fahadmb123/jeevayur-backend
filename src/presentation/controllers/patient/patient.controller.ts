@@ -3,13 +3,15 @@ import { injectable } from 'tsyringe';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import { GetPatientsUseCase } from '../../../application/use-cases/patient/getPatients.useCase.js';
 import { CreatePatientUseCase } from '../../../application/use-cases/patient/createPatient.useCase.js';
+import { UpdatePatientStatusUseCase } from '../../../application/use-cases/patient/updatePatientStatus.useCase.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
 @injectable()
 export class PatientController extends BaseController {
   constructor(
     private readonly getPatientsUseCase: GetPatientsUseCase,
-    private readonly createPatientUseCase?: CreatePatientUseCase
+    private readonly createPatientUseCase?: CreatePatientUseCase,
+    private readonly updatePatientStatusUseCase?: UpdatePatientStatusUseCase
   ) {
     super();
   }
@@ -42,6 +44,26 @@ export class PatientController extends BaseController {
       this.sendCreated(res, 'Patient registered successfully.', { patient: created });
     } catch (error) {
       Logger.error('[PatientController] Failed to create patient:', error);
+      next(error);
+    }
+  };
+
+  public updatePatientStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      if (!this.updatePatientStatusUseCase) {
+        this.sendBadRequest(res, 'Not implemented');
+        return;
+      }
+      const id = String(req.params.id);
+      const { status } = req.body;
+      const updated = await this.updatePatientStatusUseCase.execute(id, status);
+      this.sendSuccess(res, 'Patient status updated successfully.', { patient: updated });
+    } catch (error) {
+      Logger.error('[PatientController] Failed to update patient status:', error);
       next(error);
     }
   };
