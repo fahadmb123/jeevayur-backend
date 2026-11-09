@@ -1,8 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
+import { injectable } from 'tsyringe';
 import { GetPatientsUseCase } from '../../../application/use-cases/patient/getPatients.useCase.js';
 import { CreatePatientUseCase } from '../../../application/use-cases/patient/createPatient.useCase.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
+@injectable()
 export class PatientController {
   constructor(
     private readonly getPatientsUseCase: GetPatientsUseCase,

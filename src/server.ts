@@ -1,40 +1,63 @@
+import 'reflect-metadata';
 import http from 'http';
 import { env, type EnvironmentConfig } from './config/environment.config.js';
 import { db } from './shared/database/client.js';
 import { Logger } from './shared/logging/Logger.js';
 import { createApp } from './app/app.js';
-import { buildAuthComposition } from './infrastructure/composition/auth.composition.js';
-import { buildDoctorComposition } from './infrastructure/composition/doctor.composition.js';
-import { buildHealthComposition } from './infrastructure/composition/health.composition.js';
-import { buildSocialLinkComposition } from './infrastructure/composition/socialLink.composition.js';
-import { buildAppointmentComposition } from './infrastructure/composition/appointment.composition.js';
-import { buildPatientComposition } from './infrastructure/composition/patient.composition.js';
+import { setupContainer, TOKENS } from './infrastructure/di/index.js';
+import { buildAuthRoutes } from './presentation/routes/auth/auth.routes.js';
+import { buildDoctorRoutes } from './presentation/routes/doctor/doctor.routes.js';
+import { buildHealthRoutes } from './presentation/routes/health/health.routes.js';
+import { buildSocialLinkRoutes } from './presentation/routes/social/socialLink.routes.js';
+import { buildAppointmentRoutes } from './presentation/routes/appointment/appointment.routes.js';
+import { buildPatientRoutes } from './presentation/routes/patient/patient.routes.js';
+import { AuthController } from './presentation/controllers/auth/auth.controller.js';
+import { DoctorController } from './presentation/controllers/doctor/doctor.controller.js';
+import { HealthController } from './presentation/controllers/health/health.controller.js';
+import { SocialLinkController } from './presentation/controllers/social/socialLink.controller.js';
+import { AppointmentController } from './presentation/controllers/appointment/appointment.controller.js';
+import { PatientController } from './presentation/controllers/patient/patient.controller.js';
 import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
+import type { JwtTokenService } from './infrastructure/services/auth/jwtToken.service.js';
+import type { ISessionRepository } from './domain/repositories/auth/session.repository.js';
 
 export class Server {
   private readonly httpServer: http.Server;
 
   constructor(private readonly config: EnvironmentConfig = env) {
-    const authComposition = buildAuthComposition(this.config);
+    const di = setupContainer(this.config);
+
+    const jwtService = di.resolve<JwtTokenService>(TOKENS.JwtService);
+    const sessionRepository = di.resolve<ISessionRepository>(TOKENS.SessionRepository);
+
     const authMiddleware = createAuthMiddleware(
-      authComposition.jwtService,
+      jwtService,
       this.config.authCookieName,
-      authComposition.sessionRepository,
+      sessionRepository,
       this.config.refreshCookieName
     );
-    const doctorComposition = buildDoctorComposition(authMiddleware);
-    const healthComposition = buildHealthComposition();
-    const socialLinkComposition = buildSocialLinkComposition(authMiddleware);
-    const appointmentComposition = buildAppointmentComposition(this.config, authMiddleware);
-    const patientComposition = buildPatientComposition(authMiddleware, appointmentComposition.patientRepository);
+
+    const authController = di.resolve(AuthController);
+    const doctorController = di.resolve(DoctorController);
+    const healthController = di.resolve(HealthController);
+    const socialLinkController = di.resolve(SocialLinkController);
+    const appointmentController = di.resolve(AppointmentController);
+    const patientController = di.resolve(PatientController);
+
+    const authRoutes = buildAuthRoutes({ authController, authMiddleware });
+    const doctorRoutes = buildDoctorRoutes({ doctorController, authMiddleware });
+    const healthRoutes = buildHealthRoutes({ healthController });
+    const socialLinkRoutes = buildSocialLinkRoutes({ socialLinkController, authMiddleware });
+    const appointmentRoutes = buildAppointmentRoutes({ appointmentController, authMiddleware });
+    const patientRoutes = buildPatientRoutes({ patientController, authMiddleware });
 
     const app = createApp(this.config, {
-      authRoutes: authComposition.router,
-      doctorRoutes: doctorComposition.router,
-      healthRoutes: healthComposition.router,
-      socialLinkRoutes: socialLinkComposition.router,
-      appointmentRoutes: appointmentComposition.router,
-      patientRoutes: patientComposition.router,
+      authRoutes,
+      doctorRoutes,
+      healthRoutes,
+      socialLinkRoutes,
+      appointmentRoutes,
+      patientRoutes,
     });
 
     this.httpServer = http.createServer(app);
