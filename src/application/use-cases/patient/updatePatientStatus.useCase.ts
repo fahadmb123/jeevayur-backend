@@ -22,3 +22,4 @@ export class UpdatePatientStatusUseCase {
     return this.patientRepository.updateStatus(id, normalized);
   }
 }
+

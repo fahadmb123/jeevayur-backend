@@ -12,8 +12,17 @@ export interface PatientResponseDto {
   createdAt: string;
 }
 
+export interface PatientCountsDto {
+  all: number;
+  completed: number;
+  uncompleted: number;
+}
+
 export interface GetPatientsResponseDto {
   patients: PatientResponseDto[];
   total: number;
+  counts?: PatientCountsDto;
+  page?: number;
+  limit?: number;
 }
 

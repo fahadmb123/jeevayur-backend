@@ -17,12 +17,26 @@ export class PatientController extends BaseController {
   }
 
   public getPatients = async (
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const response = await this.getPatientsUseCase.execute();
+      const page = req.query.page ? Math.max(1, parseInt(String(req.query.page), 10)) : 1;
+      const limit = req.query.limit ? Math.min(Math.max(1, parseInt(String(req.query.limit), 10)), 200) : 50;
+      const offset = (page - 1) * limit;
+
+      const query = {
+        search: typeof req.query.search === 'string' ? req.query.search : undefined,
+        status: typeof req.query.status === 'string' ? req.query.status : undefined,
+        gender: typeof req.query.gender === 'string' ? req.query.gender : undefined,
+        source: typeof req.query.source === 'string' ? req.query.source : undefined,
+        limit,
+        page,
+        offset,
+      };
+
+      const response = await this.getPatientsUseCase.execute(query);
       this.sendSuccess(res, 'Patients retrieved successfully.', response);
     } catch (error) {
       Logger.error('[PatientController] Failed to get patients:', error);

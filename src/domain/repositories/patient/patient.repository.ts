@@ -12,11 +12,31 @@ export interface CreatePatientData {
   lastVisit?: string | null;
 }
 
+export interface PatientFilterCriteria {
+  search?: string;
+  status?: string;
+  gender?: string;
+  source?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PatientQueryResult {
+  patients: Patient[];
+  total: number;
+  counts: {
+    all: number;
+    completed: number;
+    uncompleted: number;
+  };
+}
+
 export interface IPatientRepository extends IBaseRepository<Patient, string> {
   create(data: CreatePatientData): Promise<Patient>;
   findAll(): Promise<Patient[]>;
   findById(id: string): Promise<Patient | null>;
   findByEmail(email: string): Promise<Patient | null>;
   updateStatus(id: string, status: string): Promise<Patient>;
+  findFiltered(criteria: PatientFilterCriteria): Promise<PatientQueryResult>;
 }
 
