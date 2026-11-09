@@ -20,6 +20,16 @@ export class PatientMapper {
   }
 
   static toDto(patient: Patient): PatientResponseDto {
+    const isWebsite =
+      (patient.lastVisit && /website|request/i.test(patient.lastVisit)) ||
+      (patient.condition && /\((offline|online|in-person|in-clinic|virtual)\)/i.test(patient.condition)) ||
+      (patient.id.length > 10 && !patient.lastVisit?.toLowerCase().includes('doctor'));
+
+    const normalizedStatus =
+      patient.status?.toLowerCase() === 'completed' || patient.status?.toLowerCase() === 'recovered'
+        ? 'Completed'
+        : 'Uncompleted';
+
     return {
       id: patient.id,
       name: patient.name,
@@ -28,8 +38,9 @@ export class PatientMapper {
       gender: patient.gender,
       age: patient.age,
       condition: patient.condition,
-      status: patient.status,
+      status: normalizedStatus,
       lastVisit: patient.lastVisit,
+      source: isWebsite ? 'website' : 'doctor',
       createdAt: patient.createdAt.toISOString(),
     };
   }

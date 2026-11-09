@@ -1,26 +1,84 @@
 import type { Request, Response, NextFunction } from 'express';
+import { injectable } from 'tsyringe';
+import { BaseController } from '../../../shared/base/controller/baseController.js';
 import { GetPatientsUseCase } from '../../../application/use-cases/patient/getPatients.useCase.js';
+import { CreatePatientUseCase } from '../../../application/use-cases/patient/createPatient.useCase.js';
+import { UpdatePatientStatusUseCase } from '../../../application/use-cases/patient/updatePatientStatus.useCase.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 
-export class PatientController {
-  constructor(private readonly getPatientsUseCase: GetPatientsUseCase) {}
+@injectable()
+export class PatientController extends BaseController {
+  constructor(
+    private readonly getPatientsUseCase: GetPatientsUseCase,
+    private readonly createPatientUseCase?: CreatePatientUseCase,
+    private readonly updatePatientStatusUseCase?: UpdatePatientStatusUseCase
+  ) {
+    super();
+  }
 
   public getPatients = async (
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const response = await this.getPatientsUseCase.execute();
-      res.status(200).json({
-        success: true,
-        message: 'Patients retrieved successfully.',
-        data: response,
-      });
+      const page = req.query.page ? Math.max(1, parseInt(String(req.query.page), 10)) : 1;
+      const limit = req.query.limit ? Math.min(Math.max(1, parseInt(String(req.query.limit), 10)), 200) : 50;
+      const offset = (page - 1) * limit;
+
+      const query = {
+        search: typeof req.query.search === 'string' ? req.query.search : undefined,
+        status: typeof req.query.status === 'string' ? req.query.status : undefined,
+        gender: typeof req.query.gender === 'string' ? req.query.gender : undefined,
+        source: typeof req.query.source === 'string' ? req.query.source : undefined,
+        limit,
+        page,
+        offset,
+      };
+
+      const response = await this.getPatientsUseCase.execute(query);
+      this.sendSuccess(res, 'Patients retrieved successfully.', response);
     } catch (error) {
       Logger.error('[PatientController] Failed to get patients:', error);
       next(error);
     }
   };
-}
 
+  public createPatient = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      if (!this.createPatientUseCase) {
+        this.sendBadRequest(res, 'Not implemented');
+        return;
+      }
+      const created = await this.createPatientUseCase.execute(req.body);
+      this.sendCreated(res, 'Patient registered successfully.', { patient: created });
+    } catch (error) {
+      Logger.error('[PatientController] Failed to create patient:', error);
+      next(error);
+    }
+  };
+
+  public updatePatientStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      if (!this.updatePatientStatusUseCase) {
+        this.sendBadRequest(res, 'Not implemented');
+        return;
+      }
+      const id = String(req.params.id);
+      const { status } = req.body;
+      const updated = await this.updatePatientStatusUseCase.execute(id, status);
+      this.sendSuccess(res, 'Patient status updated successfully.', { patient: updated });
+    } catch (error) {
+      Logger.error('[PatientController] Failed to update patient status:', error);
+      next(error);
+    }
+  };
+}

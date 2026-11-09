@@ -37,10 +37,21 @@ export interface AppointmentRejectedParams {
   reason?: string;
 }
 
+export interface AppointmentReceivedParams {
+  toEmail: string;
+  recipientName: string;
+  type: string;
+  phone: string;
+  format: string;
+  language: string;
+  reason: string;
+}
+
 export interface IEmailService {
   sendPasswordResetEmail(toEmail: string, resetUrl: string, recipientName?: string): Promise<void>;
   sendNewLoginAlertEmail(params: NewLoginAlertParams): Promise<void>;
   sendAppointmentNotificationEmail(params: AppointmentNotificationParams): Promise<void>;
+  sendAppointmentReceivedEmail(params: AppointmentReceivedParams): Promise<void>;
   sendAppointmentAcceptedEmail(params: AppointmentAcceptedParams): Promise<void>;
   sendAppointmentRejectedEmail(params: AppointmentRejectedParams): Promise<void>;
 }

@@ -52,6 +52,28 @@ export class CreateAppointmentUseCase {
       );
     }
 
+    if (savedAppointment.email) {
+      try {
+        await this.emailService.sendAppointmentReceivedEmail({
+          toEmail: savedAppointment.email,
+          recipientName: savedAppointment.name,
+          type: savedAppointment.type,
+          phone: savedAppointment.phone,
+          format: savedAppointment.format,
+          language: savedAppointment.language,
+          reason: savedAppointment.reason,
+        });
+        Logger.info(
+          `[CreateAppointmentUseCase] Appointment acknowledgment email dispatched to customer: ${savedAppointment.email}`
+        );
+      } catch (custEmailErr) {
+        Logger.error(
+          `[CreateAppointmentUseCase] Failed to send appointment acknowledgment email to customer ${savedAppointment.email}:`,
+          custEmailErr
+        );
+      }
+    }
+
     return AppointmentMapper.toDto(savedAppointment);
   }
 }

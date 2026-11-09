@@ -8,11 +8,21 @@ export interface PatientResponseDto {
   condition: string | null;
   status: string;
   lastVisit: string | null;
+  source: 'website' | 'doctor';
   createdAt: string;
+}
+
+export interface PatientCountsDto {
+  all: number;
+  completed: number;
+  uncompleted: number;
 }
 
 export interface GetPatientsResponseDto {
   patients: PatientResponseDto[];
   total: number;
+  counts?: PatientCountsDto;
+  page?: number;
+  limit?: number;
 }
 

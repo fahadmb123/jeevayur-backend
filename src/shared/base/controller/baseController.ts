@@ -26,5 +26,13 @@ export abstract class BaseController {
   protected sendNoContent(res: Response): void {
     res.status(204).send();
   }
-}
 
+  protected sendBadRequest(res: Response, message: string, errors: unknown = null): void {
+    const payload: ApiResponse<null> = {
+      success: false,
+      message,
+      errors,
+    };
+    res.status(400).json(payload);
+  }
+}
