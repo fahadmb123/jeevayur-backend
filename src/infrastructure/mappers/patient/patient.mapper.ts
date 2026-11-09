@@ -20,6 +20,11 @@ export class PatientMapper {
   }
 
   static toDto(patient: Patient): PatientResponseDto {
+    const isWebsite =
+      (patient.lastVisit && /website|request/i.test(patient.lastVisit)) ||
+      (patient.condition && /\((offline|online|in-person|in-clinic|virtual)\)/i.test(patient.condition)) ||
+      (patient.id.length > 10 && !patient.lastVisit?.toLowerCase().includes('doctor'));
+
     return {
       id: patient.id,
       name: patient.name,
@@ -30,6 +35,7 @@ export class PatientMapper {
       condition: patient.condition,
       status: patient.status,
       lastVisit: patient.lastVisit,
+      source: isWebsite ? 'website' : 'doctor',
       createdAt: patient.createdAt.toISOString(),
     };
   }

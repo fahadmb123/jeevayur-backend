@@ -23,7 +23,7 @@ export class CreatePatientUseCase {
       age: data.age ?? 30,
       condition: data.condition?.trim() || null,
       status: data.status || 'Consultation',
-      lastVisit: data.lastVisit || 'Today (New)',
+      lastVisit: data.lastVisit || 'Added by Doctor',
     });
   }
 }

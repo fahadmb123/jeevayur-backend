@@ -36,7 +36,7 @@ export class UpdateAppointmentStatusUseCase {
           phone: updated.phone,
           condition: `${updated.type} (${updated.format}): ${updated.reason}`,
           status: 'Consultation',
-          lastVisit: 'Today (New Request)',
+          lastVisit: 'Website Booking',
         });
       } catch (patientError) {
         Logger.error('[UpdateAppointmentStatusUseCase] Failed to save patient record:', patientError);

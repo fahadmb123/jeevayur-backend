@@ -8,6 +8,7 @@ export interface PatientResponseDto {
   condition: string | null;
   status: string;
   lastVisit: string | null;
+  source: 'website' | 'doctor';
   createdAt: string;
 }
 
