@@ -6,4 +6,5 @@ export interface LoginRequestDto {
   device?: string;
   city?: string | null;
   country?: string | null;
+  oldTokenHash?: string | null;
 }

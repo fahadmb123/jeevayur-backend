@@ -38,12 +38,34 @@ export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto>
     const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
 
     if (this._sessionRepository) {
+      if (input.oldTokenHash) {
+        await this._sessionRepository.deleteByTokenHash(input.oldTokenHash);
+      }
+
+      const existingSessions = await this._sessionRepository.findByUserId(user.id);
+      const targetDevice = input.device || 'Unknown Device';
+      const duplicateSessions = existingSessions.filter((s) => s.device === targetDevice);
+      for (const s of duplicateSessions) {
+        await this._sessionRepository.deleteById(s.id);
+      }
+
+      const remainingSessions = existingSessions.filter((s) => s.device !== targetDevice);
+      if (remainingSessions.length >= 5) {
+        const sorted = [...remainingSessions].sort(
+          (a, b) => new Date(a.lastActiveAt).getTime() - new Date(b.lastActiveAt).getTime()
+        );
+        const excess = sorted.slice(0, remainingSessions.length - 4);
+        for (const s of excess) {
+          await this._sessionRepository.deleteById(s.id);
+        }
+      }
+
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
       await this._sessionRepository.create({
         userId: user.id,
         tokenHash,
         ipAddress: input.ipAddress || '127.0.0.1',
-        device: input.device || 'Unknown Device',
+        device: targetDevice,
         city: input.city ?? null,
         country: input.country ?? null,
       });

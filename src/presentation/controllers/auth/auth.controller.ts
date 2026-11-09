@@ -50,6 +50,13 @@ export class AuthController extends BaseController {
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const clientInfo = extractClientInfo(req);
+      const existingRefreshToken =
+        req.cookies?.[this._config.refreshCookieName] ||
+        req.signedCookies?.[this._config.refreshCookieName];
+      const oldTokenHash = existingRefreshToken
+        ? crypto.createHash('sha256').update(existingRefreshToken).digest('hex')
+        : null;
+
       const result = await this._loginUseCase.execute({
         email: req.body.email,
         password: req.body.password,
@@ -58,6 +65,7 @@ export class AuthController extends BaseController {
         device: clientInfo.device,
         city: clientInfo.city,
         country: clientInfo.country,
+        oldTokenHash,
       });
 
       this._cookies.setRefreshToken(res, result.refreshToken, result.rememberMe);
@@ -196,9 +204,37 @@ export class AuthController extends BaseController {
         : null;
 
       const clientInfo = extractClientInfo(req);
-      const sessions = await this._sessionRepository.findByUserId(req.auth.userId);
+      const allSessions = await this._sessionRepository.findByUserId(req.auth.userId);
 
-      const mappedSessions = sessions.map((s) => {
+      const seenDevices = new Set<string>();
+      const deduplicated: typeof allSessions = [];
+
+      for (const s of allSessions) {
+        const isCurrent = currentTokenHash
+          ? s.tokenHash === currentTokenHash
+          : s.device === clientInfo.device;
+        if (isCurrent) {
+          deduplicated.push(s);
+          seenDevices.add(s.device || 'Unknown Device');
+        }
+      }
+
+      for (const s of allSessions) {
+        const isCurrent = currentTokenHash
+          ? s.tokenHash === currentTokenHash
+          : s.device === clientInfo.device;
+        if (isCurrent) continue;
+
+        const deviceKey = s.device || 'Unknown Device';
+        if (seenDevices.has(deviceKey)) {
+          await this._sessionRepository.deleteById(s.id);
+        } else {
+          seenDevices.add(deviceKey);
+          deduplicated.push(s);
+        }
+      }
+
+      const mappedSessions = deduplicated.map((s) => {
         const isCurrent = currentTokenHash
           ? s.tokenHash === currentTokenHash
           : s.device === clientInfo.device;
