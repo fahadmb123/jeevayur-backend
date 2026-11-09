@@ -16,6 +16,7 @@ import { EmailService } from '../services/email/email.service.js';
 
 import { GetPatientsUseCase } from '../../application/use-cases/patient/getPatients.useCase.js';
 import { CreatePatientUseCase } from '../../application/use-cases/patient/createPatient.useCase.js';
+import { UpdatePatientStatusUseCase } from '../../application/use-cases/patient/updatePatientStatus.useCase.js';
 import { PatientController } from '../../presentation/controllers/patient/patient.controller.js';
 
 import { CreateAppointmentUseCase } from '../../application/use-cases/appointment/createAppointment.useCase.js';
@@ -91,8 +92,17 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) => new CreatePatientUseCase(c.resolve(TOKENS.PatientRepository)),
   });
 
+  container.register(UpdatePatientStatusUseCase, {
+    useFactory: (c) => new UpdatePatientStatusUseCase(c.resolve(TOKENS.PatientRepository)),
+  });
+
   container.register(PatientController, {
-    useFactory: (c) => new PatientController(c.resolve(GetPatientsUseCase), c.resolve(CreatePatientUseCase)),
+    useFactory: (c) =>
+      new PatientController(
+        c.resolve(GetPatientsUseCase),
+        c.resolve(CreatePatientUseCase),
+        c.resolve(UpdatePatientStatusUseCase)
+      ),
   });
 
   container.register(CreateAppointmentUseCase, {
