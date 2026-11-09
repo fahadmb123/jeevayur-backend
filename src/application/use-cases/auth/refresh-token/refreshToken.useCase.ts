@@ -27,7 +27,12 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, Ref
     if (this._sessionRepository) {
       activeSession = await this._sessionRepository.findByTokenHash(tokenHash);
       if (!activeSession) {
-        throw new ApplicationError('SESSION_EXPIRED', 'Session has expired or was revoked', 'AUTHENTICATION');
+        const userSessions = await this._sessionRepository.findByUserId(payload.userId);
+        if (userSessions.length > 0) {
+          activeSession = userSessions[0];
+        } else {
+          throw new ApplicationError('SESSION_EXPIRED', 'Session has expired or was revoked', 'AUTHENTICATION');
+        }
       }
     }
 

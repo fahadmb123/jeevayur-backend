@@ -85,8 +85,8 @@ export class AuthController extends BaseController {
 
       const result = await this._refreshTokenUseCase.execute({ refreshToken });
 
-      this._cookies.setRefreshToken(res, result.refreshToken);
-      this._cookies.setAccessToken(res, result.accessToken);
+      this._cookies.setRefreshToken(res, result.refreshToken, true);
+      this._cookies.setAccessToken(res, result.accessToken, true);
 
       this.sendSuccess(res, 'Token refreshed successfully', {
         user: result.user,
@@ -215,7 +215,6 @@ export class AuthController extends BaseController {
         };
       });
 
-      // Ensure the current active device is placed first
       mappedSessions.sort((a, b) => {
         if (a.isCurrent) return -1;
         if (b.isCurrent) return 1;

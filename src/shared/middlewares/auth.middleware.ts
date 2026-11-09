@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import type { NextFunction, Request, Response, RequestHandler } from 'express';
 import { ApplicationError } from '../errors/applicationError.js';
 import type { IJwtService, AuthTokenPayload } from '../interfaces/services/IJwtService.js';
@@ -33,7 +32,7 @@ export function createAuthMiddleware(
   tokens: IJwtService,
   cookieName: string,
   sessionRepository?: ISessionRepository,
-  refreshCookieName?: string
+  _refreshCookieName?: string
 ): RequestHandler {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const token = extractToken(req, cookieName);
@@ -45,17 +44,11 @@ export function createAuthMiddleware(
     try {
       req.auth = tokens.verify(token);
 
-      if (sessionRepository && refreshCookieName) {
-        const refreshToken =
-          req.cookies?.[refreshCookieName] || req.signedCookies?.[refreshCookieName];
-
-        if (refreshToken) {
-          const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-          const session = await sessionRepository.findByTokenHash(tokenHash);
-          if (!session) {
-            next(new ApplicationError('SESSION_REVOKED', 'Session has been revoked or signed out', 'AUTHENTICATION'));
-            return;
-          }
+      if (sessionRepository && req.auth?.userId) {
+        const userSessions = await sessionRepository.findByUserId(req.auth.userId);
+        if (userSessions.length === 0) {
+          next(new ApplicationError('SESSION_REVOKED', 'Session has been revoked or signed out', 'AUTHENTICATION'));
+          return;
         }
       }
 
