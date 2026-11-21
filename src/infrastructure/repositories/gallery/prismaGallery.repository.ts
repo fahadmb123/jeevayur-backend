@@ -1,5 +1,6 @@
 import type { IGalleryRepository } from '../../../domain/repositories/gallery/gallery.repository.js';
-import type { GalleryItemEntity } from '../../../domain/entities/gallery/galleryItem.entity.js';
+import type { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
+import { GalleryMapper } from '../../mappers/gallery/gallery.mapper.js';
 import { db } from '../../../shared/database/client.js';
 import { INITIAL_GALLERY_ITEMS } from '../../../presentation/controllers/gallery/gallery.constants.js';
 
@@ -28,7 +29,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     }
   }
 
-  async findAll(category?: string, search?: string): Promise<GalleryItemEntity[]> {
+  async findAll(category?: string, search?: string): Promise<GalleryItem[]> {
     await this.ensureTable();
 
     const count = await db.galleryItem.count();
@@ -59,18 +60,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    let results = records.map((r) => ({
-      id: r.id,
-      title: r.title,
-      category: r.category,
-      imageUrl: r.imageUrl,
-      imageKey: r.imageKey,
-      description: r.description,
-      author: r.author,
-      aspectRatio: r.aspectRatio,
-      createdAt: r.createdAt,
-      updatedAt: r.updatedAt,
-    }));
+    let results = records.map((record) => GalleryMapper.toDomain(record));
 
     if (search && search.trim() !== '') {
       const q = search.trim().toLowerCase();
@@ -85,22 +75,11 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     return results;
   }
 
-  async findById(id: string): Promise<GalleryItemEntity | null> {
+  async findById(id: string): Promise<GalleryItem | null> {
     await this.ensureTable();
     const record = await db.galleryItem.findUnique({ where: { id } });
     if (!record) return null;
-    return {
-      id: record.id,
-      title: record.title,
-      category: record.category,
-      imageUrl: record.imageUrl,
-      imageKey: record.imageKey,
-      description: record.description,
-      author: record.author,
-      aspectRatio: record.aspectRatio,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
-    };
+    return GalleryMapper.toDomain(record);
   }
 
   async create(data: {
@@ -113,7 +92,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     author?: string | null;
     aspectRatio?: string | null;
     createdAt?: Date;
-  }): Promise<GalleryItemEntity> {
+  }): Promise<GalleryItem> {
     await this.ensureTable();
     const record = await db.galleryItem.create({
       data: {
@@ -129,18 +108,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
       },
     });
 
-    return {
-      id: record.id,
-      title: record.title,
-      category: record.category,
-      imageUrl: record.imageUrl,
-      imageKey: record.imageKey,
-      description: record.description,
-      author: record.author,
-      aspectRatio: record.aspectRatio,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
-    };
+    return GalleryMapper.toDomain(record);
   }
 
   async delete(id: string): Promise<void> {
@@ -157,7 +125,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     author: string;
     aspectRatio: string;
     createdAt: string;
-  }>): Promise<GalleryItemEntity[]> {
+  }>): Promise<GalleryItem[]> {
     await this.ensureTable();
     await db.galleryItem.deleteMany({});
 
@@ -180,17 +148,6 @@ export class PrismaGalleryRepository implements IGalleryRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return records.map((r) => ({
-      id: r.id,
-      title: r.title,
-      category: r.category,
-      imageUrl: r.imageUrl,
-      imageKey: r.imageKey,
-      description: r.description,
-      author: r.author,
-      aspectRatio: r.aspectRatio,
-      createdAt: r.createdAt,
-      updatedAt: r.updatedAt,
-    }));
+    return records.map((record) => GalleryMapper.toDomain(record));
   }
 }

@@ -2,6 +2,7 @@ import type { IGalleryRepository } from '../../../domain/repositories/gallery/ga
 import type { B2StorageService } from '../../../infrastructure/services/storage/b2Storage.service.js';
 import type { CreateGalleryItemRequestDto } from '../../dtos/request/gallery/createGalleryItem.dto.js';
 import type { GalleryItemResponseDto } from '../../dtos/response/gallery/galleryItem.dto.js';
+import { GalleryMapper } from '../../../infrastructure/mappers/gallery/gallery.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import crypto from 'crypto';
 
@@ -83,16 +84,6 @@ export class CreateGalleryItemUseCase {
       aspectRatio: dto.aspectRatio || 'landscape',
     });
 
-    return {
-      id: created.id,
-      title: created.title,
-      category: created.category,
-      imageUrl: created.imageUrl,
-      imageKey: created.imageKey,
-      description: created.description,
-      author: created.author,
-      aspectRatio: created.aspectRatio,
-      createdAt: created.createdAt.toISOString().split('T')[0],
-    };
+    return GalleryMapper.toDto(created);
   }
 }
