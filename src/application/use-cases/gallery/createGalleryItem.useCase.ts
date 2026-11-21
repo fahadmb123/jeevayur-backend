@@ -74,7 +74,7 @@ export class CreateGalleryItemUseCase {
       );
     }
 
-    const galleryItem = GalleryMapper.toDomainFromCreateDto(dto, finalImageUrl, finalImageKey);
+    const galleryItem = GalleryMapper.toDomain(dto, finalImageUrl, finalImageKey);
     const created = await this.galleryRepository.create(galleryItem);
 
     return GalleryMapper.toDto(created);

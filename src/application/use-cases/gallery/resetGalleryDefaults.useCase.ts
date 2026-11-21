@@ -19,7 +19,7 @@ export class ResetGalleryDefaultsUseCase {
     }
 
     const defaultEntities = INITIAL_GALLERY_ITEMS.map((item) =>
-      GalleryMapper.toDomainFromInitial(item)
+      GalleryMapper.toDomain(item)
     );
 
     const resetRecords = await this.galleryRepository.resetDefaults(defaultEntities);

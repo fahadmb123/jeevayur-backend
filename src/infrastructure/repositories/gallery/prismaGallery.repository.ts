@@ -35,7 +35,7 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     const count = await db.galleryItem.count();
     if (count === 0) {
       for (const item of INITIAL_GALLERY_ITEMS) {
-        const entity = GalleryMapper.toDomainFromInitial(item);
+        const entity = GalleryMapper.toDomain(item);
         const persistenceData = GalleryMapper.toPersistence(entity);
         await db.galleryItem.create({
           data: persistenceData,

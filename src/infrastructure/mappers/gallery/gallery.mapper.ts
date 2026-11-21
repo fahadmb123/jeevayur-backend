@@ -4,62 +4,69 @@ import type { CreateGalleryItemRequestDto } from '../../../application/dtos/requ
 import type { GalleryItemResponseDto } from '../../../application/dtos/response/gallery/galleryItem.dto.js';
 import crypto from 'crypto';
 
-export class GalleryMapper {
-  static toDomain(record: PrismaGalleryItem): GalleryItem {
-    return new GalleryItem(
-      record.id,
-      record.title,
-      record.category,
-      record.imageUrl,
-      record.imageKey,
-      record.description,
-      record.author,
-      record.aspectRatio,
-      record.createdAt,
-      record.updatedAt
-    );
-  }
+interface SeedGalleryItemInput {
+  id: string;
+  title: string;
+  category: string;
+  imageUrl: string;
+  description: string;
+  author: string;
+  aspectRatio: string;
+  createdAt: string;
+}
 
-  static toDomainFromCreateDto(
-    dto: CreateGalleryItemRequestDto,
-    imageUrl: string,
+export class GalleryMapper {
+  static toDomain(record: PrismaGalleryItem): GalleryItem;
+  static toDomain(dto: CreateGalleryItemRequestDto, imageUrl: string, imageKey?: string | null): GalleryItem;
+  static toDomain(item: SeedGalleryItemInput): GalleryItem;
+  static toDomain(
+    source: PrismaGalleryItem | CreateGalleryItemRequestDto | SeedGalleryItemInput,
+    imageUrl?: string,
     imageKey: string | null = null
   ): GalleryItem {
-    return new GalleryItem(
-      crypto.randomUUID(),
-      dto.title.trim(),
-      (dto.category || 'yoga').toLowerCase(),
-      imageUrl,
-      imageKey,
-      dto.description ? dto.description.trim() : null,
-      dto.author ? dto.author.trim() : 'Doctor / Wellness Admin',
-      dto.aspectRatio || 'landscape',
-      new Date(),
-      new Date()
-    );
-  }
+    if ('updatedAt' in source) {
+      return new GalleryItem(
+        source.id,
+        source.title,
+        source.category,
+        source.imageUrl,
+        source.imageKey,
+        source.description,
+        source.author,
+        source.aspectRatio,
+        source.createdAt,
+        source.updatedAt
+      );
+    }
 
-  static toDomainFromInitial(item: {
-    id: string;
-    title: string;
-    category: string;
-    imageUrl: string;
-    description: string;
-    author: string;
-    aspectRatio: string;
-    createdAt: string;
-  }): GalleryItem {
+    if (imageUrl !== undefined) {
+      const dto = source as CreateGalleryItemRequestDto;
+      return new GalleryItem(
+        crypto.randomUUID(),
+        dto.title.trim(),
+        (dto.category || 'yoga').toLowerCase(),
+        imageUrl,
+        imageKey,
+        dto.description ? dto.description.trim() : null,
+        dto.author ? dto.author.trim() : 'Doctor / Wellness Admin',
+        dto.aspectRatio || 'landscape',
+        new Date(),
+        new Date()
+      );
+    }
+
+    const seed = source as SeedGalleryItemInput;
     return new GalleryItem(
-      item.id,
-      item.title,
-      item.category,
-      item.imageUrl,
+      seed.id,
+      seed.title,
+      seed.category,
+      seed.imageUrl,
       null,
-      item.description,
-      item.author,
-      item.aspectRatio,
-      new Date(item.createdAt),
-      new Date(item.createdAt)
+      seed.description,
+      seed.author,
+      seed.aspectRatio,
+      new Date(seed.createdAt),
+      new Date(seed.createdAt)
     );
   }
 
