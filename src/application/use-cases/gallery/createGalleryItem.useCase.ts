@@ -2,7 +2,6 @@ import type { IGalleryRepository } from '../../../domain/repositories/gallery/ga
 import type { B2StorageService } from '../../../infrastructure/services/storage/b2Storage.service.js';
 import type { CreateGalleryItemRequestDto } from '../../dtos/request/gallery/createGalleryItem.dto.js';
 import type { GalleryItemResponseDto } from '../../dtos/response/gallery/galleryItem.dto.js';
-import { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
 import { GalleryMapper } from '../../../infrastructure/mappers/gallery/gallery.mapper.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import crypto from 'crypto';
@@ -75,19 +74,7 @@ export class CreateGalleryItemUseCase {
       );
     }
 
-    const galleryItem = new GalleryItem(
-      crypto.randomUUID(),
-      dto.title.trim(),
-      finalCategory,
-      finalImageUrl,
-      finalImageKey,
-      dto.description ? dto.description.trim() : null,
-      dto.author ? dto.author.trim() : 'Doctor / Wellness Admin',
-      dto.aspectRatio || 'landscape',
-      new Date(),
-      new Date()
-    );
-
+    const galleryItem = GalleryMapper.toDomainFromCreateDto(dto, finalImageUrl, finalImageKey);
     const created = await this.galleryRepository.create(galleryItem);
 
     return GalleryMapper.toDto(created);

@@ -1,6 +1,8 @@
 import type { GalleryItem as PrismaGalleryItem } from '@prisma/client';
 import { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
+import type { CreateGalleryItemRequestDto } from '../../../application/dtos/request/gallery/createGalleryItem.dto.js';
 import type { GalleryItemResponseDto } from '../../../application/dtos/response/gallery/galleryItem.dto.js';
+import crypto from 'crypto';
 
 export class GalleryMapper {
   static toDomain(record: PrismaGalleryItem): GalleryItem {
@@ -15,6 +17,49 @@ export class GalleryMapper {
       record.aspectRatio,
       record.createdAt,
       record.updatedAt
+    );
+  }
+
+  static toDomainFromCreateDto(
+    dto: CreateGalleryItemRequestDto,
+    imageUrl: string,
+    imageKey: string | null = null
+  ): GalleryItem {
+    return new GalleryItem(
+      crypto.randomUUID(),
+      dto.title.trim(),
+      (dto.category || 'yoga').toLowerCase(),
+      imageUrl,
+      imageKey,
+      dto.description ? dto.description.trim() : null,
+      dto.author ? dto.author.trim() : 'Doctor / Wellness Admin',
+      dto.aspectRatio || 'landscape',
+      new Date(),
+      new Date()
+    );
+  }
+
+  static toDomainFromInitial(item: {
+    id: string;
+    title: string;
+    category: string;
+    imageUrl: string;
+    description: string;
+    author: string;
+    aspectRatio: string;
+    createdAt: string;
+  }): GalleryItem {
+    return new GalleryItem(
+      item.id,
+      item.title,
+      item.category,
+      item.imageUrl,
+      null,
+      item.description,
+      item.author,
+      item.aspectRatio,
+      new Date(item.createdAt),
+      new Date(item.createdAt)
     );
   }
 

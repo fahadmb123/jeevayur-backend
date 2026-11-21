@@ -1,7 +1,6 @@
 import type { IGalleryRepository } from '../../../domain/repositories/gallery/gallery.repository.js';
 import type { B2StorageService } from '../../../infrastructure/services/storage/b2Storage.service.js';
 import type { GalleryItemResponseDto } from '../../dtos/response/gallery/galleryItem.dto.js';
-import { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
 import { GalleryMapper } from '../../../infrastructure/mappers/gallery/gallery.mapper.js';
 import { INITIAL_GALLERY_ITEMS } from '../../../presentation/controllers/gallery/gallery.constants.js';
 
@@ -19,20 +18,8 @@ export class ResetGalleryDefaultsUseCase {
       }
     }
 
-    const defaultEntities = INITIAL_GALLERY_ITEMS.map(
-      (item) =>
-        new GalleryItem(
-          item.id,
-          item.title,
-          item.category,
-          item.imageUrl,
-          null,
-          item.description,
-          item.author,
-          item.aspectRatio,
-          new Date(item.createdAt),
-          new Date(item.createdAt)
-        )
+    const defaultEntities = INITIAL_GALLERY_ITEMS.map((item) =>
+      GalleryMapper.toDomainFromInitial(item)
     );
 
     const resetRecords = await this.galleryRepository.resetDefaults(defaultEntities);
