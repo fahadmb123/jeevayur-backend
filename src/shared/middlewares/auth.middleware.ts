@@ -44,11 +44,19 @@ export function createAuthMiddleware(
     try {
       req.auth = tokens.verify(token);
 
-      if (sessionRepository && req.auth?.userId) {
-        const userSessions = await sessionRepository.findByUserId(req.auth.userId);
-        if (userSessions.length === 0) {
-          next(new ApplicationError('SESSION_REVOKED', 'Session has been revoked or signed out', 'AUTHENTICATION'));
-          return;
+      if (sessionRepository && req.auth) {
+        if (req.auth.sessionId) {
+          const session = await sessionRepository.findById(req.auth.sessionId);
+          if (!session) {
+            next(new ApplicationError('SESSION_REVOKED', 'Session has been revoked or signed out', 'AUTHENTICATION'));
+            return;
+          }
+        } else if (req.auth.userId) {
+          const userSessions = await sessionRepository.findByUserId(req.auth.userId);
+          if (userSessions.length === 0) {
+            next(new ApplicationError('SESSION_REVOKED', 'Session has been revoked or signed out', 'AUTHENTICATION'));
+            return;
+          }
         }
       }
 

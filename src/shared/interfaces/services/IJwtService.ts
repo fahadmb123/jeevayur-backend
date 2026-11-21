@@ -1,6 +1,7 @@
 export interface AuthTokenPayload {
   userId: number;
   role: string;
+  sessionId?: string;
 }
 
 export interface IJwtService {
