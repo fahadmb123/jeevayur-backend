@@ -2,7 +2,6 @@ import type { IGalleryRepository } from '../../../domain/repositories/gallery/ga
 import type { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
 import { GalleryMapper } from '../../mappers/gallery/gallery.mapper.js';
 import { db } from '../../../shared/database/client.js';
-import { INITIAL_GALLERY_ITEMS } from '../../../presentation/controllers/gallery/gallery.constants.js';
 
 export class PrismaGalleryRepository implements IGalleryRepository {
   private tableEnsured: boolean = false;
@@ -31,17 +30,6 @@ export class PrismaGalleryRepository implements IGalleryRepository {
 
   async findAll(category?: string, search?: string): Promise<GalleryItem[]> {
     await this.ensureTable();
-
-    const count = await db.galleryItem.count();
-    if (count === 0) {
-      for (const item of INITIAL_GALLERY_ITEMS) {
-        const entity = GalleryMapper.toDomain(item);
-        const persistenceData = GalleryMapper.toPersistence(entity);
-        await db.galleryItem.create({
-          data: persistenceData,
-        });
-      }
-    }
 
     const whereClause: any = {};
     if (category && category !== 'all') {
