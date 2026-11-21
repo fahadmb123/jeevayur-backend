@@ -35,7 +35,11 @@ export class GalleryController extends BaseController {
 
   public getImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const rawKey = req.params[0] || (req.params as any).key;
+      const rawKey = Array.isArray(req.params.key)
+        ? req.params.key.join('/')
+        : typeof req.params.key === 'string'
+        ? req.params.key
+        : (req.params as any)[0];
       if (!rawKey) {
         this.sendBadRequest(res, 'Image key is required.');
         return;

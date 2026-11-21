@@ -41,7 +41,7 @@ export function buildGalleryRoutes(galleryController: GalleryController): Router
     });
   };
 
-  router.get('/images/*', galleryController.getImage);
+  router.get('/images/*key', galleryController.getImage);
   router.get('/', validate(queryGallerySchema), galleryController.getGallery);
   router.post('/', uploadMiddleware, validate(createGalleryItemSchema), galleryController.createGalleryItem);
   router.delete('/:id', galleryController.deleteGalleryItem);
