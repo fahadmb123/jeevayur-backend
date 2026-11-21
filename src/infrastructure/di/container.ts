@@ -8,6 +8,8 @@ import { PrismaSessionRepository } from '../repositories/auth/prismaSession.repo
 import { PrismaPatientRepository } from '../repositories/patient/prismaPatient.repository.js';
 import { PrismaAppointmentRepository } from '../repositories/appointment/prismaAppointment.repository.js';
 import { PrismaSocialLinkRepository } from '../repositories/social/prismaSocialLink.repository.js';
+import { PrismaGalleryRepository } from '../repositories/gallery/prismaGallery.repository.js';
+import { B2StorageService } from '../services/storage/b2Storage.service.js';
 
 import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
 import { JwtTokenService } from '../services/auth/jwtToken.service.js';
@@ -46,6 +48,11 @@ import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-pas
 import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify-reset-token/verifyResetToken.useCase.js';
 import { UpdateProfileUseCase } from '../../application/use-cases/auth/profile/updateProfile.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
+import { CreateGalleryItemUseCase } from '../../application/use-cases/gallery/createGalleryItem.useCase.js';
+import { GetGalleryItemsUseCase } from '../../application/use-cases/gallery/getGalleryItems.useCase.js';
+import { DeleteGalleryItemUseCase } from '../../application/use-cases/gallery/deleteGalleryItem.useCase.js';
+import { ResetGalleryDefaultsUseCase } from '../../application/use-cases/gallery/resetGalleryDefaults.useCase.js';
+import { GalleryController } from '../../presentation/controllers/gallery/gallery.controller.js';
 
 export function setupContainer(config: EnvironmentConfig = env) {
   container.registerInstance(TOKENS.EnvironmentConfig, config);
@@ -55,6 +62,8 @@ export function setupContainer(config: EnvironmentConfig = env) {
   container.register(TOKENS.PatientRepository, { useClass: PrismaPatientRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.AppointmentRepository, { useClass: PrismaAppointmentRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.SocialLinkRepository, { useClass: PrismaSocialLinkRepository }, { lifecycle: Lifecycle.Singleton });
+  container.register(TOKENS.GalleryRepository, { useClass: PrismaGalleryRepository }, { lifecycle: Lifecycle.Singleton });
+  container.register(TOKENS.B2StorageService, { useClass: B2StorageService }, { lifecycle: Lifecycle.Singleton });
 
   container.register(TOKENS.PasswordService, { useClass: ScryptPasswordService }, { lifecycle: Lifecycle.Singleton });
 
@@ -248,6 +257,45 @@ export function setupContainer(config: EnvironmentConfig = env) {
         c.resolve(UpdateProfileUseCase)
       );
     },
+  });
+
+  container.register(GetGalleryItemsUseCase, {
+    useFactory: (c) => new GetGalleryItemsUseCase(c.resolve(TOKENS.GalleryRepository)),
+  });
+
+  container.register(CreateGalleryItemUseCase, {
+    useFactory: (c) =>
+      new CreateGalleryItemUseCase(
+        c.resolve(TOKENS.GalleryRepository),
+        c.resolve(TOKENS.B2StorageService)
+      ),
+  });
+
+  container.register(DeleteGalleryItemUseCase, {
+    useFactory: (c) =>
+      new DeleteGalleryItemUseCase(
+        c.resolve(TOKENS.GalleryRepository),
+        c.resolve(TOKENS.B2StorageService)
+      ),
+  });
+
+  container.register(ResetGalleryDefaultsUseCase, {
+    useFactory: (c) =>
+      new ResetGalleryDefaultsUseCase(
+        c.resolve(TOKENS.GalleryRepository),
+        c.resolve(TOKENS.B2StorageService)
+      ),
+  });
+
+  container.register(GalleryController, {
+    useFactory: (c) =>
+      new GalleryController(
+        c.resolve(GetGalleryItemsUseCase),
+        c.resolve(CreateGalleryItemUseCase),
+        c.resolve(DeleteGalleryItemUseCase),
+        c.resolve(ResetGalleryDefaultsUseCase),
+        c.resolve(TOKENS.B2StorageService)
+      ),
   });
 
   return container;

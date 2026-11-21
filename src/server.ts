@@ -48,7 +48,7 @@ export class Server {
     const appointmentController = di.resolve(AppointmentController);
     const patientController = di.resolve(PatientController);
     const treatmentController = new TreatmentController();
-    const galleryController = new GalleryController();
+    const galleryController = di.resolve(GalleryController);
 
     const authRoutes = buildAuthRoutes({ authController, authMiddleware });
     const doctorRoutes = buildDoctorRoutes({ doctorController, authMiddleware });
