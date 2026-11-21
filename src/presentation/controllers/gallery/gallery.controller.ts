@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 import { db } from '../../../shared/database/client.js';
 import { B2StorageService } from '../../../infrastructure/services/storage/b2Storage.service.js';
 import { INITIAL_GALLERY_ITEMS } from './gallery.constants.js';
+import type { CreateGalleryItemRequestDto } from '../../../application/dtos/request/gallery/createGalleryItem.dto.js';
+import type { GalleryItemResponseDto } from '../../../application/dtos/response/gallery/galleryItem.dto.js';
 import crypto from 'crypto';
 
 export class GalleryController {
@@ -68,7 +70,7 @@ export class GalleryController {
         orderBy: { createdAt: 'desc' },
       });
 
-      let results = items.map((item) => {
+      let results: GalleryItemResponseDto[] = items.map((item) => {
         let displayUrl = item.imageUrl;
         if (item.imageKey && (!displayUrl || displayUrl.startsWith('/api/gallery/images/'))) {
           displayUrl = `/api/gallery/images/${encodeURIComponent(item.imageKey)}`;
@@ -139,16 +141,11 @@ export class GalleryController {
     try {
       await this.ensureTable();
 
-      const { title, category, description, imageUrl } = req.body;
+      const body = req.body as CreateGalleryItemRequestDto;
       const file = req.file;
 
-      if (!title || !title.trim()) {
-        res.status(400).json({ success: false, message: 'Title is required' });
-        return;
-      }
-
-      const finalCategory = (category || 'yoga').toLowerCase();
-      let finalImageUrl = (imageUrl || '').trim();
+      const finalCategory = (body.category || 'yoga').toLowerCase();
+      let finalImageUrl = (body.imageUrl || '').trim();
       let finalImageKey: string | null = null;
 
       if (file) {
@@ -172,35 +169,40 @@ export class GalleryController {
       }
 
       if (!finalImageUrl) {
-        res.status(400).json({ success: false, message: 'Image file or valid image URL is required' });
+        res.status(400).json({
+          success: false,
+          message: 'Please provide an image either via upload file or valid image URL',
+        });
         return;
       }
 
       const newItem = await db.galleryItem.create({
         data: {
-          title: title.trim(),
+          title: body.title.trim(),
           category: finalCategory,
           imageUrl: finalImageUrl,
           imageKey: finalImageKey,
-          description: description ? description.trim() : null,
-          author: 'Doctor / Wellness Admin',
-          aspectRatio: 'landscape',
+          description: body.description ? body.description.trim() : null,
+          author: body.author ? body.author.trim() : 'Doctor / Wellness Admin',
+          aspectRatio: body.aspectRatio || 'landscape',
         },
       });
 
+      const responseDto: GalleryItemResponseDto = {
+        id: newItem.id,
+        title: newItem.title,
+        category: newItem.category,
+        imageUrl: newItem.imageUrl,
+        imageKey: newItem.imageKey,
+        description: newItem.description,
+        author: newItem.author,
+        aspectRatio: newItem.aspectRatio,
+        createdAt: newItem.createdAt.toISOString().split('T')[0],
+      };
+
       res.status(201).json({
         success: true,
-        data: {
-          id: newItem.id,
-          title: newItem.title,
-          category: newItem.category,
-          imageUrl: newItem.imageUrl,
-          imageKey: newItem.imageKey,
-          description: newItem.description,
-          author: newItem.author,
-          aspectRatio: newItem.aspectRatio,
-          createdAt: newItem.createdAt.toISOString().split('T')[0],
-        },
+        data: responseDto,
       });
     } catch (error: any) {
       res.status(500).json({
@@ -278,7 +280,7 @@ export class GalleryController {
         orderBy: { createdAt: 'desc' },
       });
 
-      const formatted = items.map((item) => ({
+      const formatted: GalleryItemResponseDto[] = items.map((item) => ({
         id: item.id,
         title: item.title,
         category: item.category,

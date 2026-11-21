@@ -87,4 +87,7 @@ model GalleryItem {
   aspectRatio String?  @default("landscape")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([createdAt])
 }
