@@ -76,4 +76,15 @@ model Patient {
   updatedAt DateTime @updatedAt
 }
 
- 
+model GalleryItem {
+  id          String   @id @default(uuid())
+  title       String
+  category    String
+  imageUrl    String
+  imageKey    String?
+  description String?
+  author      String?  @default("Doctor / Wellness Admin")
+  aspectRatio String?  @default("landscape")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

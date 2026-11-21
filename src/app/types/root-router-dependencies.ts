@@ -9,4 +9,5 @@ export interface RootRouterDependencies {
   appointmentRoutes?: Router;
   patientRoutes?: Router;
   treatmentRoutes?: Router;
+  galleryRoutes?: Router;
 }
