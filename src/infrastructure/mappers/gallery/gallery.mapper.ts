@@ -37,17 +37,18 @@ export class GalleryMapper {
     };
   }
 
-  static toPersistence(
-    item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>
-  ): Omit<PrismaGalleryItem, 'id' | 'createdAt' | 'updatedAt'> {
+  static toPersistence(item: GalleryItem): PrismaGalleryItem {
     return {
+      id: item.id,
       title: item.title,
       category: item.category,
       imageUrl: item.imageUrl,
       imageKey: item.imageKey,
       description: item.description,
-      author: item.author,
-      aspectRatio: item.aspectRatio,
+      author: item.author || 'Doctor / Wellness Admin',
+      aspectRatio: item.aspectRatio || 'landscape',
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
     };
   }
 }

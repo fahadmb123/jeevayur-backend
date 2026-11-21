@@ -82,30 +82,11 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     return GalleryMapper.toDomain(record);
   }
 
-  async create(data: {
-    id?: string;
-    title: string;
-    category: string;
-    imageUrl: string;
-    imageKey?: string | null;
-    description?: string | null;
-    author?: string | null;
-    aspectRatio?: string | null;
-    createdAt?: Date;
-  }): Promise<GalleryItem> {
+  async create(item: GalleryItem): Promise<GalleryItem> {
     await this.ensureTable();
+    const persistenceData = GalleryMapper.toPersistence(item);
     const record = await db.galleryItem.create({
-      data: {
-        id: data.id,
-        title: data.title,
-        category: data.category,
-        imageUrl: data.imageUrl,
-        imageKey: data.imageKey,
-        description: data.description,
-        author: data.author || 'Doctor / Wellness Admin',
-        aspectRatio: data.aspectRatio || 'landscape',
-        createdAt: data.createdAt || new Date(),
-      },
+      data: persistenceData,
     });
 
     return GalleryMapper.toDomain(record);
@@ -116,31 +97,14 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     await db.galleryItem.delete({ where: { id } });
   }
 
-  async resetDefaults(initialItems: Array<{
-    id: string;
-    title: string;
-    category: string;
-    imageUrl: string;
-    description: string;
-    author: string;
-    aspectRatio: string;
-    createdAt: string;
-  }>): Promise<GalleryItem[]> {
+  async resetDefaults(items: GalleryItem[]): Promise<GalleryItem[]> {
     await this.ensureTable();
     await db.galleryItem.deleteMany({});
 
-    for (const item of initialItems) {
+    for (const item of items) {
+      const persistenceData = GalleryMapper.toPersistence(item);
       await db.galleryItem.create({
-        data: {
-          id: item.id,
-          title: item.title,
-          category: item.category,
-          imageUrl: item.imageUrl,
-          description: item.description,
-          author: item.author,
-          aspectRatio: item.aspectRatio,
-          createdAt: new Date(item.createdAt),
-        },
+        data: persistenceData,
       });
     }
 
