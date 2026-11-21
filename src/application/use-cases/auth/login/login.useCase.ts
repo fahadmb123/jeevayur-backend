@@ -34,8 +34,8 @@ export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto>
     }
 
     const tokenPayload = { userId: user.id, role: user.role };
-    const accessToken = await Promise.resolve(this._jwtService.generate(tokenPayload));
-    const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
+    let accessToken: string;
+    let refreshToken: string;
 
     if (this._sessionRepository) {
       if (input.oldTokenHash) {
@@ -60,8 +60,9 @@ export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto>
         }
       }
 
+      refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-      await this._sessionRepository.create({
+      const session = await this._sessionRepository.create({
         userId: user.id,
         tokenHash,
         ipAddress: input.ipAddress || '127.0.0.1',
@@ -69,6 +70,11 @@ export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto>
         city: input.city ?? null,
         country: input.country ?? null,
       });
+
+      accessToken = await Promise.resolve(this._jwtService.generate({ ...tokenPayload, sessionId: session.id }));
+    } else {
+      accessToken = await Promise.resolve(this._jwtService.generate(tokenPayload));
+      refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
     }
 
     if (this._emailService && this._frontendUrl) {
