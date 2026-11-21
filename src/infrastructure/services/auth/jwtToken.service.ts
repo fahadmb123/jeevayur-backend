@@ -32,7 +32,7 @@ export class JwtTokenService implements IJwtService {
 
   public generate(payload: AuthTokenPayload): string {
     return jwt.sign(
-      { role: payload.role, type: 'access' },
+      { role: payload.role, type: 'access', sessionId: payload.sessionId },
       this.accessTokenSecret,
       {
         subject: String(payload.userId),
@@ -54,10 +54,10 @@ export class JwtTokenService implements IJwtService {
 
   public verify(token: string): AuthTokenPayload {
     try {
-      const decoded = jwt.verify(token, this.accessTokenSecret) as jwt.JwtPayload & { role: UserRole; type?: string };
+      const decoded = jwt.verify(token, this.accessTokenSecret) as jwt.JwtPayload & { role: UserRole; type?: string; sessionId?: string };
       if (!decoded.sub || !decoded.role) throw new Error('Invalid token payload');
       if (decoded.type && decoded.type !== 'access') throw new Error('Invalid token type');
-      return { userId: Number(decoded.sub), role: decoded.role };
+      return { userId: Number(decoded.sub), role: decoded.role, sessionId: decoded.sessionId };
     } catch {
       throw new ApplicationError('INVALID_TOKEN', 'Invalid or expired access token', 'AUTHENTICATION');
     }

@@ -27,12 +27,7 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, Ref
     if (this._sessionRepository) {
       activeSession = await this._sessionRepository.findByTokenHash(tokenHash);
       if (!activeSession) {
-        const userSessions = await this._sessionRepository.findByUserId(payload.userId);
-        if (userSessions.length > 0) {
-          activeSession = userSessions[0];
-        } else {
-          throw new ApplicationError('SESSION_EXPIRED', 'Session has expired or was revoked', 'AUTHENTICATION');
-        }
+        throw new ApplicationError('SESSION_EXPIRED', 'Session has expired or was revoked', 'AUTHENTICATION');
       }
     }
 
@@ -56,7 +51,7 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, Ref
       };
     }
 
-    const tokenPayload = { userId: payload.userId, role: payload.role };
+    const tokenPayload = { userId: payload.userId, role: payload.role, sessionId: activeSession?.id };
     const accessToken = await Promise.resolve(this._jwtService.generate(tokenPayload));
     const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
 
