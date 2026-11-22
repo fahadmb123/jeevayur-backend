@@ -31,7 +31,7 @@ export class AppointmentController extends BaseController {
   };
 
   public getAppointments = async (
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -39,7 +39,17 @@ export class AppointmentController extends BaseController {
       if (!this.getAppointmentsUseCase) {
         throw new Error('GetAppointmentsUseCase not configured');
       }
-      const response = await this.getAppointmentsUseCase.execute();
+      const status = typeof req.query.status === 'string' ? req.query.status.trim() : undefined;
+      const service = typeof req.query.service === 'string' ? req.query.service.trim() : undefined;
+      const mode = typeof req.query.mode === 'string' ? req.query.mode.trim() : undefined;
+      const search = typeof req.query.search === 'string' ? req.query.search.trim() : undefined;
+
+      const response = await this.getAppointmentsUseCase.execute({
+        status,
+        type: service,
+        format: mode,
+        search,
+      });
       this.sendSuccess(res, 'Appointments retrieved successfully.', response);
     } catch (error) {
       Logger.error('[AppointmentController] Failed to get appointments:', error);
