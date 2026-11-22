@@ -1,4 +1,10 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectVersionsCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
@@ -40,6 +46,44 @@ export class B2StorageService {
 
   public async deleteFile(key: string): Promise<void> {
     try {
+      try {
+        const versionsRes = await this.client.send(
+          new ListObjectVersionsCommand({
+            Bucket: this.bucketName,
+            Prefix: key,
+          })
+        );
+
+        if (versionsRes.Versions) {
+          for (const v of versionsRes.Versions) {
+            if (v.Key === key && v.VersionId) {
+              await this.client.send(
+                new DeleteObjectCommand({
+                  Bucket: this.bucketName,
+                  Key: key,
+                  VersionId: v.VersionId,
+                })
+              );
+            }
+          }
+        }
+
+        if (versionsRes.DeleteMarkers) {
+          for (const d of versionsRes.DeleteMarkers) {
+            if (d.Key === key && d.VersionId) {
+              await this.client.send(
+                new DeleteObjectCommand({
+                  Bucket: this.bucketName,
+                  Key: key,
+                  VersionId: d.VersionId,
+                })
+              );
+            }
+          }
+        }
+      } catch {
+      }
+
       const command = new DeleteObjectCommand({
         Bucket: this.bucketName,
         Key: key,
