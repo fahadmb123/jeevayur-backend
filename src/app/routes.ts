@@ -24,6 +24,15 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
     router.use('/patients', dependencies.patientRoutes);
   }
 
+  if (dependencies.treatmentRoutes) {
+    router.use('/treatments', dependencies.treatmentRoutes);
+    router.use('/services', dependencies.treatmentRoutes);
+  }
+
+  if (dependencies.galleryRoutes) {
+    router.use('/gallery', dependencies.galleryRoutes);
+  }
+
   return router;
 }
 

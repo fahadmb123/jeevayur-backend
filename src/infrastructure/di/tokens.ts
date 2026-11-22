@@ -10,5 +10,7 @@ export const TOKENS = {
   CookieService: Symbol('ICookieService'),
   EmailService: Symbol('IEmailService'),
   AuthMiddleware: Symbol('AuthMiddleware'),
+  GalleryRepository: Symbol('IGalleryRepository'),
+  B2StorageService: Symbol('B2StorageService'),
 } as const;
 

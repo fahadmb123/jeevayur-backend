@@ -92,6 +92,11 @@ export const envSchema = z
     CLINIC_EMAIL: optionalTrimmedString(),
     CLINIC_PHONE: optionalTrimmedString(),
     APPOINTMENT_NOTIFICATION_EMAIL: optionalTrimmedString(),
+    B2_ENDPOINT: optionalTrimmedString(),
+    B2_REGION: optionalTrimmedString(),
+    B2_BUCKET_NAME: optionalTrimmedString(),
+    B2_KEY_ID: optionalTrimmedString(),
+    B2_APPLICATION_KEY: optionalTrimmedString(),
   })
   .transform((parsed) => ({
     ...parsed,
@@ -155,6 +160,11 @@ export class EnvironmentConfig {
   public readonly clinicEmail?: string;
   public readonly clinicPhone?: string;
   public readonly appointmentNotificationEmail?: string;
+  public readonly b2Endpoint?: string;
+  public readonly b2Region?: string;
+  public readonly b2BucketName?: string;
+  public readonly b2KeyId?: string;
+  public readonly b2ApplicationKey?: string;
   public readonly raw: ValidatedEnv;
 
   constructor(customSource?: Record<string, unknown>) {
@@ -194,6 +204,11 @@ export class EnvironmentConfig {
       validated.BREVO_SENDER_EMAIL;
     this.clinicPhone = validated.CLINIC_PHONE || '+91 73567 02775';
     this.appointmentNotificationEmail = this.clinicEmail;
+    this.b2Endpoint = validated.B2_ENDPOINT || 'https://s3.eu-central-003.backblazeb2.com';
+    this.b2Region = validated.B2_REGION || 'eu-central-003';
+    this.b2BucketName = validated.B2_BUCKET_NAME || 'jeevayurniketan-media';
+    this.b2KeyId = validated.B2_KEY_ID;
+    this.b2ApplicationKey = validated.B2_APPLICATION_KEY;
   }
 
   public static validate(source?: Record<string, unknown>): ValidatedEnv {

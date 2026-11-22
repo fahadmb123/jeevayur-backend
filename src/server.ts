@@ -17,6 +17,10 @@ import { HealthController } from './presentation/controllers/health/health.contr
 import { SocialLinkController } from './presentation/controllers/social/socialLink.controller.js';
 import { AppointmentController } from './presentation/controllers/appointment/appointment.controller.js';
 import { PatientController } from './presentation/controllers/patient/patient.controller.js';
+import { TreatmentController } from './presentation/controllers/treatment/treatment.controller.js';
+import { buildTreatmentRoutes } from './presentation/routes/treatment/treatment.routes.js';
+import { GalleryController } from './presentation/controllers/gallery/gallery.controller.js';
+import { buildGalleryRoutes } from './presentation/routes/gallery/gallery.routes.js';
 import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
 import type { JwtTokenService } from './infrastructure/services/auth/jwtToken.service.js';
 import type { ISessionRepository } from './domain/repositories/auth/session.repository.js';
@@ -43,6 +47,8 @@ export class Server {
     const socialLinkController = di.resolve(SocialLinkController);
     const appointmentController = di.resolve(AppointmentController);
     const patientController = di.resolve(PatientController);
+    const treatmentController = new TreatmentController();
+    const galleryController = di.resolve(GalleryController);
 
     const authRoutes = buildAuthRoutes({ authController, authMiddleware });
     const doctorRoutes = buildDoctorRoutes({ doctorController, authMiddleware });
@@ -50,6 +56,8 @@ export class Server {
     const socialLinkRoutes = buildSocialLinkRoutes({ socialLinkController, authMiddleware });
     const appointmentRoutes = buildAppointmentRoutes({ appointmentController, authMiddleware });
     const patientRoutes = buildPatientRoutes({ patientController, authMiddleware });
+    const treatmentRoutes = buildTreatmentRoutes(treatmentController);
+    const galleryRoutes = buildGalleryRoutes(galleryController);
 
     const app = createApp(this.config, {
       authRoutes,
@@ -58,6 +66,8 @@ export class Server {
       socialLinkRoutes,
       appointmentRoutes,
       patientRoutes,
+      treatmentRoutes,
+      galleryRoutes,
     });
 
     this.httpServer = http.createServer(app);

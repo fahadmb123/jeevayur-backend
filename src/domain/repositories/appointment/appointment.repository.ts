@@ -11,9 +11,25 @@ export interface CreateAppointmentData {
   language: string;
 }
 
+export interface AppointmentFilterCriteria {
+  status?: string;
+  type?: string;
+  format?: string;
+  search?: string;
+}
+
+export interface AppointmentCounts {
+  all: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
+}
+
 export interface IAppointmentRepository extends IBaseRepository<Appointment, string> {
   findById(id: string): Promise<Appointment | null>;
   create(data: CreateAppointmentData): Promise<Appointment>;
   findAll(): Promise<Appointment[]>;
+  findFiltered(criteria?: AppointmentFilterCriteria): Promise<Appointment[]>;
+  getCounts(): Promise<AppointmentCounts>;
   updateStatus(id: string, status: string): Promise<Appointment>;
 }
