@@ -10,4 +10,5 @@ export interface RootRouterDependencies {
   patientRoutes?: Router;
   treatmentRoutes?: Router;
   galleryRoutes?: Router;
+  yogaRoutes?: Router;
 }

@@ -21,6 +21,8 @@ import { TreatmentController } from './presentation/controllers/treatment/treatm
 import { buildTreatmentRoutes } from './presentation/routes/treatment/treatment.routes.js';
 import { GalleryController } from './presentation/controllers/gallery/gallery.controller.js';
 import { buildGalleryRoutes } from './presentation/routes/gallery/gallery.routes.js';
+import { YogaController } from './presentation/controllers/yoga/yoga.controller.js';
+import { buildYogaRoutes } from './presentation/routes/yoga/yoga.routes.js';
 import { createAuthMiddleware } from './shared/middlewares/auth.middleware.js';
 import type { JwtTokenService } from './infrastructure/services/auth/jwtToken.service.js';
 import type { ISessionRepository } from './domain/repositories/auth/session.repository.js';
@@ -49,6 +51,7 @@ export class Server {
     const patientController = di.resolve(PatientController);
     const treatmentController = new TreatmentController();
     const galleryController = di.resolve(GalleryController);
+    const yogaController = di.resolve(YogaController);
 
     const authRoutes = buildAuthRoutes({ authController, authMiddleware });
     const doctorRoutes = buildDoctorRoutes({ doctorController, authMiddleware });
@@ -58,6 +61,7 @@ export class Server {
     const patientRoutes = buildPatientRoutes({ patientController, authMiddleware });
     const treatmentRoutes = buildTreatmentRoutes(treatmentController);
     const galleryRoutes = buildGalleryRoutes(galleryController);
+    const yogaRoutes = buildYogaRoutes(yogaController);
 
     const app = createApp(this.config, {
       authRoutes,
@@ -68,6 +72,7 @@ export class Server {
       patientRoutes,
       treatmentRoutes,
       galleryRoutes,
+      yogaRoutes,
     });
 
     this.httpServer = http.createServer(app);
