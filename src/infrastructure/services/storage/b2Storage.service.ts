@@ -46,6 +46,7 @@ export class B2StorageService {
 
   public async deleteFile(key: string): Promise<void> {
     try {
+      let deletedAny = false;
       try {
         const versionsRes = await this.client.send(
           new ListObjectVersionsCommand({
@@ -64,6 +65,7 @@ export class B2StorageService {
                   VersionId: v.VersionId,
                 })
               );
+              deletedAny = true;
             }
           }
         }
@@ -78,17 +80,31 @@ export class B2StorageService {
                   VersionId: d.VersionId,
                 })
               );
+              deletedAny = true;
             }
           }
         }
       } catch {
       }
 
-      const command = new DeleteObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
-      await this.client.send(command);
+      if (!deletedAny) {
+        const directDel = await this.client.send(
+          new DeleteObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+          })
+        );
+        if (directDel.VersionId) {
+          await this.client.send(
+            new DeleteObjectCommand({
+              Bucket: this.bucketName,
+              Key: key,
+              VersionId: directDel.VersionId,
+            })
+          );
+        }
+      }
+
       Logger.info(`[B2StorageService] Successfully deleted file from B2: ${key}`);
     } catch (error) {
       Logger.error(`[B2StorageService] Failed to delete file from B2 (${key}):`, error);
