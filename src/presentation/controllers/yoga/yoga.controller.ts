@@ -22,14 +22,12 @@ export class YogaController extends BaseController {
 
   public getYogaSessions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const format = typeof req.query.format === 'string' && req.query.format.trim() !== ''
-        ? req.query.format.trim()
-        : undefined;
-      const search = typeof req.query.search === 'string' && req.query.search.trim() !== ''
-        ? req.query.search.trim()
-        : undefined;
+      const day = typeof req.query.day === 'string' ? req.query.day.trim() : undefined;
+      const format = typeof req.query.format === 'string' ? req.query.format.trim() : undefined;
+      const level = typeof req.query.level === 'string' ? req.query.level.trim() : undefined;
+      const search = typeof req.query.search === 'string' ? req.query.search.trim() : undefined;
 
-      const sessions = await this.getYogaSessionsUseCase.execute(format, search);
+      const sessions = await this.getYogaSessionsUseCase.execute({ day, format, level, search });
       this.sendSuccess(res, 'Yoga sessions retrieved successfully.', sessions);
     } catch (error) {
       Logger.error('[YogaController] Failed to retrieve yoga sessions:', error);

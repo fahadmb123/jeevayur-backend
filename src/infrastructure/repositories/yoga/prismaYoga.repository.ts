@@ -1,4 +1,4 @@
-import type { IYogaRepository } from '../../../domain/repositories/yoga/yoga.repository.js';
+import type { IYogaRepository, YogaFilterOptions } from '../../../domain/repositories/yoga/yoga.repository.js';
 import type { YogaSession } from '../../../domain/entities/yoga/yogaSession.entity.js';
 import { YogaMapper } from '../../mappers/yoga/yoga.mapper.js';
 import { db } from '../../../shared/database/client.js';
@@ -40,24 +40,49 @@ export class PrismaYogaRepository implements IYogaRepository {
     }
   }
 
-  async findAll(format?: string, search?: string): Promise<YogaSession[]> {
+  async findAll(filters?: YogaFilterOptions): Promise<YogaSession[]> {
     await this.ensureTable();
+
+    const format = filters?.format;
+    const day = filters?.day;
+    const level = filters?.level;
+    const search = filters?.search;
 
     try {
       if ((db as any).yogaSession) {
-        const whereClause: any = {};
-        if (format && format !== 'all') {
-          whereClause.format = format.toLowerCase();
+        const andConditions: any[] = [];
+
+        if (format && format.toLowerCase() !== 'all') {
+          andConditions.push({ format: format.toLowerCase() });
         }
+
+        if (day && day.toLowerCase() !== 'all') {
+          andConditions.push({ days: { contains: day } });
+        }
+
+        if (level && level.toLowerCase() !== 'all') {
+          andConditions.push({
+            OR: [
+              { level: { contains: level } },
+              { suitableFor: { contains: level } },
+            ],
+          });
+        }
+
         if (search && search.trim() !== '') {
           const q = search.trim();
-          whereClause.OR = [
-            { title: { contains: q } },
-            { description: { contains: q } },
-            { instructor: { contains: q } },
-            { suitableFor: { contains: q } },
-          ];
+          andConditions.push({
+            OR: [
+              { title: { contains: q } },
+              { description: { contains: q } },
+              { instructor: { contains: q } },
+              { suitableFor: { contains: q } },
+              { location: { contains: q } },
+            ],
+          });
         }
+
+        const whereClause = andConditions.length > 0 ? { AND: andConditions } : {};
         const records = await (db as any).yogaSession.findMany({
           where: whereClause,
           orderBy: { createdAt: 'desc' },
@@ -70,18 +95,29 @@ export class PrismaYogaRepository implements IYogaRepository {
     let query = `SELECT * FROM "YogaSession" WHERE 1=1`;
     const conditions: string[] = [];
 
-    if (format && format !== 'all') {
+    if (format && format.toLowerCase() !== 'all') {
       const sanitizedFormat = format.toLowerCase().replace(/['"\\]/g, '');
       conditions.push(`LOWER(format) = '${sanitizedFormat}'`);
     }
 
+    if (day && day.toLowerCase() !== 'all') {
+      const sanitizedDay = day.replace(/['"\\]/g, '');
+      conditions.push(`(days LIKE '%"${sanitizedDay}"%' OR days LIKE '%${sanitizedDay}%')`);
+    }
+
+    if (level && level.toLowerCase() !== 'all') {
+      const sanitizedLevel = level.toLowerCase().replace(/['"\\]/g, '');
+      conditions.push(`(LOWER(level) LIKE '%${sanitizedLevel}%' OR LOWER(suitableFor) LIKE '%${sanitizedLevel}%')`);
+    }
+
     if (search && search.trim() !== '') {
-      const sanitized = search.trim().replace(/['"\\]/g, '');
+      const q = search.trim().toLowerCase().replace(/['"\\]/g, '');
       conditions.push(`(
-        LOWER(title) LIKE '%${sanitized.toLowerCase()}%' OR
-        LOWER(description) LIKE '%${sanitized.toLowerCase()}%' OR
-        LOWER(instructor) LIKE '%${sanitized.toLowerCase()}%' OR
-        LOWER(suitableFor) LIKE '%${sanitized.toLowerCase()}%'
+        LOWER(title) LIKE '%${q}%' OR
+        LOWER(description) LIKE '%${q}%' OR
+        LOWER(instructor) LIKE '%${q}%' OR
+        LOWER(suitableFor) LIKE '%${q}%' OR
+        LOWER(location) LIKE '%${q}%'
       )`);
     }
 

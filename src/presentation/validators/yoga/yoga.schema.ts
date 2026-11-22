@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 export const queryYogaSchema = z.object({
   query: z.object({
+    day: z.string().optional(),
     format: z.string().optional(),
+    level: z.string().optional(),
     search: z.string().optional(),
   }).optional(),
 });
