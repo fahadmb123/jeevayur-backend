@@ -1,4 +1,4 @@
-import type { IGalleryRepository } from '../../../domain/repositories/gallery/gallery.repository.js';
+import type { IGalleryRepository, GalleryCounts } from '../../../domain/repositories/gallery/gallery.repository.js';
 import type { GalleryItem } from '../../../domain/entities/gallery/galleryItem.entity.js';
 import { GalleryMapper } from '../../mappers/gallery/gallery.mapper.js';
 import { db } from '../../../shared/database/client.js';
@@ -36,24 +36,32 @@ export class PrismaGalleryRepository implements IGalleryRepository {
       whereClause.category = category.toLowerCase();
     }
 
+    if (search && search.trim() !== '') {
+      const q = search.trim();
+      whereClause.OR = [
+        { title: { contains: q } },
+        { description: { contains: q } },
+        { author: { contains: q } },
+      ];
+    }
+
     const records = await db.galleryItem.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
     });
 
-    let results = records.map((record) => GalleryMapper.toDomain(record));
+    return records.map((record) => GalleryMapper.toDomain(record));
+  }
 
-    if (search && search.trim() !== '') {
-      const q = search.trim().toLowerCase();
-      results = results.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          (item.description && item.description.toLowerCase().includes(q)) ||
-          (item.author && item.author.toLowerCase().includes(q))
-      );
-    }
+  async getCounts(): Promise<GalleryCounts> {
+    await this.ensureTable();
+    const [total, yoga, treatment] = await Promise.all([
+      db.galleryItem.count(),
+      db.galleryItem.count({ where: { category: 'yoga' } }),
+      db.galleryItem.count({ where: { category: 'treatment' } }),
+    ]);
 
-    return results;
+    return { total, yoga, treatment };
   }
 
   async findById(id: string): Promise<GalleryItem | null> {

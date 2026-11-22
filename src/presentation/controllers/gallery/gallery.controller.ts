@@ -24,11 +24,14 @@ export class GalleryController extends BaseController {
 
   public getGallery = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const category = typeof req.query.category === 'string' ? req.query.category : undefined;
-      const search = typeof req.query.search === 'string' ? req.query.search : undefined;
+      const rawCategory = typeof req.query.category === 'string' ? req.query.category.trim() : undefined;
+      const category = rawCategory && rawCategory !== 'all' ? rawCategory : undefined;
+      const search = typeof req.query.search === 'string' && req.query.search.trim() !== ''
+        ? req.query.search.trim()
+        : undefined;
 
-      const items = await this.getGalleryItemsUseCase.execute(category, search);
-      this.sendSuccess(res, 'Gallery items retrieved successfully.', items);
+      const result = await this.getGalleryItemsUseCase.execute(category, search);
+      this.sendSuccess(res, 'Gallery items retrieved successfully.', result);
     } catch (error) {
       Logger.error('[GalleryController] Failed to retrieve gallery items:', error);
       next(error);
