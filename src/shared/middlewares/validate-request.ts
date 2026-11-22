@@ -12,8 +12,30 @@ export function validate(schema: ZodSchema): RequestHandler {
       }) as { body?: unknown; query?: unknown; params?: unknown };
 
       if (parsed.body) req.body = parsed.body;
-      if (parsed.query) req.query = parsed.query as typeof req.query;
-      if (parsed.params) req.params = parsed.params as typeof req.params;
+      if (parsed.query) {
+        try {
+          req.query = parsed.query as typeof req.query;
+        } catch {
+          Object.defineProperty(req, 'query', {
+            value: parsed.query,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+          });
+        }
+      }
+      if (parsed.params) {
+        try {
+          req.params = parsed.params as typeof req.params;
+        } catch {
+          Object.defineProperty(req, 'params', {
+            value: parsed.params,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+          });
+        }
+      }
       next();
     } catch (error) {
       if (error instanceof ZodError) {

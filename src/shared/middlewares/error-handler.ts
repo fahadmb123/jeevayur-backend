@@ -22,7 +22,7 @@ export function errorHandler(
   Logger.error('Unhandled Server Error', err);
   res.status(500).json({
     success: false,
-    message: 'An unexpected internal server error occurred',
+    message: err instanceof Error ? err.message : 'An unexpected internal server error occurred',
     errors: null,
   });
 }
