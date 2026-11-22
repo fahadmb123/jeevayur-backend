@@ -2,7 +2,7 @@ import { Router, type RequestHandler } from 'express';
 import multer from 'multer';
 import type { GalleryController } from '../../controllers/gallery/gallery.controller.js';
 import validate from '../../../shared/middlewares/validate-request.js';
-import { createGalleryItemSchema, queryGallerySchema } from '../../validators/gallery/gallery.schema.js';
+import { createGalleryItemSchema, updateGalleryItemSchema, queryGallerySchema } from '../../validators/gallery/gallery.schema.js';
 
 export function buildGalleryRoutes(galleryController: GalleryController): Router {
   const router = Router();
@@ -44,6 +44,7 @@ export function buildGalleryRoutes(galleryController: GalleryController): Router
   router.get('/images/*key', galleryController.getImage);
   router.get('/', validate(queryGallerySchema), galleryController.getGallery);
   router.post('/', uploadMiddleware, validate(createGalleryItemSchema), galleryController.createGalleryItem);
+  router.put('/:id', uploadMiddleware, validate(updateGalleryItemSchema), galleryController.updateGalleryItem);
   router.delete('/:id', galleryController.deleteGalleryItem);
   router.post('/reset', galleryController.resetDefaults);
 

@@ -49,6 +49,7 @@ import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify
 import { UpdateProfileUseCase } from '../../application/use-cases/auth/profile/updateProfile.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { CreateGalleryItemUseCase } from '../../application/use-cases/gallery/createGalleryItem.useCase.js';
+import { UpdateGalleryItemUseCase } from '../../application/use-cases/gallery/updateGalleryItem.useCase.js';
 import { GetGalleryItemsUseCase } from '../../application/use-cases/gallery/getGalleryItems.useCase.js';
 import { DeleteGalleryItemUseCase } from '../../application/use-cases/gallery/deleteGalleryItem.useCase.js';
 import { ResetGalleryDefaultsUseCase } from '../../application/use-cases/gallery/resetGalleryDefaults.useCase.js';
@@ -271,6 +272,14 @@ export function setupContainer(config: EnvironmentConfig = env) {
       ),
   });
 
+  container.register(UpdateGalleryItemUseCase, {
+    useFactory: (c) =>
+      new UpdateGalleryItemUseCase(
+        c.resolve(TOKENS.GalleryRepository),
+        c.resolve(TOKENS.B2StorageService)
+      ),
+  });
+
   container.register(DeleteGalleryItemUseCase, {
     useFactory: (c) =>
       new DeleteGalleryItemUseCase(
@@ -292,6 +301,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
       new GalleryController(
         c.resolve(GetGalleryItemsUseCase),
         c.resolve(CreateGalleryItemUseCase),
+        c.resolve(UpdateGalleryItemUseCase),
         c.resolve(DeleteGalleryItemUseCase),
         c.resolve(ResetGalleryDefaultsUseCase),
         c.resolve(TOKENS.B2StorageService)
@@ -302,4 +312,3 @@ export function setupContainer(config: EnvironmentConfig = env) {
 }
 
 export { container };
-

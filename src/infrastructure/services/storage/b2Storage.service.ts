@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '../../../config/environment.config.js';
+import { Logger } from '../../../shared/logging/Logger.js';
 import type { Readable } from 'stream';
 
 export class B2StorageService {
@@ -33,6 +34,7 @@ export class B2StorageService {
     });
 
     await this.client.send(command);
+    Logger.info(`[B2StorageService] Uploaded file to B2: ${key}`);
     return key;
   }
 
@@ -43,7 +45,9 @@ export class B2StorageService {
         Key: key,
       });
       await this.client.send(command);
-    } catch {
+      Logger.info(`[B2StorageService] Successfully deleted file from B2: ${key}`);
+    } catch (error) {
+      Logger.error(`[B2StorageService] Failed to delete file from B2 (${key}):`, error);
     }
   }
 

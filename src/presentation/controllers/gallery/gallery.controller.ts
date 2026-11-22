@@ -3,6 +3,7 @@ import { injectable } from 'tsyringe';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import { GetGalleryItemsUseCase } from '../../../application/use-cases/gallery/getGalleryItems.useCase.js';
 import { CreateGalleryItemUseCase } from '../../../application/use-cases/gallery/createGalleryItem.useCase.js';
+import { UpdateGalleryItemUseCase } from '../../../application/use-cases/gallery/updateGalleryItem.useCase.js';
 import { DeleteGalleryItemUseCase } from '../../../application/use-cases/gallery/deleteGalleryItem.useCase.js';
 import { ResetGalleryDefaultsUseCase } from '../../../application/use-cases/gallery/resetGalleryDefaults.useCase.js';
 import { B2StorageService } from '../../../infrastructure/services/storage/b2Storage.service.js';
@@ -13,6 +14,7 @@ export class GalleryController extends BaseController {
   constructor(
     private readonly getGalleryItemsUseCase: GetGalleryItemsUseCase,
     private readonly createGalleryItemUseCase: CreateGalleryItemUseCase,
+    private readonly updateGalleryItemUseCase: UpdateGalleryItemUseCase,
     private readonly deleteGalleryItemUseCase: DeleteGalleryItemUseCase,
     private readonly resetGalleryDefaultsUseCase: ResetGalleryDefaultsUseCase,
     private readonly b2Storage: B2StorageService
@@ -70,6 +72,22 @@ export class GalleryController extends BaseController {
       this.sendCreated(res, 'Gallery item published successfully.', item);
     } catch (error) {
       Logger.error('[GalleryController] Failed to create gallery item:', error);
+      next(error);
+    }
+  };
+
+  public updateGalleryItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!id) {
+        this.sendBadRequest(res, 'Gallery item id is required.');
+        return;
+      }
+
+      const updated = await this.updateGalleryItemUseCase.execute(id, req.body, req.file);
+      this.sendSuccess(res, 'Gallery item updated successfully.', updated);
+    } catch (error) {
+      Logger.error('[GalleryController] Failed to update gallery item:', error);
       next(error);
     }
   };

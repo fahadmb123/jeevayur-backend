@@ -14,8 +14,16 @@ export class DeleteGalleryItemUseCase {
       throw new ApplicationError('NOT_FOUND', 'Gallery item not found', 'NOT_FOUND');
     }
 
-    if (existing.imageKey) {
-      await this.b2Storage.deleteFile(existing.imageKey);
+    let keyToDelete = existing.imageKey;
+    if (!keyToDelete && existing.imageUrl && existing.imageUrl.includes('/api/gallery/images/')) {
+      const parts = existing.imageUrl.split('/api/gallery/images/');
+      if (parts[1]) {
+        keyToDelete = decodeURIComponent(parts[1]);
+      }
+    }
+
+    if (keyToDelete) {
+      await this.b2Storage.deleteFile(keyToDelete);
     }
 
     await this.galleryRepository.delete(id);

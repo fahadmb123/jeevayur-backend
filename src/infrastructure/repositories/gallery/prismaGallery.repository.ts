@@ -73,6 +73,25 @@ export class PrismaGalleryRepository implements IGalleryRepository {
     return GalleryMapper.toDomain(record);
   }
 
+  async update(item: GalleryItem): Promise<GalleryItem> {
+    await this.ensureTable();
+    const persistenceData = GalleryMapper.toPersistence(item);
+    const record = await db.galleryItem.update({
+      where: { id: item.id },
+      data: {
+        title: persistenceData.title,
+        category: persistenceData.category,
+        imageUrl: persistenceData.imageUrl,
+        imageKey: persistenceData.imageKey,
+        description: persistenceData.description,
+        author: persistenceData.author,
+        aspectRatio: persistenceData.aspectRatio,
+      },
+    });
+
+    return GalleryMapper.toDomain(record);
+  }
+
   async delete(id: string): Promise<void> {
     await this.ensureTable();
     await db.galleryItem.delete({ where: { id } });
