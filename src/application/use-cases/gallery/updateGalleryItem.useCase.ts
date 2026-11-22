@@ -15,6 +15,20 @@ export class UpdateGalleryItemUseCase {
     private readonly b2Storage: B2StorageService
   ) {}
 
+  private extractImageKey(imageKey?: string | null, imageUrl?: string | null): string | null {
+    if (imageKey && imageKey.trim()) {
+      return imageKey.trim();
+    }
+    if (imageUrl && imageUrl.includes('/api/gallery/images/')) {
+      const parts = imageUrl.split('/api/gallery/images/');
+      if (parts[1]) {
+        const raw = parts[1].split('?')[0];
+        return decodeURIComponent(raw);
+      }
+    }
+    return null;
+  }
+
   async execute(
     id: string,
     dto: UpdateGalleryItemRequestDto,
@@ -25,8 +39,9 @@ export class UpdateGalleryItemUseCase {
       throw new ApplicationError('NOT_FOUND', 'Gallery item not found', 'NOT_FOUND');
     }
 
+    const oldKey = this.extractImageKey(existing.imageKey, existing.imageUrl);
     let finalImageUrl = existing.imageUrl;
-    let finalImageKey = existing.imageKey;
+    let finalImageKey = existing.imageKey || oldKey;
     const category = (dto.category || existing.category).toLowerCase();
 
     if (file) {
@@ -38,8 +53,8 @@ export class UpdateGalleryItemUseCase {
         );
       }
 
-      if (existing.imageKey) {
-        await this.b2Storage.deleteFile(existing.imageKey);
+      if (oldKey) {
+        await this.b2Storage.deleteFile(oldKey);
       }
 
       const fileExt = file.originalname.split('.').pop() || 'jpg';
@@ -62,8 +77,8 @@ export class UpdateGalleryItemUseCase {
           );
         }
 
-        if (existing.imageKey) {
-          await this.b2Storage.deleteFile(existing.imageKey);
+        if (oldKey) {
+          await this.b2Storage.deleteFile(oldKey);
         }
 
         const ext = mimeType.split('/')[1] || 'jpg';
@@ -73,13 +88,24 @@ export class UpdateGalleryItemUseCase {
         finalImageUrl = `/api/gallery/images/${encodeURIComponent(finalImageKey)}`;
       }
     } else if (dto.imageUrl && dto.imageUrl.trim() !== '') {
-      const newUrl = dto.imageUrl.trim();
-      if (newUrl !== existing.imageUrl) {
-        if (existing.imageKey && !newUrl.includes(existing.imageKey)) {
-          await this.b2Storage.deleteFile(existing.imageKey);
-          finalImageKey = null;
+      const incomingUrl = dto.imageUrl.trim();
+      const decodedIncoming = decodeURIComponent(incomingUrl);
+      const isSameAsExisting =
+        incomingUrl === existing.imageUrl ||
+        (existing.imageUrl && (incomingUrl.endsWith(existing.imageUrl) || existing.imageUrl.endsWith(incomingUrl)));
+      const isReferencingOldKey = Boolean(
+        oldKey && (decodedIncoming.includes(oldKey) || incomingUrl.includes(oldKey))
+      );
+
+      if (isSameAsExisting || isReferencingOldKey) {
+        finalImageUrl = existing.imageUrl;
+        finalImageKey = existing.imageKey || oldKey;
+      } else {
+        if (oldKey) {
+          await this.b2Storage.deleteFile(oldKey);
         }
-        finalImageUrl = newUrl;
+        finalImageKey = null;
+        finalImageUrl = incomingUrl;
       }
     }
 

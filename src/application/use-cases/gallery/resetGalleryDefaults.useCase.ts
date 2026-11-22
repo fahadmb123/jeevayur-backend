@@ -10,11 +10,26 @@ export class ResetGalleryDefaultsUseCase {
     private readonly b2Storage: B2StorageService
   ) {}
 
+  private extractImageKey(imageKey?: string | null, imageUrl?: string | null): string | null {
+    if (imageKey && imageKey.trim()) {
+      return imageKey.trim();
+    }
+    if (imageUrl && imageUrl.includes('/api/gallery/images/')) {
+      const parts = imageUrl.split('/api/gallery/images/');
+      if (parts[1]) {
+        const raw = parts[1].split('?')[0];
+        return decodeURIComponent(raw);
+      }
+    }
+    return null;
+  }
+
   async execute(): Promise<GalleryItemResponseDto[]> {
     const existing = await this.galleryRepository.findAll();
     for (const item of existing) {
-      if (item.imageKey) {
-        await this.b2Storage.deleteFile(item.imageKey);
+      const keyToDelete = this.extractImageKey(item.imageKey, item.imageUrl);
+      if (keyToDelete) {
+        await this.b2Storage.deleteFile(keyToDelete);
       }
     }
 
