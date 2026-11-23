@@ -91,3 +91,32 @@ model GalleryItem {
   @@index([category])
   @@index([createdAt])
 }
+
+model YogaSession {
+  id            String   @id @default(uuid())
+  title         String
+  duration      String   @default("60 mins")
+  format        String   @default("offline")
+  suitableFor   String   @default("Beginner (All Ages)")
+  days          String   @default("[]")
+  time          String?
+  scheduleItems String?
+  description   String
+  level         String?  @default("Beginner")
+  ageGroup      String?
+  instructor    String?
+  location      String?
+  capacity      Int?
+  enrolledCount Int      @default(0)
+  price         String?
+  priceAmount   String?
+  priceUnit     String?
+  status        String   @default("active")
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([format])
+  @@index([status])
+  @@index([createdAt])
+}

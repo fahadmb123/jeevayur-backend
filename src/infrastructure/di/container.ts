@@ -9,6 +9,7 @@ import { PrismaPatientRepository } from '../repositories/patient/prismaPatient.r
 import { PrismaAppointmentRepository } from '../repositories/appointment/prismaAppointment.repository.js';
 import { PrismaSocialLinkRepository } from '../repositories/social/prismaSocialLink.repository.js';
 import { PrismaGalleryRepository } from '../repositories/gallery/prismaGallery.repository.js';
+import { PrismaYogaRepository } from '../repositories/yoga/prismaYoga.repository.js';
 import { B2StorageService } from '../services/storage/b2Storage.service.js';
 
 import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
@@ -54,6 +55,12 @@ import { GetGalleryItemsUseCase } from '../../application/use-cases/gallery/getG
 import { DeleteGalleryItemUseCase } from '../../application/use-cases/gallery/deleteGalleryItem.useCase.js';
 import { ResetGalleryDefaultsUseCase } from '../../application/use-cases/gallery/resetGalleryDefaults.useCase.js';
 import { GalleryController } from '../../presentation/controllers/gallery/gallery.controller.js';
+import { GetYogaSessionsUseCase } from '../../application/use-cases/yoga/getYogaSessions.useCase.js';
+import { GetYogaSessionByIdUseCase } from '../../application/use-cases/yoga/getYogaSessionById.useCase.js';
+import { CreateYogaSessionUseCase } from '../../application/use-cases/yoga/createYogaSession.useCase.js';
+import { UpdateYogaSessionUseCase } from '../../application/use-cases/yoga/updateYogaSession.useCase.js';
+import { DeleteYogaSessionUseCase } from '../../application/use-cases/yoga/deleteYogaSession.useCase.js';
+import { YogaController } from '../../presentation/controllers/yoga/yoga.controller.js';
 
 export function setupContainer(config: EnvironmentConfig = env) {
   container.registerInstance(TOKENS.EnvironmentConfig, config);
@@ -64,6 +71,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
   container.register(TOKENS.AppointmentRepository, { useClass: PrismaAppointmentRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.SocialLinkRepository, { useClass: PrismaSocialLinkRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.GalleryRepository, { useClass: PrismaGalleryRepository }, { lifecycle: Lifecycle.Singleton });
+  container.register(TOKENS.YogaRepository, { useClass: PrismaYogaRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.B2StorageService, { useClass: B2StorageService }, { lifecycle: Lifecycle.Singleton });
 
   container.register(TOKENS.PasswordService, { useClass: ScryptPasswordService }, { lifecycle: Lifecycle.Singleton });
@@ -305,6 +313,37 @@ export function setupContainer(config: EnvironmentConfig = env) {
         c.resolve(DeleteGalleryItemUseCase),
         c.resolve(ResetGalleryDefaultsUseCase),
         c.resolve(TOKENS.B2StorageService)
+      ),
+  });
+
+  container.register(GetYogaSessionsUseCase, {
+    useFactory: (c) => new GetYogaSessionsUseCase(c.resolve(TOKENS.YogaRepository)),
+  });
+
+  container.register(GetYogaSessionByIdUseCase, {
+    useFactory: (c) => new GetYogaSessionByIdUseCase(c.resolve(TOKENS.YogaRepository)),
+  });
+
+  container.register(CreateYogaSessionUseCase, {
+    useFactory: (c) => new CreateYogaSessionUseCase(c.resolve(TOKENS.YogaRepository)),
+  });
+
+  container.register(UpdateYogaSessionUseCase, {
+    useFactory: (c) => new UpdateYogaSessionUseCase(c.resolve(TOKENS.YogaRepository)),
+  });
+
+  container.register(DeleteYogaSessionUseCase, {
+    useFactory: (c) => new DeleteYogaSessionUseCase(c.resolve(TOKENS.YogaRepository)),
+  });
+
+  container.register(YogaController, {
+    useFactory: (c) =>
+      new YogaController(
+        c.resolve(GetYogaSessionsUseCase),
+        c.resolve(GetYogaSessionByIdUseCase),
+        c.resolve(CreateYogaSessionUseCase),
+        c.resolve(UpdateYogaSessionUseCase),
+        c.resolve(DeleteYogaSessionUseCase)
       ),
   });
 

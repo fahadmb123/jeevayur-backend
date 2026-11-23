@@ -12,5 +12,6 @@ export const TOKENS = {
   AuthMiddleware: Symbol('AuthMiddleware'),
   GalleryRepository: Symbol('IGalleryRepository'),
   B2StorageService: Symbol('B2StorageService'),
+  YogaRepository: Symbol('IYogaRepository'),
 } as const;
 

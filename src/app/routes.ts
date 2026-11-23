@@ -33,6 +33,10 @@ export function createRootRouter(dependencies: RootRouterDependencies): Router {
     router.use('/gallery', dependencies.galleryRoutes);
   }
 
+  if (dependencies.yogaRoutes) {
+    router.use('/yoga', dependencies.yogaRoutes);
+  }
+
   return router;
 }
 
