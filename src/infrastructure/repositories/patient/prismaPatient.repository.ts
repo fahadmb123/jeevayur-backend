@@ -13,8 +13,32 @@ export class PrismaPatientRepository implements IPatientRepository {
     const record = await db.patient.findUnique({
       where: { id },
     });
-    if (!record) return null;
-    return PatientMapper.toDomain(record);
+    if (record) return PatientMapper.toDomain(record);
+
+    const apt = await db.appointment.findUnique({
+      where: { id },
+    });
+    if (apt) {
+      const existingPatient = apt.email
+        ? await db.patient.findFirst({ where: { email: apt.email } })
+        : await db.patient.findFirst({ where: { name: apt.name } });
+      if (existingPatient) {
+        return PatientMapper.toDomain(existingPatient);
+      }
+      const created = await db.patient.create({
+        data: {
+          name: apt.name,
+          email: apt.email,
+          phone: apt.phone,
+          condition: `${apt.type} (${apt.format}): ${apt.reason}`,
+          status: apt.status === 'COMPLETED' ? 'Completed' : 'Uncompleted',
+          lastVisit: 'Website Booking',
+        },
+      });
+      return PatientMapper.toDomain(created);
+    }
+
+    return null;
   }
 
   async findByEmail(email: string): Promise<Patient | null> {
@@ -49,11 +73,72 @@ export class PrismaPatientRepository implements IPatientRepository {
   }
 
   async updateStatus(id: string, status: string): Promise<Patient> {
-    const record = await db.patient.update({
+    const normalized = status.trim().toLowerCase() === 'completed' ? 'Completed' : 'Uncompleted';
+    const aptStatus = normalized === 'Completed' ? 'COMPLETED' : 'CONFIRMED';
+
+    const existingPatient = await db.patient.findUnique({
       where: { id },
-      data: { status },
     });
-    return PatientMapper.toDomain(record);
+
+    if (existingPatient) {
+      const record = await db.patient.update({
+        where: { id },
+        data: { status: normalized },
+      });
+
+      if (record.email || record.name) {
+        try {
+          await db.appointment.updateMany({
+            where: {
+              OR: [
+                ...(record.email ? [{ email: record.email }] : []),
+                { name: record.name },
+              ],
+            },
+            data: { status: aptStatus },
+          });
+        } catch {}
+      }
+
+      return PatientMapper.toDomain(record);
+    }
+
+    const apt = await db.appointment.findUnique({
+      where: { id },
+    });
+
+    if (apt) {
+      await db.appointment.update({
+        where: { id },
+        data: { status: aptStatus },
+      });
+
+      const matchingPatient = apt.email
+        ? await db.patient.findFirst({ where: { email: apt.email } })
+        : await db.patient.findFirst({ where: { name: apt.name } });
+
+      if (matchingPatient) {
+        const updated = await db.patient.update({
+          where: { id: matchingPatient.id },
+          data: { status: normalized },
+        });
+        return PatientMapper.toDomain(updated);
+      }
+
+      const created = await db.patient.create({
+        data: {
+          name: apt.name,
+          email: apt.email,
+          phone: apt.phone,
+          condition: `${apt.type} (${apt.format}): ${apt.reason}`,
+          status: normalized,
+          lastVisit: 'Website Booking',
+        },
+      });
+      return PatientMapper.toDomain(created);
+    }
+
+    throw new Error(`Patient record not found for id: ${id}`);
   }
 
   async findFiltered(criteria: PatientFilterCriteria): Promise<PatientQueryResult> {

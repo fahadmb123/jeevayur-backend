@@ -10,17 +10,20 @@ export function buildPatientRoutes(deps: PatientRouteDependencies): Router {
   const router = Router();
   const { patientController, authMiddleware } = deps;
 
-  if (authMiddleware) {
-    router.get('/', authMiddleware, patientController.getPatients);
-    router.post('/', authMiddleware, patientController.createPatient);
-    router.patch('/:id/status', authMiddleware, patientController.updatePatientStatus);
-    router.put('/:id/status', authMiddleware, patientController.updatePatientStatus);
-  } else {
-    router.get('/', patientController.getPatients);
-    router.post('/', patientController.createPatient);
-    router.patch('/:id/status', patientController.updatePatientStatus);
-    router.put('/:id/status', patientController.updatePatientStatus);
-  }
+  const optionalAuth: RequestHandler = (req, res, next) => {
+    if (authMiddleware) {
+      authMiddleware(req, res, () => {
+        next();
+      });
+    } else {
+      next();
+    }
+  };
+
+  router.get('/', optionalAuth, patientController.getPatients);
+  router.post('/', optionalAuth, patientController.createPatient);
+  router.patch('/:id/status', optionalAuth, patientController.updatePatientStatus);
+  router.put('/:id/status', optionalAuth, patientController.updatePatientStatus);
 
   return router;
 }
