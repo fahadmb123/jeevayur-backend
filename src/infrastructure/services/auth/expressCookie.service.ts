@@ -38,7 +38,6 @@ export class ExpressCookieService implements ICookieService {
   }
 
   public setRefreshToken(res: Response, token: string, rememberMe = false): void {
-    // Proactively clear legacy cookie names from previous revisions
     res.clearCookie('refresh_token', { ...this.getBaseCookieOptions(), path: '/api/auth' });
     res.clearCookie('refresh_token', this.getBaseCookieOptions());
 

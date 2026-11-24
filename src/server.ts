@@ -49,7 +49,7 @@ export class Server {
     const socialLinkController = di.resolve(SocialLinkController);
     const appointmentController = di.resolve(AppointmentController);
     const patientController = di.resolve(PatientController);
-    const treatmentController = new TreatmentController();
+    const treatmentController = di.resolve(TreatmentController);
     const galleryController = di.resolve(GalleryController);
     const yogaController = di.resolve(YogaController);
 

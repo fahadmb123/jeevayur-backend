@@ -1,9 +1,9 @@
-import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
 import type { IJwtService } from '../../../../shared/interfaces/services/IJwtService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
+import { hashSha256 } from '../../../../shared/utils/crypto.js';
 import type { RefreshTokenRequestDto } from '../../../dtos/request/auth/refresh-token/refreshToken.dto.js';
 import type { RefreshTokenResponseDto } from '../../../dtos/response/auth/refresh-token/refreshToken.dto.js';
 import type { UserRole } from '../../../../domain/entities/auth/user.entity.js';
@@ -21,7 +21,7 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, Ref
     }
 
     const payload = this._jwtService.verifyRefreshToken(input.refreshToken);
-    const tokenHash = crypto.createHash('sha256').update(input.refreshToken).digest('hex');
+    const tokenHash = hashSha256(input.refreshToken);
 
     let activeSession = null;
     if (this._sessionRepository) {
@@ -56,7 +56,7 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDto, Ref
     const refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
 
     if (this._sessionRepository && activeSession) {
-      const newRefreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      const newRefreshTokenHash = hashSha256(refreshToken);
       await this._sessionRepository.updateTokenHash(activeSession.id, newRefreshTokenHash);
     }
 

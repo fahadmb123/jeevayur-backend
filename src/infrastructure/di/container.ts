@@ -11,6 +11,7 @@ import { PrismaSocialLinkRepository } from '../repositories/social/prismaSocialL
 import { PrismaGalleryRepository } from '../repositories/gallery/prismaGallery.repository.js';
 import { PrismaYogaRepository } from '../repositories/yoga/prismaYoga.repository.js';
 import { B2StorageService } from '../services/storage/b2Storage.service.js';
+import { PrismaHealthService } from '../services/health/prismaHealth.service.js';
 
 import { ScryptPasswordService } from '../services/auth/scryptPassword.service.js';
 import { JwtTokenService } from '../services/auth/jwtToken.service.js';
@@ -48,19 +49,29 @@ import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/fo
 import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify-reset-token/verifyResetToken.useCase.js';
 import { UpdateProfileUseCase } from '../../application/use-cases/auth/profile/updateProfile.useCase.js';
+import { GetCurrentUserUseCase } from '../../application/use-cases/auth/me/getCurrentUser.useCase.js';
+import { LogoutUseCase } from '../../application/use-cases/auth/logout/logout.useCase.js';
+import { GetUserSessionsUseCase } from '../../application/use-cases/auth/session/getUserSessions.useCase.js';
+import { RevokeSessionUseCase } from '../../application/use-cases/auth/session/revokeSession.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
+
 import { CreateGalleryItemUseCase } from '../../application/use-cases/gallery/createGalleryItem.useCase.js';
 import { UpdateGalleryItemUseCase } from '../../application/use-cases/gallery/updateGalleryItem.useCase.js';
 import { GetGalleryItemsUseCase } from '../../application/use-cases/gallery/getGalleryItems.useCase.js';
 import { DeleteGalleryItemUseCase } from '../../application/use-cases/gallery/deleteGalleryItem.useCase.js';
 import { ResetGalleryDefaultsUseCase } from '../../application/use-cases/gallery/resetGalleryDefaults.useCase.js';
 import { GalleryController } from '../../presentation/controllers/gallery/gallery.controller.js';
+
 import { GetYogaSessionsUseCase } from '../../application/use-cases/yoga/getYogaSessions.useCase.js';
 import { GetYogaSessionByIdUseCase } from '../../application/use-cases/yoga/getYogaSessionById.useCase.js';
 import { CreateYogaSessionUseCase } from '../../application/use-cases/yoga/createYogaSession.useCase.js';
 import { UpdateYogaSessionUseCase } from '../../application/use-cases/yoga/updateYogaSession.useCase.js';
 import { DeleteYogaSessionUseCase } from '../../application/use-cases/yoga/deleteYogaSession.useCase.js';
 import { YogaController } from '../../presentation/controllers/yoga/yoga.controller.js';
+
+import { GetTreatmentsUseCase } from '../../application/use-cases/treatment/getTreatments.useCase.js';
+import { GetFaqsUseCase } from '../../application/use-cases/treatment/getFaqs.useCase.js';
+import { TreatmentController } from '../../presentation/controllers/treatment/treatment.controller.js';
 
 export function setupContainer(config: EnvironmentConfig = env) {
   container.registerInstance(TOKENS.EnvironmentConfig, config);
@@ -73,6 +84,8 @@ export function setupContainer(config: EnvironmentConfig = env) {
   container.register(TOKENS.GalleryRepository, { useClass: PrismaGalleryRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.YogaRepository, { useClass: PrismaYogaRepository }, { lifecycle: Lifecycle.Singleton });
   container.register(TOKENS.B2StorageService, { useClass: B2StorageService }, { lifecycle: Lifecycle.Singleton });
+  container.register(TOKENS.StorageService, { useClass: B2StorageService }, { lifecycle: Lifecycle.Singleton });
+  container.register(TOKENS.DatabaseHealthService, { useClass: PrismaHealthService }, { lifecycle: Lifecycle.Singleton });
 
   container.register(TOKENS.PasswordService, { useClass: ScryptPasswordService }, { lifecycle: Lifecycle.Singleton });
 
@@ -165,7 +178,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
   });
 
   container.register(CheckHealthUseCase, {
-    useFactory: () => new CheckHealthUseCase(),
+    useFactory: (c) => new CheckHealthUseCase(c.resolve(TOKENS.DatabaseHealthService)),
   });
 
   container.register(HealthController, {
@@ -250,6 +263,22 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) => new UpdateProfileUseCase(c.resolve(TOKENS.UserRepository)),
   });
 
+  container.register(GetCurrentUserUseCase, {
+    useFactory: (c) => new GetCurrentUserUseCase(c.resolve(TOKENS.UserRepository)),
+  });
+
+  container.register(LogoutUseCase, {
+    useFactory: (c) => new LogoutUseCase(c.resolve(TOKENS.SessionRepository)),
+  });
+
+  container.register(GetUserSessionsUseCase, {
+    useFactory: (c) => new GetUserSessionsUseCase(c.resolve(TOKENS.SessionRepository)),
+  });
+
+  container.register(RevokeSessionUseCase, {
+    useFactory: (c) => new RevokeSessionUseCase(c.resolve(TOKENS.SessionRepository)),
+  });
+
   container.register(AuthController, {
     useFactory: (c) => {
       const cfg = c.resolve<EnvironmentConfig>(TOKENS.EnvironmentConfig);
@@ -261,9 +290,11 @@ export function setupContainer(config: EnvironmentConfig = env) {
         c.resolve(VerifyResetTokenUseCase),
         c.resolve(TOKENS.CookieService),
         cfg,
-        c.resolve(TOKENS.UserRepository),
-        c.resolve(TOKENS.SessionRepository),
-        c.resolve(UpdateProfileUseCase)
+        c.resolve(UpdateProfileUseCase),
+        c.resolve(GetCurrentUserUseCase),
+        c.resolve(LogoutUseCase),
+        c.resolve(GetUserSessionsUseCase),
+        c.resolve(RevokeSessionUseCase)
       );
     },
   });
@@ -276,7 +307,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) =>
       new CreateGalleryItemUseCase(
         c.resolve(TOKENS.GalleryRepository),
-        c.resolve(TOKENS.B2StorageService)
+        c.resolve(TOKENS.StorageService)
       ),
   });
 
@@ -284,7 +315,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) =>
       new UpdateGalleryItemUseCase(
         c.resolve(TOKENS.GalleryRepository),
-        c.resolve(TOKENS.B2StorageService)
+        c.resolve(TOKENS.StorageService)
       ),
   });
 
@@ -292,7 +323,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) =>
       new DeleteGalleryItemUseCase(
         c.resolve(TOKENS.GalleryRepository),
-        c.resolve(TOKENS.B2StorageService)
+        c.resolve(TOKENS.StorageService)
       ),
   });
 
@@ -300,7 +331,7 @@ export function setupContainer(config: EnvironmentConfig = env) {
     useFactory: (c) =>
       new ResetGalleryDefaultsUseCase(
         c.resolve(TOKENS.GalleryRepository),
-        c.resolve(TOKENS.B2StorageService)
+        c.resolve(TOKENS.StorageService)
       ),
   });
 
@@ -344,6 +375,22 @@ export function setupContainer(config: EnvironmentConfig = env) {
         c.resolve(CreateYogaSessionUseCase),
         c.resolve(UpdateYogaSessionUseCase),
         c.resolve(DeleteYogaSessionUseCase)
+      ),
+  });
+
+  container.register(GetTreatmentsUseCase, {
+    useFactory: (c) => new GetTreatmentsUseCase(c.resolve(TOKENS.GalleryRepository)),
+  });
+
+  container.register(GetFaqsUseCase, {
+    useFactory: () => new GetFaqsUseCase(),
+  });
+
+  container.register(TreatmentController, {
+    useFactory: (c) =>
+      new TreatmentController(
+        c.resolve(GetTreatmentsUseCase),
+        c.resolve(GetFaqsUseCase)
       ),
   });
 

@@ -1,11 +1,9 @@
-import { injectable, inject } from 'tsyringe';
 import type {
   IPatientRepository,
   PatientFilterCriteria,
 } from '../../../domain/repositories/patient/patient.repository.js';
 import type { GetPatientsResponseDto } from '../../dtos/response/patient/patient.dto.js';
 import { PatientMapper } from '../../../infrastructure/mappers/patient/patient.mapper.js';
-import { TOKENS } from '../../../infrastructure/di/tokens.js';
 
 export interface GetPatientsQueryDto {
   search?: string;
@@ -17,11 +15,8 @@ export interface GetPatientsQueryDto {
   offset?: number;
 }
 
-@injectable()
 export class GetPatientsUseCase {
-  constructor(
-    @inject(TOKENS.PatientRepository) private readonly patientRepository: IPatientRepository
-  ) {}
+  constructor(private readonly patientRepository: IPatientRepository) {}
 
   async execute(query?: GetPatientsQueryDto): Promise<GetPatientsResponseDto> {
     const criteria: PatientFilterCriteria = {

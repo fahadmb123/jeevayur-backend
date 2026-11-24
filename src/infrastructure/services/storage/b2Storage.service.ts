@@ -9,8 +9,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '../../../config/environment.config.js';
 import { Logger } from '../../../shared/logging/Logger.js';
 import type { Readable } from 'stream';
+import type { IStorageService, StorageFileResult } from '../../../shared/interfaces/services/IStorageService.js';
 
-export class B2StorageService {
+export class B2StorageService implements IStorageService {
   private readonly client: S3Client;
   private readonly bucketName: string;
 
@@ -111,7 +112,7 @@ export class B2StorageService {
     }
   }
 
-  public async getFile(key: string): Promise<{ stream: Readable; contentType: string; contentLength?: number }> {
+  public async getFile(key: string): Promise<StorageFileResult> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
