@@ -170,7 +170,11 @@ export function setupContainer(config: EnvironmentConfig = env) {
   });
 
   container.register(GetDoctorDashboardUseCase, {
-    useFactory: () => new GetDoctorDashboardUseCase(),
+    useFactory: (c) =>
+      new GetDoctorDashboardUseCase(
+        c.resolve(TOKENS.AppointmentRepository),
+        c.resolve(TOKENS.PatientRepository)
+      ),
   });
 
   container.register(DoctorController, {
