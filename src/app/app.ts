@@ -15,12 +15,25 @@ export function createApp(
 ): Application {
   const app = express();
 
+  const configuredOrigins =
+    config.corsOrigin === '*'
+      ? '*'
+      : config.corsOrigin.split(',').map((o) => o.trim());
+
   app.use(
     cors({
-      origin: config.corsOrigin === '*' ? '*' : config.corsOrigin.split(','),
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (configuredOrigins === '*') return callback(null, true);
+        if (configuredOrigins.includes(origin)) return callback(null, true);
+        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true);
+        if (/^https?:\/\/.*\.ngrok(-free)?\.(app|dev|io)$/.test(origin)) return callback(null, true);
+        if (/^https?:\/\/.*\.vercel\.app$/.test(origin)) return callback(null, true);
+        return callback(null, false);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     })
   );
 
