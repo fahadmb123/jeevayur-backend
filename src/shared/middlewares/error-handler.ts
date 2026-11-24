@@ -20,9 +20,22 @@ export function errorHandler(
   }
 
   Logger.error('Unhandled Server Error', err);
+  const rawMsg = err instanceof Error ? err.message : '';
+  const isNetworkFailure =
+    rawMsg.includes('fetch failed') ||
+    rawMsg.includes('ECONNREFUSED') ||
+    rawMsg.includes('ETIMEDOUT') ||
+    rawMsg.includes('ENOTFOUND');
+
+  const clientMsg = isNetworkFailure
+    ? 'Database or remote service connection failed. Please verify network access and retry.'
+    : err instanceof Error
+      ? err.message
+      : 'An unexpected internal server error occurred';
+
   res.status(500).json({
     success: false,
-    message: err instanceof Error ? err.message : 'An unexpected internal server error occurred',
+    message: clientMsg,
     errors: null,
   });
 }
