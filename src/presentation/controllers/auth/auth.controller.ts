@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { BaseController } from '../../../shared/base/controller/baseController.js';
 import type { IUseCase } from '../../../shared/interfaces/use-cases/IUseCase.js';
@@ -13,14 +12,20 @@ import type { ResetPasswordResponseDto } from '../../../application/use-cases/au
 import type { VerifyResetTokenRequestDto } from '../../../application/dtos/request/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { VerifyResetTokenResponseDto } from '../../../application/dtos/response/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { ICookieService } from '../../../shared/interfaces/services/ICookieService.js';
-import type { IUserRepository } from '../../../domain/repositories/auth/user.repository.js';
-import type { ISessionRepository } from '../../../domain/repositories/auth/session.repository.js';
 import type { UpdateProfileRequestDto } from '../../../application/dtos/request/auth/profile/updateProfile.dto.js';
 import type { UpdateProfileResponseDto } from '../../../application/dtos/response/auth/profile/updateProfile.dto.js';
-import { UserMapper } from '../../../infrastructure/mappers/auth/user.mapper.js';
+import type { UserResponseDto } from '../../../application/dtos/response/auth/user/user.dto.js';
+import type { GetCurrentUserInput } from '../../../application/use-cases/auth/me/getCurrentUser.useCase.js';
+import type { LogoutInput } from '../../../application/use-cases/auth/logout/logout.useCase.js';
+import type {
+  GetUserSessionsInput,
+  GetUserSessionsResponseDto,
+} from '../../../application/use-cases/auth/session/getUserSessions.useCase.js';
+import type { RevokeSessionInput } from '../../../application/use-cases/auth/session/revokeSession.useCase.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
 import type { EnvironmentConfig } from '../../../config/environment.config.js';
 import { extractClientInfo } from '../../../shared/utils/clientInfo.js';
+import { hashSha256 } from '../../../shared/utils/crypto.js';
 
 export class AuthController extends BaseController {
   constructor(
@@ -40,9 +45,11 @@ export class AuthController extends BaseController {
     >,
     private readonly _cookies: ICookieService,
     private readonly _config: EnvironmentConfig,
-    private readonly _userRepository?: IUserRepository,
-    private readonly _sessionRepository?: ISessionRepository,
-    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileRequestDto, UpdateProfileResponseDto>
+    private readonly _updateProfileUseCase?: IUseCase<UpdateProfileRequestDto, UpdateProfileResponseDto>,
+    private readonly _getCurrentUserUseCase?: IUseCase<GetCurrentUserInput, UserResponseDto>,
+    private readonly _logoutUseCase?: IUseCase<LogoutInput, void>,
+    private readonly _getUserSessionsUseCase?: IUseCase<GetUserSessionsInput, GetUserSessionsResponseDto>,
+    private readonly _revokeSessionUseCase?: IUseCase<RevokeSessionInput, void>
   ) {
     super();
   }
@@ -53,9 +60,7 @@ export class AuthController extends BaseController {
       const existingRefreshToken =
         req.cookies?.[this._config.refreshCookieName] ||
         req.signedCookies?.[this._config.refreshCookieName];
-      const oldTokenHash = existingRefreshToken
-        ? crypto.createHash('sha256').update(existingRefreshToken).digest('hex')
-        : null;
+      const oldTokenHash = existingRefreshToken ? hashSha256(existingRefreshToken) : null;
 
       const result = await this._loginUseCase.execute({
         email: req.body.email,
@@ -149,10 +154,10 @@ export class AuthController extends BaseController {
         req.signedCookies?.[this._config.refreshCookieName] ||
         req.body?.refreshToken;
 
-      if (refreshToken && this._sessionRepository) {
-        const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-        await this._sessionRepository.deleteByTokenHash(tokenHash);
+      if (this._logoutUseCase) {
+        await this._logoutUseCase.execute({ refreshToken });
       }
+
       this._cookies.clearAuthCookies(res);
       this.sendNoContent(res);
     } catch (err) {
@@ -166,13 +171,12 @@ export class AuthController extends BaseController {
         throw new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION');
       }
 
-      if (this._userRepository) {
-        const user = await this._userRepository.findById(req.auth.userId);
-        if (user) {
-          this.sendSuccess(res, 'Current user retrieved successfully', {
-            user: UserMapper.toDto(user),
-          });
+      if (this._getCurrentUserUseCase) {
+        try {
+          const user = await this._getCurrentUserUseCase.execute({ userId: req.auth.userId });
+          this.sendSuccess(res, 'Current user retrieved successfully', { user });
           return;
+        } catch {
         }
       }
 
@@ -190,7 +194,7 @@ export class AuthController extends BaseController {
         throw new ApplicationError('UNAUTHORIZED', 'Authentication required', 'AUTHENTICATION');
       }
 
-      if (!this._sessionRepository) {
+      if (!this._getUserSessionsUseCase) {
         this.sendSuccess(res, 'Sessions retrieved', { sessions: [] });
         return;
       }
@@ -199,67 +203,14 @@ export class AuthController extends BaseController {
         req.cookies?.[this._config.refreshCookieName] ||
         req.signedCookies?.[this._config.refreshCookieName];
 
-      const currentTokenHash = refreshToken
-        ? crypto.createHash('sha256').update(refreshToken).digest('hex')
-        : null;
-
       const clientInfo = extractClientInfo(req);
-      const allSessions = await this._sessionRepository.findByUserId(req.auth.userId);
-
-      const seenDevices = new Set<string>();
-      const deduplicated: typeof allSessions = [];
-
-      for (const s of allSessions) {
-        const isCurrent = currentTokenHash
-          ? s.tokenHash === currentTokenHash
-          : s.device === clientInfo.device;
-        if (isCurrent) {
-          deduplicated.push(s);
-          seenDevices.add(s.device || 'Unknown Device');
-        }
-      }
-
-      for (const s of allSessions) {
-        const isCurrent = currentTokenHash
-          ? s.tokenHash === currentTokenHash
-          : s.device === clientInfo.device;
-        if (isCurrent) continue;
-
-        const deviceKey = s.device || 'Unknown Device';
-        if (seenDevices.has(deviceKey)) {
-          await this._sessionRepository.deleteById(s.id);
-        } else {
-          seenDevices.add(deviceKey);
-          deduplicated.push(s);
-        }
-      }
-
-      const mappedSessions = deduplicated.map((s) => {
-        const isCurrent = currentTokenHash
-          ? s.tokenHash === currentTokenHash
-          : s.device === clientInfo.device;
-
-        return {
-          id: s.id,
-          ipAddress: s.ipAddress,
-          device: s.device,
-          city: s.city,
-          country: s.country,
-          lastActiveAt: s.lastActiveAt,
-          createdAt: s.createdAt,
-          isCurrent: Boolean(isCurrent),
-        };
+      const result = await this._getUserSessionsUseCase.execute({
+        userId: req.auth.userId,
+        refreshToken,
+        currentDevice: clientInfo.device,
       });
 
-      mappedSessions.sort((a, b) => {
-        if (a.isCurrent) return -1;
-        if (b.isCurrent) return 1;
-        return new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime();
-      });
-
-      this.sendSuccess(res, 'Sessions retrieved successfully', {
-        sessions: mappedSessions,
-      });
+      this.sendSuccess(res, 'Sessions retrieved successfully', result);
     } catch (err) {
       next(err);
     }
@@ -277,11 +228,11 @@ export class AuthController extends BaseController {
         throw new ApplicationError('VALIDATION_ERROR', 'Session ID is required', 'VALIDATION');
       }
 
-      if (this._sessionRepository) {
-        const session = await this._sessionRepository.findById(sessionId);
-        if (session && session.userId === req.auth.userId) {
-          await this._sessionRepository.deleteById(sessionId);
-        }
+      if (this._revokeSessionUseCase) {
+        await this._revokeSessionUseCase.execute({
+          userId: req.auth.userId,
+          sessionId,
+        });
       }
 
       this.sendSuccess(res, 'Session revoked successfully');

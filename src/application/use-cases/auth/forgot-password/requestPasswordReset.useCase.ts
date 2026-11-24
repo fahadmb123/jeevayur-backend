@@ -3,6 +3,7 @@ import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import type { ForgotPasswordRequestDto } from '../../../dtos/request/auth/forgot-password/forgotPassword.dto.js';
+import { hashSha256 } from '../../../../shared/utils/crypto.js';
 
 export interface RequestPasswordResetResponseDto {
   message: string;
@@ -23,7 +24,7 @@ export class RequestPasswordResetUseCase
 
     if (user) {
       const rawToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      const tokenHash = hashSha256(rawToken);
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
       await this._userRepository.setPasswordResetToken(user.id, tokenHash, expiresAt);
@@ -37,4 +38,3 @@ export class RequestPasswordResetUseCase
     };
   }
 }
-

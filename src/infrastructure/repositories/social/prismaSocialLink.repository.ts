@@ -15,7 +15,6 @@ export class PrismaSocialLinkRepository implements ISocialLinkRepository {
     const whereClause = onlyVisible ? { isVisible: true } : {};
     let records = await db.socialLink.findMany({ where: whereClause });
 
-    // Auto-seed default sanctuary links on very first load if table is empty
     if (records.length === 0 && !onlyVisible) {
       await db.socialLink.createMany({
         data: INITIAL_DEFAULT_LINKS,

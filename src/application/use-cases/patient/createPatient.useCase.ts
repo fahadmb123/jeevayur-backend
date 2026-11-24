@@ -1,14 +1,9 @@
-import { injectable, inject } from 'tsyringe';
 import type { IPatientRepository, CreatePatientData } from '../../../domain/repositories/patient/patient.repository.js';
 import type { Patient } from '../../../domain/entities/patient/patient.entity.js';
 import { ApplicationError } from '../../../shared/errors/applicationError.js';
-import { TOKENS } from '../../../infrastructure/di/tokens.js';
 
-@injectable()
 export class CreatePatientUseCase {
-  constructor(
-    @inject(TOKENS.PatientRepository) private readonly patientRepository: IPatientRepository
-  ) {}
+  constructor(private readonly patientRepository: IPatientRepository) {}
 
   async execute(data: CreatePatientData): Promise<Patient> {
     if (!data.name || !data.name.trim()) {

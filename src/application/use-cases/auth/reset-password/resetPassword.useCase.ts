@@ -1,8 +1,8 @@
-import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
 import type { IPasswordHasher } from '../../../../shared/interfaces/services/IPasswordHasher.service.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
+import { hashSha256 } from '../../../../shared/utils/crypto.js';
 import type { ResetPasswordRequestDto } from '../../../dtos/request/auth/reset-password/resetPassword.dto.js';
 
 export interface ResetPasswordResponseDto {
@@ -28,7 +28,7 @@ export class ResetPasswordUseCase
       );
     }
 
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const tokenHash = hashSha256(rawToken);
     const user = await this._userRepository.findByPasswordResetToken(tokenHash);
 
     if (
@@ -52,4 +52,3 @@ export class ResetPasswordUseCase
     };
   }
 }
-

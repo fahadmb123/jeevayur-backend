@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
 import type { ISessionRepository } from '../../../../domain/repositories/auth/session.repository.js';
@@ -7,6 +6,7 @@ import type { IJwtService } from '../../../../shared/interfaces/services/IJwtSer
 import type { IEmailService } from '../../../../shared/interfaces/services/IEmailService.js';
 import { ApplicationError } from '../../../../shared/errors/applicationError.js';
 import { Logger } from '../../../../shared/logging/Logger.js';
+import { hashSha256 } from '../../../../shared/utils/crypto.js';
 import type { LoginRequestDto } from '../../../dtos/request/auth/login/login.dto.js';
 import type { LoginResponseDto } from '../../../dtos/response/auth/login/login.dto.js';
 
@@ -61,7 +61,7 @@ export class LoginUseCase implements IUseCase<LoginRequestDto, LoginResponseDto>
       }
 
       refreshToken = await Promise.resolve(this._jwtService.generateRefreshToken(tokenPayload));
-      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      const tokenHash = hashSha256(refreshToken);
       const session = await this._sessionRepository.create({
         userId: user.id,
         tokenHash,

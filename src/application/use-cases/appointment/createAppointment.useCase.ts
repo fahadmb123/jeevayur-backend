@@ -23,12 +23,7 @@ export class CreateAppointmentUseCase {
       language: dto.language,
     });
 
-    const destinationEmail =
-      this.notificationEmail ||
-      process.env.CLINIC_EMAIL ||
-      process.env.APPOINTMENT_NOTIFICATION_EMAIL ||
-      process.env.BREVO_SENDER_EMAIL ||
-      'fahadmbasheer@gmail.com';
+    const destinationEmail = this.notificationEmail || 'fahadmbasheer@gmail.com';
 
     try {
       await this.emailService.sendAppointmentNotificationEmail({

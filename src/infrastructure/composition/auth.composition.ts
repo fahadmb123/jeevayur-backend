@@ -12,6 +12,10 @@ import { RequestPasswordResetUseCase } from '../../application/use-cases/auth/fo
 import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password/resetPassword.useCase.js';
 import { VerifyResetTokenUseCase } from '../../application/use-cases/auth/verify-reset-token/verifyResetToken.useCase.js';
 import { UpdateProfileUseCase } from '../../application/use-cases/auth/profile/updateProfile.useCase.js';
+import { GetCurrentUserUseCase } from '../../application/use-cases/auth/me/getCurrentUser.useCase.js';
+import { LogoutUseCase } from '../../application/use-cases/auth/logout/logout.useCase.js';
+import { GetUserSessionsUseCase } from '../../application/use-cases/auth/session/getUserSessions.useCase.js';
+import { RevokeSessionUseCase } from '../../application/use-cases/auth/session/revokeSession.useCase.js';
 import { AuthController } from '../../presentation/controllers/auth/auth.controller.js';
 import { buildAuthRoutes } from '../../presentation/routes/auth/auth.routes.js';
 import { createAuthMiddleware } from '../../shared/middlewares/auth.middleware.js';
@@ -29,6 +33,10 @@ export interface AuthComposition {
   resetPasswordUseCase: ResetPasswordUseCase;
   verifyResetTokenUseCase: VerifyResetTokenUseCase;
   updateProfileUseCase: UpdateProfileUseCase;
+  getCurrentUserUseCase: GetCurrentUserUseCase;
+  logoutUseCase: LogoutUseCase;
+  getUserSessionsUseCase: GetUserSessionsUseCase;
+  revokeSessionUseCase: RevokeSessionUseCase;
   authController: AuthController;
   router: Router;
 }
@@ -63,6 +71,10 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
   const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, passwordHasher);
   const verifyResetTokenUseCase = new VerifyResetTokenUseCase(userRepository);
   const updateProfileUseCase = new UpdateProfileUseCase(userRepository);
+  const getCurrentUserUseCase = new GetCurrentUserUseCase(userRepository);
+  const logoutUseCase = new LogoutUseCase(sessionRepository);
+  const getUserSessionsUseCase = new GetUserSessionsUseCase(sessionRepository);
+  const revokeSessionUseCase = new RevokeSessionUseCase(sessionRepository);
 
   const authController = new AuthController(
     loginUseCase,
@@ -72,9 +84,11 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     verifyResetTokenUseCase,
     cookieService,
     config,
-    userRepository,
-    sessionRepository,
-    updateProfileUseCase
+    updateProfileUseCase,
+    getCurrentUserUseCase,
+    logoutUseCase,
+    getUserSessionsUseCase,
+    revokeSessionUseCase
   );
 
   const authMiddleware = createAuthMiddleware(
@@ -101,6 +115,10 @@ export function buildAuthComposition(config: EnvironmentConfig): AuthComposition
     resetPasswordUseCase,
     verifyResetTokenUseCase,
     updateProfileUseCase,
+    getCurrentUserUseCase,
+    logoutUseCase,
+    getUserSessionsUseCase,
+    revokeSessionUseCase,
     authController,
     router,
   };

@@ -1,6 +1,6 @@
-import crypto from 'crypto';
 import type { IUseCase } from '../../../../shared/interfaces/use-cases/IUseCase.js';
 import type { IUserRepository } from '../../../../domain/repositories/auth/user.repository.js';
+import { hashSha256 } from '../../../../shared/utils/crypto.js';
 import type { VerifyResetTokenRequestDto } from '../../../dtos/request/auth/verify-reset-token/verifyResetToken.dto.js';
 import type { VerifyResetTokenResponseDto } from '../../../dtos/response/auth/verify-reset-token/verifyResetToken.dto.js';
 
@@ -18,7 +18,7 @@ export class VerifyResetTokenUseCase
       };
     }
 
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const tokenHash = hashSha256(rawToken);
     const user = await this._userRepository.findByPasswordResetToken(tokenHash);
 
     if (
@@ -48,4 +48,3 @@ export class VerifyResetTokenUseCase
     };
   }
 }
-

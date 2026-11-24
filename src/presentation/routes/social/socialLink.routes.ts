@@ -11,10 +11,8 @@ export function buildSocialLinkRoutes(deps: SocialLinkRouteDependencies): Router
   const router = Router();
   const { socialLinkController, authMiddleware } = deps;
 
-  // Public: Accessible to customers and website visitors
   router.get('/', socialLinkController.getSocialLinks);
 
-  // Protected: Modifying social links requires doctor/admin authentication
   const protectMiddlewares: RequestHandler[] = [];
   if (authMiddleware) {
     protectMiddlewares.push(authMiddleware);
